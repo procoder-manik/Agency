@@ -1,0 +1,8 @@
+export const dynamic = "force-dynamic";
+import { NextResponse } from "next/server";
+import { COOKIE } from "@/lib/jwt";
+export async function POST() {
+  const res = NextResponse.json({ ok: true });
+  res.cookies.set(COOKIE, "", { path: "/", maxAge: 0 });
+  return res;
+}

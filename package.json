@@ -1,0 +1,44 @@
+{
+  "name": "agency-platform",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "setup": "tsx scripts/setup.ts",
+    "db:migrate": "tsx scripts/migrate.ts",
+    "db:seed": "tsx scripts/seed.ts",
+    "vercel-build": "tsx scripts/migrate.ts && next build",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "bcryptjs": "2.4.3",
+    "drizzle-orm": "0.44.7",
+    "jose": "5.9.6",
+    "lottie-web": "5.12.2",
+    "marked": "14.1.4",
+    "next": "14.2.35",
+    "nodemailer": "6.9.16",
+    "postgres": "3.4.5",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "sanitize-html": "2.13.1",
+    "sharp": "0.33.5",
+    "zod": "3.23.8"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "2.4.6",
+    "@types/node": "22.9.0",
+    "@types/nodemailer": "6.4.16",
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "@types/sanitize-html": "2.13.0",
+    "autoprefixer": "10.4.20",
+    "dotenv": "16.4.5",
+    "postcss": "8.4.49",
+    "tailwindcss": "3.4.17",
+    "tsx": "4.19.2",
+    "typescript": "5.6.3"
+  }
+}
