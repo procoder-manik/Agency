@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Media } from "./motion";
 import { ClipReveal } from "./fx";
 import { CardLayout } from "./CardLayout";
+import { categoryTheme } from "@/lib/themes";
 
 /* ---------------- Work grid with filters ---------------- */
 export interface WorkCard { id: number; title: string; href: string; img: string; alt: string; industry: string; services: string[]; status: string; summary: string; accent?: string; client?: string }
@@ -71,11 +72,24 @@ function Select({ label, value, onChange, options, labels }: { label: string; va
 }
 
 /* ---------------- Blog list with category filter + search ---------------- */
-export interface PostCard { id: number; title: string; href: string; img: string; alt: string; excerpt: string; category: string; date: string; author: string; kind: string }
+export interface PostCategory { id?: number; slug?: string; title: string; color?: string }
+export interface PostCard { id: number; title: string; href: string; img: string; alt: string; excerpt: string; category?: PostCategory; date: string; author: string; kind: string }
+
+/** A colour badge for a blog category. The colour is the one an admin picked, or a distinct colour derived
+ *  automatically from the category, so every category reads differently even without anyone choosing a colour. */
+export function CategoryBadge({ cat, size = "sm" }: { cat: PostCategory; size?: "sm" | "md" }) {
+  const t = categoryTheme(cat.slug || String(cat.id ?? cat.title), cat.color);
+  return (
+    <span className={`inline-flex items-center gap-1.5 rounded-full font-semibold ${size === "md" ? "px-3.5 py-1.5 text-sm" : "px-2.5 py-1 text-xs"}`} style={{ backgroundColor: `${t.accent}1f`, color: t.accent }}>
+      <span aria-hidden className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: t.accent }} />{cat.title}
+    </span>
+  );
+}
+
 export function BlogList({ items, filters, layout = "grid", auto = true }: { items: PostCard[]; filters?: boolean; layout?: string; auto?: boolean }) {
   const [cat, setCat] = useState(""); const [q, setQ] = useState("");
-  const cats = Array.from(new Set(items.map((i) => i.category).filter(Boolean)));
-  const list = items.filter((p) => (!cat || p.category === cat) && (!q || (p.title + " " + p.excerpt).toLowerCase().includes(q.toLowerCase())));
+  const cats = Array.from(new Set(items.map((i) => i.category?.title).filter(Boolean))) as string[];
+  const list = items.filter((p) => (!cat || p.category?.title === cat) && (!q || (p.title + " " + p.excerpt).toLowerCase().includes(q.toLowerCase())));
   return (
     <div>
       {filters && (
@@ -91,8 +105,11 @@ export function BlogList({ items, filters, layout = "grid", auto = true }: { ite
           <Link key={p.id} href={p.href} className="card group flex h-full flex-col transition-colors hover:border-accent/50">
             <div className="aspect-[16/9] overflow-hidden bg-raised"><Media src={p.img} alt={p.alt} poster={p.title} className="h-full w-full transition-transform duration-700 group-hover:scale-[1.03]" /></div>
             <div className="flex flex-1 flex-col p-5">
-              <p className="text-sm text-muted">{[p.category, p.date].filter(Boolean).join(", ")}</p>
-              <h3 className="mt-1.5 text-lg font-semibold leading-snug">{p.title}</h3>
+              <div className="flex items-center gap-2">
+                {p.category && <CategoryBadge cat={p.category} />}
+                <span className="text-sm text-muted">{p.date}</span>
+              </div>
+              <h3 className="mt-2.5 text-lg font-semibold leading-snug">{p.title}</h3>
               {p.excerpt && <p className="mt-2 line-clamp-3 text-[0.95rem] text-fg2">{p.excerpt}</p>}
               {p.author && <p className="mt-auto pt-4 text-sm text-fg2">By {p.author}</p>}
             </div>

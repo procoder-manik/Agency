@@ -52,7 +52,7 @@ export async function installPack(sql: Sql, mode: "missing" | "replace"): Promis
 
   // categories
   const cat: Record<string, number> = {};
-  for (const [slug, title, description] of CATEGORIES) cat[slug] = await upsert("categories", slug, title, { description }, { order: Object.keys(cat).length });
+  for (const [slug, title, description, color] of CATEGORIES) cat[slug] = await upsert("categories", slug, title, { description, ...(color ? { color } : {}) }, { order: Object.keys(cat).length });
 
   // services
   const svc: Record<string, number> = {};

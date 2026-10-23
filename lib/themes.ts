@@ -1,3 +1,5 @@
+import { hash } from "./templating";
+
 /** Design-token module: the single source of truth for every colour, font, radius, texture and motion value.
  *  Read by the root layout (CSS variables), Tailwind (via the variables), the OG image renderer and the admin theme builder. */
 
@@ -94,6 +96,36 @@ export function contrastReport(t: ThemeTokens) {
     ["Text on accent buttons", c.onaccent, c.accent, 4.5], ["Accent links on background", c.accent, c.bg, 3],
   ];
   return pairs.map(([label, f, b, min]) => ({ label, ratio: contrast(f, b), min, pass: contrast(f, b) >= min }));
+}
+
+/* ---------- Deterministic per-category colour (blog categories, tags, etc.) ---------- */
+function hexToHsl(hex: string): [number, number, number] {
+  const [r0, g0, b0] = hexToRgb(hex).map((v) => v / 255);
+  const max = Math.max(r0, g0, b0), min = Math.min(r0, g0, b0); const l = (max + min) / 2;
+  if (max === min) return [0, 0, Math.round(l * 100)];
+  const d = max - min; const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+  let h = 0;
+  if (max === r0) h = ((g0 - b0) / d) % 6; else if (max === g0) h = (b0 - r0) / d + 2; else h = (r0 - g0) / d + 4;
+  h = Math.round(h * 60); if (h < 0) h += 360;
+  return [h, Math.round(s * 100), Math.round(l * 100)];
+}
+function hslToHex(h: number, s: number, l: number): string {
+  h = ((h % 360) + 360) % 360; s /= 100; l /= 100;
+  const c = (1 - Math.abs(2 * l - 1)) * s; const x = c * (1 - Math.abs(((h / 60) % 2) - 1)); const m = l - c / 2;
+  const [r0, g0, b0] = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x] : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x];
+  const to = (v: number) => Math.round((v + m) * 255).toString(16).padStart(2, "0");
+  return `#${to(r0)}${to(g0)}${to(b0)}`;
+}
+export interface CategoryColors { accent: string; accent2: string; onaccent: string }
+/** A distinct, readable colour pair for a category: uses the colour an admin picked, or derives one from the
+ *  category's own id/slug so every category still looks different without anyone having to choose a colour. */
+export function categoryTheme(seed: string, override?: string): CategoryColors {
+  const valid = !!override && /^#[0-9a-f]{3,8}$/i.test(override);
+  const [h, s, l] = valid ? hexToHsl(override!) : [hash(seed) % 360, 68, 50];
+  const accent = valid ? override! : hslToHex(h, s, l);
+  const accent2 = hslToHex((h + 34) % 360, Math.min(92, s + 6), Math.min(70, l + 8));
+  const onaccent = contrast("#FFFFFF", accent) >= 4.5 ? "#FFFFFF" : "#0A0A0A";
+  return { accent, accent2, onaccent };
 }
 
 const RADII: Record<Radius, [string, string, string, string, string]> = {

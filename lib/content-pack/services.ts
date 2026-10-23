@@ -94,12 +94,12 @@ export const PACKAGES: Pkg[] = [
   { service: "website-care", title: "Care plus", price: 129, billing: "monthly", delivery: "Ongoing", summary: "Upkeep plus time for changes.", features: ["Everything in Basic", "Speed checks", "Up to 2 hours of changes a month", "Monthly report"], highlight: true },
 ];
 
-export const CATEGORIES: [string, string, string][] = [
-  ["web-development", "Web development", "Choosing platforms, planning and launching websites."],
-  ["seo", "SEO", "Search, local SEO and getting found."],
-  ["marketing", "Marketing", "Ads, email and social that convert."],
-  ["ai-automation", "AI automation", "Workflows and assistants that save time."],
-  ["video", "Video", "Briefing and editing video content."],
+export const CATEGORIES: [string, string, string, string?][] = [
+  ["web-development", "Web development", "Choosing platforms, planning and launching websites.", "#2563EB"],
+  ["seo", "SEO", "Search, local SEO and getting found.", "#16A34A"],
+  ["marketing", "Marketing", "Ads, email and social that convert.", "#DB2777"],
+  ["ai-automation", "AI automation", "Workflows and assistants that save time.", "#7C3AED"],
+  ["video", "Video", "Briefing and editing video content.", "#DC2626"],
 ];
 
 export const FAQS: [string, string, string, boolean][] = [

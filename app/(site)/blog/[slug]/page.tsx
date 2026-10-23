@@ -8,10 +8,11 @@ import { fmtDate } from "@/lib/util";
 import { JsonLd, handleMissing } from "@/lib/page-render";
 import { Crumbs } from "@/components/site/Detail";
 import { Media } from "@/components/site/motion";
-import { BlogList } from "@/components/site/Interactive";
+import { BlogList, CategoryBadge } from "@/components/site/Interactive";
 import { postCards } from "@/components/site/Blocks";
 import { Logo } from "@/components/site/Logo";
 import { CtaCard, PostToc, PostTocMobile } from "@/components/site/PostToc";
+import { categoryTheme, hexToRgb } from "@/lib/themes";
 
 type P = { params: { slug: string } };
 
@@ -48,23 +49,20 @@ export default async function PostPage({ params }: P) {
   const id = s.identity;
   const cta = { title: d.ctaTitle || "Need help with this?", text: d.ctaText || "Talk to our team about your website, SEO, marketing or automation project.", label: d.ctaLabel || id.ctaLabel || "Get in touch", href: d.ctaHref || id.ctaHref || "/contact" };
   const ld = await buildJsonLd({ type: p.seo?.schemaType && p.seo.schemaType !== "auto" ? p.seo.schemaType : "BlogPosting", title: p.title, description: d.excerpt, path: `/blog/${p.slug}`, image: cover, datePublished: p.publishedAt, dateModified: p.updatedAt, author: authors.map((a) => a.title), crumbs: [{ name: "Blog", path: "/blog" }, { name: p.seo?.breadcrumbTitle || p.title, path: `/blog/${p.slug}` }] });
-  const navCard = (x: Entry, dir: "prev" | "next") => (
-    <Link key={dir} href={`/blog/${x.slug}`} className={`card group flex flex-col p-6 transition-colors hover:border-accent/60 ${dir === "next" ? "sm:items-end sm:text-right" : ""}`}>
-      <span className="mono-tag text-muted">{dir === "prev" ? "← Previous post" : "Next post →"}</span>
-      <span className="mt-3 font-display text-xl font-semibold leading-snug transition-colors group-hover:text-accent">{x.title}</span>
-      <span className="mt-2 text-sm text-fg2">{fmtDate(x.publishedAt || x.createdAt)}</span>
-    </Link>
-  );
+  // The post's category gives the page its own accent colours, so each category reads as a distinct, consistent style.
+  const catTheme = cat ? categoryTheme(cat.slug || String(cat.id), cat.data?.color as string | undefined) : null;
+  const themeVars = catTheme ? ({ "--c-accent": hexToRgb(catTheme.accent).join(" "), "--c-accent2": hexToRgb(catTheme.accent2).join(" "), "--c-onaccent": hexToRgb(catTheme.onaccent).join(" ") } as React.CSSProperties) : undefined;
   return (
-    <>
+    <div style={themeVars}>
       <JsonLd data={ld} />
       <article>
         <header className="tex relative overflow-hidden border-b border-line pb-32 pt-10 text-center sm:pb-44 sm:pt-14" style={{ background: "linear-gradient(180deg, rgb(var(--c-raised) / .85), rgb(var(--c-raised) / .35) 70%, rgb(var(--c-bg)))" }}>
           <div className="aurora opacity-60" aria-hidden><span /><span /><span /></div>
           <div className="container-x max-w-4xl">
             <Crumbs items={[{ name: "Blog", href: "/blog" }, { name: p.title }]} center />
-            <div className="fade-in mono-tag flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-muted">
-              {cat && <span className="chip !text-fg">{cat.title}</span>}<span>{fmtDate(p.publishedAt || p.createdAt)}</span><span aria-hidden>·</span><span>{minutes} min read</span>
+            <div className="fade-in flex flex-wrap items-center justify-center gap-x-3 gap-y-2">
+              {cat && <CategoryBadge cat={{ id: cat.id, slug: cat.slug, title: cat.title, color: cat.data?.color }} size="md" />}
+              <span className="mono-tag text-muted">{fmtDate(p.publishedAt || p.createdAt)}<span aria-hidden> · </span>{minutes} min read</span>
             </div>
             <h1 className="fade-in mx-auto mt-6 max-w-4xl font-display text-[clamp(2.2rem,5.2vw,4.4rem)] font-bold leading-[1.04] tracking-tight" style={{ animationDelay: "80ms" }}>{p.title}</h1>
             {d.excerpt && <p className="lead fade-in mx-auto mt-6 !max-w-2xl" style={{ animationDelay: "160ms" }}>{d.excerpt}</p>}
@@ -106,13 +104,18 @@ export default async function PostPage({ params }: P) {
               )}
             </section>
 
-            {(older || newer) && <nav aria-label="More posts" className="mt-10 grid gap-4 sm:grid-cols-2"><div>{older && navCard(older, "prev")}</div><div>{newer && navCard(newer, "next")}</div></nav>}
+            {(older || newer) && (
+              <nav aria-label="More posts" className="mt-10 flex items-start justify-between gap-6 border-t border-line pt-6">
+                {older ? <Link href={`/blog/${older.slug}`} className="group min-w-0 flex-1"><p className="mono-tag text-muted">← Previous</p><p className="mt-1 truncate text-sm font-semibold text-fg transition-colors group-hover:text-accent">{older.title}</p></Link> : <span aria-hidden />}
+                {newer ? <Link href={`/blog/${newer.slug}`} className="group min-w-0 flex-1 text-right"><p className="mono-tag text-muted">Next →</p><p className="mt-1 truncate text-sm font-semibold text-fg transition-colors group-hover:text-accent">{newer.title}</p></Link> : <span aria-hidden />}
+              </nav>
+            )}
           </div>
           <PostToc items={toc} cta={cta} />
         </div>
       </article>
-      {more.length > 0 && <section className="section !pt-6"><div className="container-x"><h2 className="h-section mb-8">Keep reading</h2><BlogList items={await postCards(more)} /></div></section>}
+      {more.length > 0 && <section className="section !pt-6"><div className="container-x"><h2 className="h-section mb-8">Related posts</h2><BlogList items={await postCards(more)} /></div></section>}
       <div className="container-x pb-10"><Link href="/blog" className="btn btn-ghost">All posts</Link></div>
-    </>
+    </div>
   );
 }

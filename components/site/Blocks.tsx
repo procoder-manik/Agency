@@ -321,11 +321,15 @@ async function CaseStudies({ d }: { d: D }) {
 
 export async function postCards(list: Entry[]) {
   const [cats, team] = await Promise.all([getPublished("categories"), getPublished("team")]);
-  return list.map((p) => ({
-    id: p.id, title: p.title, href: `/blog/${p.slug}`, img: mediaUrl(p.data.cover),
-    alt: mediaAlt(p.data.cover, p.title), excerpt: p.data.excerpt || "", category: cats.find((c) => c.id === Number(p.data.category))?.title || "",
-    date: fmtDate(p.publishedAt || p.createdAt), author: team.find((t) => t.id === Number(Array.isArray(p.data.author) ? p.data.author[0] : p.data.author))?.title || "", kind: p.data.kind || "article",
-  }));
+  return list.map((p) => {
+    const cat = cats.find((c) => c.id === Number(p.data.category));
+    return {
+      id: p.id, title: p.title, href: `/blog/${p.slug}`, img: mediaUrl(p.data.cover),
+      alt: mediaAlt(p.data.cover, p.title), excerpt: p.data.excerpt || "",
+      category: cat ? { id: cat.id, slug: cat.slug, title: cat.title, color: cat.data.color as string | undefined } : undefined,
+      date: fmtDate(p.publishedAt || p.createdAt), author: team.find((t) => t.id === Number(Array.isArray(p.data.author) ? p.data.author[0] : p.data.author))?.title || "", kind: p.data.kind || "article",
+    };
+  });
 }
 
 async function Blog({ d }: { d: D }) {

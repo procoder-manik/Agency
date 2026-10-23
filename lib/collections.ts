@@ -144,8 +144,11 @@ export const COLLECTIONS: CollectionDef[] = [
   },
   {
     key: "categories", label: "Categories", singular: "Category", titleLabel: "Name", hasSlug: true, seo: false, group: "Content",
-    fields: [{ name: "description", label: "Description", type: "textarea" }],
-    tabs: { Content: ["description"] },
+    fields: [
+      { name: "description", label: "Description", type: "textarea" },
+      { name: "color", label: "Category colour (optional)", type: "color", help: "Used for this category's badge and the colour theme of posts in it. Leave empty for an automatic colour." },
+    ],
+    tabs: { Content: ["description", "color"] },
   },
   {
     key: "faqs", label: "FAQ & help", singular: "Question", titleLabel: "Question", hasSlug: true, seo: false, group: "Content",
