@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { HeroCanvas, SplitText } from "./fx";
 
-export function Crumbs({ items }: { items: { name: string; href?: string }[] }) {
+export function Crumbs({ items, center = false }: { items: { name: string; href?: string }[]; center?: boolean }) {
   return (
     <nav aria-label="Breadcrumb" className="mb-8 text-sm text-muted">
-      <ol className="flex flex-wrap items-center gap-2">
+      <ol className={`flex flex-wrap items-center gap-2 ${center ? "justify-center" : ""}`}>
         <li><Link href="/" className="hover:text-fg">Home</Link></li>
         {items.map((c, i) => (
           <li key={i} className="flex items-center gap-2"><span aria-hidden>/</span>{c.href ? <Link href={c.href} className="hover:text-fg">{c.name}</Link> : <span aria-current="page" className="text-fg2">{c.name}</span>}</li>

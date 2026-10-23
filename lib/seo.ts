@@ -50,7 +50,7 @@ export { SCHEMA_TYPES } from "./fields";
 export interface SchemaInput {
   type: string; title: string; description?: string; path: string; image?: string;
   crumbs?: { name: string; path: string }[]; faqs?: { q: string; a: string }[]; steps?: { title: string; text?: string }[];
-  offers?: { name: string; price: number; currency: string }[]; datePublished?: Date | null; dateModified?: Date | null; author?: string;
+  offers?: { name: string; price: number; currency: string }[]; datePublished?: Date | null; dateModified?: Date | null; author?: string | string[];
   extra?: Record<string, any>;
 }
 
@@ -85,7 +85,7 @@ export async function buildJsonLd(i: SchemaInput) {
     Object.assign(node, { "@type": t, headline: truncate(i.title, 110), publisher: { "@id": base + "/#organization" }, mainEntityOfPage: url,
       ...(i.datePublished ? { datePublished: new Date(i.datePublished).toISOString() } : {}),
       ...(i.dateModified ? { dateModified: new Date(i.dateModified).toISOString() } : {}),
-      author: i.author ? { "@type": "Person", name: i.author } : { "@id": base + "/#organization" } });
+      author: Array.isArray(i.author) ? (i.author.length ? i.author.map((n) => ({ "@type": "Person", name: n })) : { "@id": base + "/#organization" }) : i.author ? { "@type": "Person", name: i.author } : { "@id": base + "/#organization" } });
   } else if (t === "Service" || t === "Product") {
     Object.assign(node, { "@type": t, ...(t === "Service" ? { provider: { "@id": base + "/#organization" }, serviceType: i.title } : { brand: { "@id": base + "/#organization" } }) });
     const offers = (i.offers || []).filter((o) => o.price > 0);

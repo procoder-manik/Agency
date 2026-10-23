@@ -10,6 +10,7 @@ import { fmtDate, formatPrice } from "@/lib/util";
 import { Counter, Media, Reveal, Tilt } from "./motion";
 import { ClipReveal, HeroCanvas, Magnetic, RotatingBadge, ScrambleText, SplitText } from "./fx";
 import { ServiceRows, StepsProgress, TestimonialSlider } from "./Showcase";
+import { CardLayout } from "./CardLayout";
 import { BlogList, ContactForm, FaqList, LocationsGrid, PricingTabs, WorkGrid } from "./Interactive";
 
 type D = Record<string, any>;
@@ -103,8 +104,8 @@ const RichText = ({ d, first }: { d: D; first: boolean }) => (
 
 const Cards = ({ d }: { d: D }) => (
   <section className="section"><div className="container-x"><Head d={d} />
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {arr(d.items).map((c, i) => {
+    <CardLayout layout={d.layout} auto={d.carouselMotion !== "manual"} perView={4} gridClass="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" items={
+      arr(d.items).map((c, i) => {
         const inner = (<>
           {mediaUrl(c.image) && <div className="-mx-7 -mt-7 mb-6 aspect-[4/3] overflow-hidden border-b border-line"><Media src={mediaUrl(c.image)} alt={mediaAlt(c.image, c.title)} className="h-full w-full" /></div>}
           <span aria-hidden className="mono-tag grid h-11 w-11 place-items-center rounded-full border border-line text-base text-accent transition-all duration-500 group-hover:border-accent group-hover:bg-accent group-hover:text-onaccent">{c.icon || String(i + 1).padStart(2, "0")}</span>
@@ -112,9 +113,8 @@ const Cards = ({ d }: { d: D }) => (
           {c.text && <p className="mt-3 text-[0.95rem] text-fg2">{c.text}</p>}
           {c.href && <span className="mt-auto pt-6 text-sm font-medium text-accent">Explore <span aria-hidden className="inline-block transition-transform duration-500 group-hover:translate-x-1">→</span></span>}
         </>);
-        return <Reveal key={i} delay={(i % 4) * 70}><Tilt className="group h-full">{c.href ? <Link href={c.href} className="flex h-full flex-col p-7">{inner}</Link> : <div className="flex h-full flex-col p-7">{inner}</div>}</Tilt></Reveal>;
-      })}
-    </div>
+        return <Reveal key={i} delay={(i % 4) * 70} className="h-full"><Tilt className="group h-full">{c.href ? <Link href={c.href} className="flex h-full flex-col p-7">{inner}</Link> : <div className="flex h-full flex-col p-7">{inner}</div>}</Tilt></Reveal>;
+      })} />
   </div></section>
 );
 
@@ -284,7 +284,7 @@ async function Work({ d }: { d: D }) {
   if (d.featuredOnly) list = list.filter((p) => p.featured);
   if (Number(d.limit) > 0) list = list.slice(0, Number(d.limit));
   if (!list.length) return null;
-  return <section className="section"><div className="container-x"><Head d={d} /><WorkGrid items={await workCards(list)} filters={!!d.filters} /></div></section>;
+  return <section className="section"><div className="container-x"><Head d={d} /><WorkGrid items={await workCards(list)} filters={!!d.filters} layout={d.layout} auto={d.carouselMotion !== "manual"} /></div></section>;
 }
 
 async function CaseStudies({ d }: { d: D }) {
@@ -324,7 +324,7 @@ export async function postCards(list: Entry[]) {
   return list.map((p) => ({
     id: p.id, title: p.title, href: `/blog/${p.slug}`, img: mediaUrl(p.data.cover),
     alt: mediaAlt(p.data.cover, p.title), excerpt: p.data.excerpt || "", category: cats.find((c) => c.id === Number(p.data.category))?.title || "",
-    date: fmtDate(p.publishedAt || p.createdAt), author: team.find((t) => t.id === Number(p.data.author))?.title || "", kind: p.data.kind || "article",
+    date: fmtDate(p.publishedAt || p.createdAt), author: team.find((t) => t.id === Number(Array.isArray(p.data.author) ? p.data.author[0] : p.data.author))?.title || "", kind: p.data.kind || "article",
   }));
 }
 
@@ -334,7 +334,7 @@ async function Blog({ d }: { d: D }) {
   list = [...list].sort((a, b) => +new Date(b.publishedAt || b.createdAt) - +new Date(a.publishedAt || a.createdAt));
   if (Number(d.limit) > 0) list = list.slice(0, Number(d.limit));
   if (!list.length) return null;
-  return <section className="section"><div className="container-x"><Head d={d} /><BlogList items={await postCards(list)} filters={!!d.filters} /></div></section>;
+  return <section className="section"><div className="container-x"><Head d={d} /><BlogList items={await postCards(list)} filters={!!d.filters} layout={d.layout} auto={d.carouselMotion !== "manual"} /></div></section>;
 }
 
 export async function pricingGroups(serviceId?: number) {
@@ -387,9 +387,9 @@ async function Team({ d }: { d: D }) {
   if (!list.length) return null;
   return (
     <section className="section"><div className="container-x"><Head d={d} />
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {list.map((m, i) => (
-          <Reveal key={m.id} delay={i * 70}><Tilt className="h-full">
+      <CardLayout layout={d.layout} auto={d.carouselMotion !== "manual"} perView={4} gridClass="grid gap-6 sm:grid-cols-2 lg:grid-cols-4" items={
+        list.map((m, i) => (
+          <Reveal key={m.id} delay={i * 70} className="h-full"><Tilt className="h-full">
             <div className="aspect-square overflow-hidden bg-raised">
               {mediaUrl(m.data.photo) ? <Media src={mediaUrl(m.data.photo)} alt={mediaAlt(m.data.photo, m.title)} className="h-full w-full" />
                 : <div className="grid h-full place-items-center font-display text-5xl font-bold text-accent" aria-hidden>{m.title.split(" ").map((w) => w[0]).slice(0, 2).join("")}</div>}
@@ -401,8 +401,7 @@ async function Team({ d }: { d: D }) {
               {arr(m.data.socials).length > 0 && <div className="mt-3 flex gap-3 text-sm">{arr(m.data.socials).map((x: any) => <a key={x.url} href={x.url} target="_blank" rel="noopener" className="text-accent hover:underline">{x.label}</a>)}</div>}
             </div>
           </Tilt></Reveal>
-        ))}
-      </div>
+        ))} />
     </div></section>
   );
 }
@@ -460,8 +459,8 @@ function Platforms({ d }: { d: D }) {
   const items = arr(d.items); if (!items.length) return null;
   return (
     <section className="section"><div className="container-x"><Head d={d} />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {items.map((p, i) => {
+      <CardLayout layout={d.layout} auto={d.carouselMotion !== "manual"} perView={3} gridClass="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" items={
+        items.map((p, i) => {
           const inner = (<>
             <div className="flex items-start justify-between gap-4">
               <span aria-hidden className="grid h-14 w-14 place-items-center font-display text-lg font-bold text-onaccent" style={{ borderRadius: "var(--r-md)", background: "linear-gradient(135deg, rgb(var(--c-accent)), rgb(var(--c-accent2)))" }}>{String(p.name || "?").replace(/[^A-Za-z0-9]/g, "").slice(0, 2).toUpperCase()}</span>
@@ -471,9 +470,8 @@ function Platforms({ d }: { d: D }) {
             {p.text && <p className="mt-3 text-fg2">{p.text}</p>}
             {p.href && <span className="mt-auto pt-6 font-medium text-accent">Learn more <span aria-hidden>→</span></span>}
           </>);
-          return <Reveal key={i} delay={(i % 3) * 80}><Tilt className="h-full">{p.href ? <Link href={p.href} className="flex h-full flex-col p-7">{inner}</Link> : <div className="flex h-full flex-col p-7">{inner}</div>}</Tilt></Reveal>;
-        })}
-      </div>
+          return <Reveal key={i} delay={(i % 3) * 80} className="h-full"><Tilt className="h-full">{p.href ? <Link href={p.href} className="flex h-full flex-col p-7">{inner}</Link> : <div className="flex h-full flex-col p-7">{inner}</div>}</Tilt></Reveal>;
+        })} />
     </div></section>
   );
 }

@@ -88,6 +88,12 @@ for (const b of BLOCKS) {
   if (i >= 0 && !b.fields.some((f) => f.name === "eyebrow")) b.fields.splice(i + 1, 0, eyebrow);
 }
 
+const layoutFields: Field[] = [
+  { name: "layout", label: "Card layout", type: "select", options: opts("grid|Grid", "carousel|Carousel") },
+  { name: "carouselMotion", label: "Carousel scrolling", type: "select", options: opts("auto|Auto scroll on (default)", "manual|Auto scroll off"), help: "Only used when the layout is Carousel." },
+];
+for (const t of ["cards", "platforms", "team", "blog", "work"]) { const b = BLOCKS.find((x) => x.type === t); if (b && !b.fields.some((f) => f.name === "layout")) b.fields.push(...layoutFields); }
+
 export const getBlockDef = (t: string) => BLOCKS.find((b) => b.type === t);
 export const newBlock = (type: string, data: Record<string, any> = {}, required = false): Block => ({
   id: Math.random().toString(36).slice(2, 10), type, data, ...(required ? { required: true } : {}),

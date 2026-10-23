@@ -3,12 +3,37 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Media } from "./motion";
 import { ClipReveal } from "./fx";
+import { CardLayout } from "./CardLayout";
 
 /* ---------------- Work grid with filters ---------------- */
 export interface WorkCard { id: number; title: string; href: string; img: string; alt: string; industry: string; services: string[]; status: string; summary: string; accent?: string; client?: string }
 const STATUS: Record<string, string> = { completed: "Live", ongoing: "Still building", care: "Ongoing care" };
 
-export function WorkGrid({ items, filters }: { items: WorkCard[]; filters?: boolean }) {
+
+function workCard(p: WorkCard) {
+  return (
+    <Link href={p.href} data-cursor="View" className="group img-zoom block h-full">
+      <ClipReveal className="relative bg-raised">
+        <div className="relative aspect-[16/11]">
+          <Media src={p.img} alt={p.alt} poster={p.title} className="h-full w-full" />
+          <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-bg/80 px-3 py-1 text-xs font-medium text-fg backdrop-blur">
+            <span className={`h-1.5 w-1.5 rounded-full ${p.status === "completed" ? "bg-success" : "animate-pulse bg-accent"}`} />{STATUS[p.status] || "Live"}
+          </span>
+        </div>
+      </ClipReveal>
+      <div className="mt-6 flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <h3 className="h-card">{p.title}</h3>
+          <p className="mt-1.5 text-fg2">{[p.client, p.industry].filter(Boolean).join(", ")}</p>
+          <div className="mt-4 flex flex-wrap gap-1.5">{p.services.slice(0, 3).map((s) => <span key={s} className="chip">{s}</span>)}</div>
+        </div>
+        <span aria-hidden className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-line transition-all duration-500 group-hover:-rotate-45 group-hover:border-accent group-hover:bg-accent group-hover:text-onaccent">→</span>
+      </div>
+    </Link>
+  );
+}
+
+export function WorkGrid({ items, filters, layout = "grid", auto = true }: { items: WorkCard[]; filters?: boolean; layout?: string; auto?: boolean }) {
   const [industry, setIndustry] = useState(""); const [service, setService] = useState(""); const [status, setStatus] = useState("");
   const inds = useMemo(() => Array.from(new Set(items.map((i) => i.industry).filter(Boolean))), [items]);
   const svcs = useMemo(() => Array.from(new Set(items.flatMap((i) => i.services))), [items]);
@@ -24,33 +49,10 @@ export function WorkGrid({ items, filters }: { items: WorkCard[]; filters?: bool
         </div>
       )}
       {list.length === 0 && <p className="text-fg2">No projects match these filters.</p>}
-      <div className="grid gap-x-6 gap-y-16 md:grid-cols-12">
-        {list.map((p, i) => {
-          const wide = i % 4 === 0 || i % 4 === 3;
-          return (
-            <div key={p.id} className={wide ? "md:col-span-7" : "md:col-span-5"}>
-              <Link href={p.href} data-cursor="View" className="group img-zoom block">
-                <ClipReveal className="relative bg-raised">
-                  <div className="relative aspect-[16/11]">
-                    <Media src={p.img} alt={p.alt} poster={p.title} className="h-full w-full" />
-                    <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-bg/80 px-3 py-1 text-xs font-medium text-fg backdrop-blur">
-                      <span className={`h-1.5 w-1.5 rounded-full ${p.status === "completed" ? "bg-success" : "animate-pulse bg-accent"}`} />{STATUS[p.status] || "Live"}
-                    </span>
-                  </div>
-                </ClipReveal>
-                <div className="mt-6 flex items-start justify-between gap-4">
-                  <div className="min-w-0">
-                    <h3 className="h-card">{p.title}</h3>
-                    <p className="mt-1.5 text-fg2">{[p.client, p.industry].filter(Boolean).join(", ")}</p>
-                    <div className="mt-4 flex flex-wrap gap-1.5">{p.services.slice(0, 3).map((s) => <span key={s} className="chip">{s}</span>)}</div>
-                  </div>
-                  <span aria-hidden className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-line transition-all duration-500 group-hover:-rotate-45 group-hover:border-accent group-hover:bg-accent group-hover:text-onaccent">→</span>
-                </div>
-              </Link>
-            </div>
-          );
-        })}
-      </div>
+      {layout === "carousel" ? <CardLayout layout="carousel" auto={auto} perView={3} items={list.map((p) => workCard(p))} />
+        : <div className="grid gap-x-6 gap-y-16 md:grid-cols-12">
+          {list.map((p, i) => { const wide = i % 4 === 0 || i % 4 === 3; return <div key={p.id} className={wide ? "md:col-span-7" : "md:col-span-5"}>{workCard(p)}</div>; })}
+        </div>}
     </div>
   );
 }
@@ -70,7 +72,7 @@ function Select({ label, value, onChange, options, labels }: { label: string; va
 
 /* ---------------- Blog list with category filter + search ---------------- */
 export interface PostCard { id: number; title: string; href: string; img: string; alt: string; excerpt: string; category: string; date: string; author: string; kind: string }
-export function BlogList({ items, filters }: { items: PostCard[]; filters?: boolean }) {
+export function BlogList({ items, filters, layout = "grid", auto = true }: { items: PostCard[]; filters?: boolean; layout?: string; auto?: boolean }) {
   const [cat, setCat] = useState(""); const [q, setQ] = useState("");
   const cats = Array.from(new Set(items.map((i) => i.category).filter(Boolean)));
   const list = items.filter((p) => (!cat || p.category === cat) && (!q || (p.title + " " + p.excerpt).toLowerCase().includes(q.toLowerCase())));
@@ -85,9 +87,8 @@ export function BlogList({ items, filters }: { items: PostCard[]; filters?: bool
         </div>
       )}
       {list.length === 0 && <p className="text-fg2">No posts found.</p>}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {list.map((p) => (
-          <Link key={p.id} href={p.href} className="card group flex flex-col transition-colors hover:border-accent/50">
+      <CardLayout layout={layout} auto={auto} perView={3} gridClass="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" items={list.map((p) => (
+          <Link key={p.id} href={p.href} className="card group flex h-full flex-col transition-colors hover:border-accent/50">
             <div className="aspect-[16/9] overflow-hidden bg-raised"><Media src={p.img} alt={p.alt} poster={p.title} className="h-full w-full transition-transform duration-700 group-hover:scale-[1.03]" /></div>
             <div className="flex flex-1 flex-col p-5">
               <p className="text-sm text-muted">{[p.category, p.date].filter(Boolean).join(", ")}</p>
@@ -96,8 +97,7 @@ export function BlogList({ items, filters }: { items: PostCard[]; filters?: bool
               {p.author && <p className="mt-auto pt-4 text-sm text-fg2">By {p.author}</p>}
             </div>
           </Link>
-        ))}
-      </div>
+      ))} />
     </div>
   );
 }
