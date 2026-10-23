@@ -1,7 +1,8 @@
 "use client";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { Media, Tilt } from "./motion";
+import { Media } from "./motion";
+import { ClipReveal } from "./fx";
 
 /* ---------------- Work grid with filters ---------------- */
 export interface WorkCard { id: number; title: string; href: string; img: string; alt: string; industry: string; services: string[]; status: string; summary: string; accent?: string; client?: string }
@@ -23,25 +24,32 @@ export function WorkGrid({ items, filters }: { items: WorkCard[]; filters?: bool
         </div>
       )}
       {list.length === 0 && <p className="text-fg2">No projects match these filters.</p>}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {list.map((p) => (
-          <Tilt key={p.id} className="group flex flex-col">
-            <Link href={p.href} className="flex h-full flex-col">
-              <div className="relative aspect-[16/10] overflow-hidden border-b border-line bg-raised">
-                <Media src={p.img} alt={p.alt} className="h-full w-full transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
-                <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-bg/80 px-2.5 py-1 text-xs font-medium text-fg backdrop-blur">
-                  <span className={`h-1.5 w-1.5 rounded-full ${p.status === "completed" ? "bg-success" : "animate-pulse bg-accent"}`} />{STATUS[p.status] || "Live"}
-                </span>
-              </div>
-              <div className="flex flex-1 flex-col p-5">
-                <p className="text-sm text-muted">{[p.client, p.industry].filter(Boolean).join(", ")}</p>
-                <h3 className="mt-1 text-xl font-semibold">{p.title}</h3>
-                {p.summary && <p className="mt-2 line-clamp-2 text-[0.95rem] text-fg2">{p.summary}</p>}
-                <div className="mt-auto flex flex-wrap gap-1.5 pt-4">{p.services.slice(0, 3).map((s) => <span key={s} className="chip">{s}</span>)}</div>
-              </div>
-            </Link>
-          </Tilt>
-        ))}
+      <div className="grid gap-x-6 gap-y-16 md:grid-cols-12">
+        {list.map((p, i) => {
+          const wide = i % 4 === 0 || i % 4 === 3;
+          return (
+            <div key={p.id} className={wide ? "md:col-span-7" : "md:col-span-5"}>
+              <Link href={p.href} data-cursor="View" className="group img-zoom block">
+                <ClipReveal className="relative bg-raised">
+                  <div className="relative aspect-[16/11]">
+                    <Media src={p.img} alt={p.alt} className="h-full w-full" />
+                    <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-bg/80 px-3 py-1 text-xs font-medium text-fg backdrop-blur">
+                      <span className={`h-1.5 w-1.5 rounded-full ${p.status === "completed" ? "bg-success" : "animate-pulse bg-accent"}`} />{STATUS[p.status] || "Live"}
+                    </span>
+                  </div>
+                </ClipReveal>
+                <div className="mt-6 flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <h3 className="h-card">{p.title}</h3>
+                    <p className="mt-1.5 text-fg2">{[p.client, p.industry].filter(Boolean).join(", ")}</p>
+                    <div className="mt-4 flex flex-wrap gap-1.5">{p.services.slice(0, 3).map((s) => <span key={s} className="chip">{s}</span>)}</div>
+                  </div>
+                  <span aria-hidden className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-line transition-all duration-500 group-hover:-rotate-45 group-hover:border-accent group-hover:bg-accent group-hover:text-onaccent">→</span>
+                </div>
+              </Link>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

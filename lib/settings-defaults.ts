@@ -20,7 +20,7 @@ export const SETTING_DEFAULTS = {
       { title: "Legal", links: [{ label: "Privacy policy", href: "/privacy" }, { label: "Terms of service", href: "/terms" }] },
     ],
   },
-  appearance: { activeTheme: "signal" },
+  appearance: { activeTheme: "signal", defaultMode: "system", modeToggle: true, intro: true, cursor: true, smoothScroll: true },
   integrations: {
     gaId: "", chatMode: "builtin", chatPosition: "right", chatGreeting: "Hi! Ask us anything about our services.",
     chatScript: "", backToTopPosition: "right",

@@ -23,7 +23,7 @@ export async function GET(req: Request) {
   return new ImageResponse(
     (
       <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", background: c.bg, color: c.fg, padding: Math.round(w * 0.06), position: "relative" }}>
-        <div style={{ position: "absolute", inset: 0, display: "flex", backgroundImage: bgImg, backgroundSize: tex === "dots" ? "28px 28px" : "64px 64px", opacity: 0.6 }} />
+        {bgImg !== "none" && <div style={{ position: "absolute", inset: 0, display: "flex", backgroundImage: bgImg, backgroundSize: tex === "dots" ? "28px 28px" : "64px 64px", opacity: 0.6 }} />}
         <div style={{ position: "absolute", top: -h * 0.3, right: -w * 0.15, width: w * 0.75, height: w * 0.75, borderRadius: "50%", display: "flex", background: `radial-gradient(circle, ${c.accent}66, transparent 65%)` }} />
         <div style={{ position: "absolute", bottom: -h * 0.35, left: -w * 0.2, width: w * 0.7, height: w * 0.7, borderRadius: "50%", display: "flex", background: `radial-gradient(circle, ${c.accent2}44, transparent 65%)` }} />
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>

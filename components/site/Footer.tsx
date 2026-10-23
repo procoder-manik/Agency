@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Settings } from "@/lib/settings";
 import { Logo } from "./Logo";
+import { Clock, Magnetic } from "./fx";
 
 const ICONS: Record<string, string> = {
   linkedin: "M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.5h4V21H3zM9.5 9.5h3.8v1.6h.06c.53-1 1.83-2.06 3.77-2.06 4.03 0 4.77 2.65 4.77 6.1V21h-4v-5.1c0-1.22-.02-2.79-1.7-2.79-1.7 0-1.96 1.33-1.96 2.7V21h-4z",
@@ -18,43 +19,47 @@ export function Footer({ s, columns }: { s: Settings; columns: { title: string; 
   const socials = Object.entries(id.socials || {}).filter(([, v]) => v);
   const year = new Date().getFullYear();
   return (
-    <footer className="tex mt-10 border-t border-line">
-      <div className="container-x grid gap-12 py-16 md:grid-cols-[1.3fr_2fr]">
-        <div className="max-w-sm">
-          <Logo name={id.name} shortName={id.shortName} logo={id.logo} alt={id.logoAlt} />
-          <p className="mt-4 text-fg2">{id.tagline}</p>
-          <div className="mt-6 space-y-1.5 text-[0.95rem] text-fg2">
-            {id.email && <p><a className="hover:text-accent" href={`mailto:${id.email}`}>{id.email}</a></p>}
-            {id.phone && <p><a className="hover:text-accent" href={`tel:${id.phone.replace(/\s/g, "")}`}>{id.phone}</a></p>}
-            {id.whatsapp && <p><a className="hover:text-accent" href={`https://wa.me/${id.whatsapp.replace(/\D/g, "")}`} rel="noopener" target="_blank">WhatsApp</a></p>}
-            {id.address && <p>{id.address}</p>}
-            {id.hours && <p className="text-muted">{id.hours}</p>}
+    <footer className="tex relative mt-16 overflow-hidden border-t border-line">
+      <div className="container-x pt-20">
+        <div className="grid gap-14 lg:grid-cols-[1.2fr_2fr]">
+          <div>
+            <p className="font-display text-3xl font-bold leading-tight tracking-tight sm:text-4xl">{id.tagline}</p>
+            {id.email && <Magnetic strength={0.2}><a href={`mailto:${id.email}`} className="mt-8 inline-block border-b border-fg/30 pb-1 font-display text-2xl transition-colors hover:border-accent hover:text-accent sm:text-3xl" data-cursor="Email">{id.email}</a></Magnetic>}
+            <div className="mt-8 space-y-1.5 text-[0.95rem] text-fg2">
+              {id.phone && <p><a className="hover:text-accent" href={`tel:${id.phone.replace(/\s/g, "")}`}>{id.phone}</a></p>}
+              {id.whatsapp && <p><a className="hover:text-accent" href={`https://wa.me/${id.whatsapp.replace(/\D/g, "")}`} rel="noopener" target="_blank">WhatsApp</a></p>}
+              {id.address && <p>{id.address}</p>}
+              {id.hours && <p className="text-muted">{id.hours}</p>}
+            </div>
+            {socials.length > 0 && (
+              <div className="mt-8 flex flex-wrap gap-2">
+                {socials.map(([k, url]) => (
+                  <Magnetic key={k} strength={0.4}><a href={url as string} target="_blank" rel="noopener" aria-label={NAMES[k] || k} className="grid h-11 w-11 place-items-center rounded-full border border-line text-fg2 transition-all hover:border-accent hover:bg-accent hover:text-onaccent">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d={ICONS[k] || ""} /></svg>
+                  </a></Magnetic>
+                ))}
+              </div>
+            )}
           </div>
-          {socials.length > 0 && (
-            <div className="mt-6 flex flex-wrap gap-2">
-              {socials.map(([k, url]) => (
-                <a key={k} href={url as string} target="_blank" rel="noopener" aria-label={NAMES[k] || k} className="grid h-10 w-10 place-items-center border border-line text-fg2 transition-colors hover:border-accent hover:text-accent" style={{ borderRadius: "var(--r-md)" }}>
-                  <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d={ICONS[k] || ""} /></svg>
-                </a>
-              ))}
-            </div>
-          )}
-        </div>
-        <div className="grid grid-cols-2 gap-8 sm:grid-cols-3">
-          {columns.map((c) => (
-            <div key={c.title}>
-              <p className="font-display font-semibold text-fg">{c.title}</p>
-              <ul className="mt-4 space-y-2.5">
-                {c.links.map((l) => <li key={l.href + l.label}><Link href={l.href} className="text-fg2 transition-colors hover:text-accent">{l.label}</Link></li>)}
-              </ul>
-            </div>
-          ))}
+          <div className="grid grid-cols-2 gap-10 sm:grid-cols-3">
+            {columns.map((c) => (
+              <div key={c.title}>
+                <p className="text-sm text-muted">{c.title}</p>
+                <ul className="mt-4 space-y-3">
+                  {c.links.map((l) => <li key={l.href + l.label}><Link href={l.href} className="group relative inline-block text-fg transition-colors hover:text-accent">{l.label}<span className="absolute -bottom-0.5 left-0 h-px w-full origin-right scale-x-0 bg-accent transition-transform duration-500 group-hover:origin-left group-hover:scale-x-100" /></Link></li>)}
+                </ul>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
+      <div className="container-x mt-20" aria-hidden>
+        <p className="select-none whitespace-nowrap text-center font-display font-bold leading-[.8] tracking-[-0.06em] text-outline" style={{ fontSize: `clamp(3rem, ${Math.min(22, 150 / Math.max(4, id.name.length))}vw, 18rem)` }}>{id.name}</p>
+      </div>
       <div className="border-t border-line/70">
-        <div className="container-x flex flex-col gap-2 py-6 text-sm text-muted sm:flex-row sm:justify-between">
-          <p>© {year} {id.legalName || id.name}. All rights reserved.</p>
-          {id.registration && <p>{id.registration}</p>}
+        <div className="container-x flex flex-col gap-3 py-6 text-sm text-muted sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3"><Logo name={id.name} shortName={id.shortName} logo={id.logo} alt={id.logoAlt} compact /><span>© {year} {id.legalName || id.name}</span></div>
+          <p className="flex flex-wrap gap-x-4">{id.registration && <span>{id.registration}</span>}<span>Local time <Clock /></span></p>
         </div>
       </div>
     </footer>

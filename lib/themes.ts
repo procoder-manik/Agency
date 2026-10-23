@@ -14,8 +14,9 @@ export type Texture = "none" | "grid" | "dots" | "noise" | "aurora";
 export type Motion = "minimal" | "standard" | "playful";
 
 export interface ThemeTokens {
-  mode: "dark" | "light";
-  colors: Record<ColorToken, string>;
+  mode: "dark" | "light"; // the theme's default mode
+  colors: Record<ColorToken, string>; // palette for the default mode
+  alt?: Record<ColorToken, string>; // palette for the opposite mode (derived automatically if missing)
   fonts: { display: string; body: string; mono: string };
   radius: Radius;
   texture: Texture;
@@ -40,32 +41,32 @@ export const PRESETS: Theme[] = [
     mode: "dark", radius: "soft", texture: "grid", motion: "standard",
     fonts: { display: "Space Grotesk", body: "IBM Plex Sans", mono: "IBM Plex Mono" },
     colors: { bg: "#07101F", surface: "#0C1A30", raised: "#12243F", line: "#1E3456", fg: "#EAF2FF", fg2: "#B5C6E0", muted: "#7F93B3",
-      accent: "#3D8BFF", accent2: "#22D3EE", onaccent: "#04101F", success: "#34D399", warning: "#FBBF24", danger: "#F87171" } } },
+      accent: "#3D8BFF", accent2: "#22D3EE", onaccent: "#04101F", success: "#34D399", warning: "#FBBF24", danger: "#F87171" }, alt: { bg: "#F4F7FC", surface: "#FFFFFF", raised: "#E9EFF8", line: "#D3DDEC", fg: "#081427", fg2: "#33445F", muted: "#5F6F88", accent: "#1F5FE0", accent2: "#0891B2", onaccent: "#FFFFFF", success: "#047857", warning: "#A16207", danger: "#B91C1C" } } },
   { slug: "nebula", name: "Nebula", builtin: true, tokens: {
     mode: "dark", radius: "pill", texture: "aurora", motion: "playful",
     fonts: { display: "Nunito", body: "Nunito Sans", mono: "JetBrains Mono" },
     colors: { bg: "#0A0612", surface: "#140C22", raised: "#1D1230", line: "#2E1F48", fg: "#F6EEFF", fg2: "#CDBDE6", muted: "#9584B3",
-      accent: "#B266FF", accent2: "#FF4FB8", onaccent: "#10051C", success: "#4ADE80", warning: "#FACC15", danger: "#FB7185" } } },
+      accent: "#B266FF", accent2: "#FF4FB8", onaccent: "#10051C", success: "#4ADE80", warning: "#FACC15", danger: "#FB7185" }, alt: { bg: "#FBF7FF", surface: "#FFFFFF", raised: "#F3EBFF", line: "#E4D6F7", fg: "#1A0B2E", fg2: "#4A3966", muted: "#6E5E8A", accent: "#8B2BE2", accent2: "#D6247F", onaccent: "#FFFFFF", success: "#15803D", warning: "#A16207", danger: "#BE123C" } } },
   { slug: "emerald", name: "Emerald", builtin: true, tokens: {
     mode: "dark", radius: "sharp", texture: "dots", motion: "standard",
     fonts: { display: "Syne", body: "DM Sans", mono: "DM Mono" },
     colors: { bg: "#0F1412", surface: "#161D1A", raised: "#1D2622", line: "#2A3832", fg: "#E8F5EF", fg2: "#B3CABF", muted: "#7E978B",
-      accent: "#19C9A7", accent2: "#7BE07A", onaccent: "#04130F", success: "#4ADE80", warning: "#F5B83D", danger: "#F26D6D" } } },
+      accent: "#19C9A7", accent2: "#7BE07A", onaccent: "#04130F", success: "#4ADE80", warning: "#F5B83D", danger: "#F26D6D" }, alt: { bg: "#F4F8F6", surface: "#FFFFFF", raised: "#E8F1ED", line: "#CFE0D8", fg: "#0C1A15", fg2: "#33483F", muted: "#5B7066", accent: "#0B8A72", accent2: "#3F8F2E", onaccent: "#FFFFFF", success: "#15803D", warning: "#A16207", danger: "#B91C1C" } } },
   { slug: "sunrise", name: "Sunrise", builtin: true, tokens: {
     mode: "light", radius: "soft", texture: "none", motion: "minimal",
     fonts: { display: "Fraunces", body: "Outfit", mono: "Space Mono" },
     colors: { bg: "#FFF9F2", surface: "#FFFFFF", raised: "#FFF1E3", line: "#F1DCC6", fg: "#2A1A10", fg2: "#5B4334", muted: "#8A7060",
-      accent: "#C2410C", accent2: "#E11D74", onaccent: "#FFFFFF", success: "#15803D", warning: "#B45309", danger: "#B91C1C" } } },
+      accent: "#C2410C", accent2: "#E11D74", onaccent: "#FFFFFF", success: "#15803D", warning: "#B45309", danger: "#B91C1C" }, alt: { bg: "#1A110B", surface: "#231710", raised: "#2E1F16", line: "#433024", fg: "#FFF3E8", fg2: "#E2C9B5", muted: "#B3967F", accent: "#FB923C", accent2: "#F472B6", onaccent: "#1A0E06", success: "#4ADE80", warning: "#FBBF24", danger: "#F87171" } } },
   { slug: "mono", name: "Mono", builtin: true, tokens: {
     mode: "dark", radius: "sharp", texture: "noise", motion: "minimal",
     fonts: { display: "Space Mono", body: "Inter Tight", mono: "Space Mono" },
     colors: { bg: "#131313", surface: "#1A1A1A", raised: "#222222", line: "#333333", fg: "#F2F2F2", fg2: "#BDBDBD", muted: "#8C8C8C",
-      accent: "#F5D90A", accent2: "#F5D90A", onaccent: "#131313", success: "#9BE38B", warning: "#F5D90A", danger: "#FF8A80" } } },
+      accent: "#F5D90A", accent2: "#F5D90A", onaccent: "#131313", success: "#9BE38B", warning: "#F5D90A", danger: "#FF8A80" }, alt: { bg: "#F5F5F2", surface: "#FFFFFF", raised: "#EBEBE6", line: "#D4D4CE", fg: "#111111", fg2: "#3D3D3D", muted: "#6B6B6B", accent: "#111111", accent2: "#111111", onaccent: "#F5D90A", success: "#15803D", warning: "#854D0E", danger: "#B91C1C" } } },
   { slug: "paper", name: "Paper", builtin: true, tokens: {
     mode: "light", radius: "sharp", texture: "grid", motion: "standard",
     fonts: { display: "Bricolage Grotesque", body: "Instrument Sans", mono: "Red Hat Mono" },
     colors: { bg: "#F5F7FA", surface: "#FFFFFF", raised: "#EDF1F6", line: "#D7DEE8", fg: "#0E1726", fg2: "#3A4759", muted: "#677489",
-      accent: "#1D4ED8", accent2: "#0EA5E9", onaccent: "#FFFFFF", success: "#15803D", warning: "#A16207", danger: "#B91C1C" } } },
+      accent: "#1D4ED8", accent2: "#0EA5E9", onaccent: "#FFFFFF", success: "#15803D", warning: "#A16207", danger: "#B91C1C" }, alt: { bg: "#0B1220", surface: "#111A2C", raised: "#18233A", line: "#26344F", fg: "#EEF3FB", fg2: "#B7C3D6", muted: "#8392AA", accent: "#5B8CFF", accent2: "#38BDF8", onaccent: "#06101F", success: "#4ADE80", warning: "#FACC15", danger: "#F87171" } } },
 ];
 
 export const DEFAULT_THEME = PRESETS[0];
@@ -103,14 +104,52 @@ const MOTION: Record<Motion, [string, string]> = { minimal: ["0.4", "0.35s"], st
 const stack = (f: string, kind: "sans" | "mono") =>
   `'${f.replace(/'/g, "")}', ${kind === "mono" ? "ui-monospace, SFMono-Regular, Menlo, monospace" : "ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif"}`;
 
-export function themeCss(t: ThemeTokens, selector = ":root") {
+/** Palette for a given mode: the theme's own colours for its default mode, `alt` (or a derived palette) for the other. */
+export function paletteFor(t: ThemeTokens, mode: "dark" | "light"): Record<ColorToken, string> {
+  if (mode === t.mode) return t.colors;
+  return t.alt || derivePalette(t.colors, mode);
+}
+
+function mix(a: string, b: string, w: number) {
+  const x = hexToRgb(a), y = hexToRgb(b);
+  return "#" + x.map((v, i) => Math.round(v * (1 - w) + y[i] * w).toString(16).padStart(2, "0")).join("");
+}
+/** Build an opposite-mode palette from one palette, keeping the accent hue and checking contrast. */
+export function derivePalette(c: Record<ColorToken, string>, mode: "dark" | "light"): Record<ColorToken, string> {
+  const dark = mode === "dark";
+  const bg = dark ? mix("#0A0C12", c.accent, 0.06) : mix("#FAFAFC", c.accent, 0.03);
+  const fg = dark ? "#EEF1F7" : "#0D111A";
+  let accent = c.accent;
+  for (let i = 0; i < 10 && contrast(accent, bg) < 3.2; i++) accent = mix(accent, dark ? "#FFFFFF" : "#000000", 0.12);
+  let accent2 = c.accent2;
+  for (let i = 0; i < 10 && contrast(accent2, bg) < 3; i++) accent2 = mix(accent2, dark ? "#FFFFFF" : "#000000", 0.12);
+  return {
+    bg, surface: dark ? mix(bg, "#FFFFFF", 0.04) : "#FFFFFF", raised: dark ? mix(bg, "#FFFFFF", 0.08) : mix(bg, "#000000", 0.04),
+    line: dark ? mix(bg, "#FFFFFF", 0.14) : mix(bg, "#000000", 0.12), fg, fg2: mix(fg, bg, 0.25), muted: mix(fg, bg, 0.45),
+    accent, accent2, onaccent: contrast("#FFFFFF", accent) >= 4.5 ? "#FFFFFF" : "#0A0A0A",
+    success: dark ? "#4ADE80" : "#15803D", warning: dark ? "#FBBF24" : "#A16207", danger: dark ? "#F87171" : "#B91C1C",
+  };
+}
+
+function colorVars(c: Record<ColorToken, string>) {
+  return COLOR_TOKENS.map(([k]) => `--c-${k}:${hexToRgb(c[k]).join(" ")}`).join(";");
+}
+
+/** CSS for both modes. The <html data-mode> attribute picks one; the visitor toggle flips it. */
+export function themeCssBoth(t: ThemeTokens) {
+  const other = t.mode === "dark" ? "light" : "dark";
+  return `${themeCss(t)}:root[data-mode="${t.mode}"]{${colorVars(t.colors)};color-scheme:${t.mode}}:root[data-mode="${other}"]{${colorVars(paletteFor(t, other))};color-scheme:${other}}`;
+}
+
+export function themeCss(t: ThemeTokens, selector = ":root", mode?: "dark" | "light") {
   const vars: string[] = [];
-  for (const [k] of COLOR_TOKENS) vars.push(`--c-${k}:${hexToRgb(t.colors[k]).join(" ")}`);
+  const pal = paletteFor(t, mode || t.mode);
+  for (const [k] of COLOR_TOKENS) vars.push(`--c-${k}:${hexToRgb(pal[k]).join(" ")}`);
   const r = RADII[t.radius] || RADII.soft;
   const m = MOTION[t.motion] || MOTION.standard;
   vars.push(`--font-display:${stack(t.fonts.display, "sans")}`, `--font-body:${stack(t.fonts.body, "sans")}`, `--font-mono:${stack(t.fonts.mono, "mono")}`,
     `--r-sm:${r[0]}`, `--r-md:${r[1]}`, `--r-lg:${r[2]}`, `--r-xl:${r[3]}`, `--r-btn:${r[4]}`,
-    `--motion:${m[0]}`, `--dur:${m[1]}`, `color-scheme:${t.mode}`);
+    `--motion:${m[0]}`, `--dur:${m[1]}`, `color-scheme:${mode || t.mode}`);
   return `${selector}{${vars.join(";")}}`;
 }
 
@@ -125,12 +164,15 @@ export function themeFontHrefs(t: ThemeTokens) {
 export function normalizeTokens(input: any): ThemeTokens {
   const base = DEFAULT_THEME.tokens;
   const t = input || {};
+  const okHex = (v: any) => typeof v === "string" && /^#[0-9a-f]{3,8}$/i.test(v);
   const colors = { ...base.colors };
-  for (const [k] of COLOR_TOKENS) if (typeof t.colors?.[k] === "string" && /^#[0-9a-f]{3,8}$/i.test(t.colors[k])) colors[k] = t.colors[k];
+  for (const [k] of COLOR_TOKENS) if (okHex(t.colors?.[k])) colors[k] = t.colors[k];
+  let alt: Record<ColorToken, string> | undefined;
+  if (t.alt && typeof t.alt === "object") { alt = { ...derivePalette(colors, t.mode === "light" ? "dark" : "light") }; for (const [k] of COLOR_TOKENS) if (okHex(t.alt[k])) alt[k] = t.alt[k]; }
   const clean = (s: any, d: string) => (typeof s === "string" && /^[\w\s-]{2,60}$/.test(s) ? s.trim() : d);
   return {
     mode: t.mode === "light" ? "light" : "dark",
-    colors,
+    colors, ...(alt ? { alt } : {}),
     fonts: { display: clean(t.fonts?.display, base.fonts.display), body: clean(t.fonts?.body, base.fonts.body), mono: clean(t.fonts?.mono, base.fonts.mono) },
     radius: ["sharp", "soft", "pill"].includes(t.radius) ? t.radius : base.radius,
     texture: ["none", "grid", "dots", "noise", "aurora"].includes(t.texture) ? t.texture : base.texture,

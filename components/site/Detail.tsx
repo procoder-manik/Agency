@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { HeroCanvas, SplitText } from "./fx";
 
 export function Crumbs({ items }: { items: { name: string; href?: string }[] }) {
   return (
@@ -15,11 +16,11 @@ export function Crumbs({ items }: { items: { name: string; href?: string }[] }) 
 
 export function DetailHero({ crumbs, title, sub, children }: { crumbs: { name: string; href?: string }[]; title: string; sub?: string; children?: React.ReactNode }) {
   return (
-    <section className="tex relative overflow-hidden pb-14 pt-12 sm:pt-16">
-      <div className="aurora opacity-50" aria-hidden><span /><span /><span /></div>
+    <section className="tex relative overflow-hidden pb-16 pt-10 sm:pt-16">
+      <HeroCanvas />
       <div className="container-x">
         <Crumbs items={crumbs} />
-        <h1 className="fade-in max-w-4xl font-display text-[clamp(2.2rem,5vw,4.2rem)] font-bold leading-[1.02] tracking-tight">{title}</h1>
+        <SplitText as="h1" text={title} className="h-section max-w-5xl" />
         {sub && <p className="lead fade-in mt-6" style={{ animationDelay: "120ms" }}>{sub}</p>}
         {children}
       </div>

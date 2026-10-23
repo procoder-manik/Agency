@@ -8,7 +8,7 @@ export const listThemes = cache(async (): Promise<Theme[]> => {
   try {
     const rows = await db().select().from(schema.themes).where(isNull(schema.themes.deletedAt)).orderBy(asc(schema.themes.builtin), asc(schema.themes.id));
     if (!rows.length) return PRESETS;
-    const list = rows.map((r) => ({ id: r.id, slug: r.slug, name: r.name, builtin: r.builtin, tokens: normalizeTokens(r.tokens) }));
+    const list = rows.map((r) => ({ id: r.id, slug: r.slug, name: r.name, builtin: r.builtin, tokens: normalizeTokens(r.builtin ? PRESETS.find((p) => p.slug === r.slug)?.tokens || r.tokens : r.tokens) }));
     return [...list.filter((t) => t.builtin), ...list.filter((t) => !t.builtin)];
   } catch { return PRESETS; }
 });

@@ -7,6 +7,8 @@ import { mediaAlt, mediaUrl } from "@/lib/media";
 import { ogFallback } from "@/lib/seo";
 import { fmtDate, formatPrice } from "@/lib/util";
 import { Counter, Media, Reveal, Tilt } from "./motion";
+import { ClipReveal, HeroCanvas, Magnetic, RotatingBadge, SplitText } from "./fx";
+import { ServiceRows, StepsProgress, TestimonialSlider } from "./Showcase";
 import { BlogList, ContactForm, FaqList, PricingTabs, WorkGrid } from "./Interactive";
 
 type D = Record<string, any>;
@@ -15,13 +17,14 @@ const arr = (v: any): any[] => (Array.isArray(v) ? v : []);
 function Head({ d, center = false, className = "" }: { d: D; center?: boolean; className?: string }) {
   if (!d.heading && !d.intro) return null;
   return (
-    <Reveal className={`mb-12 ${center ? "mx-auto text-center" : ""} max-w-3xl ${className}`}>
-      {d.heading && <h2 className="h-section">{d.heading}</h2>}
-      {d.intro && <p className={`lead mt-4 ${center ? "mx-auto" : ""}`}>{d.intro}</p>}
-    </Reveal>
+    <div className={`mb-14 max-w-4xl sm:mb-20 ${center ? "mx-auto text-center" : ""} ${className}`}>
+      {d.heading && <SplitText text={d.heading} as="h2" className="h-section" />}
+      {d.intro && <Reveal delay={150}><p className={`lead mt-6 ${center ? "mx-auto" : ""}`}>{d.intro}</p></Reveal>}
+    </div>
   );
 }
-const Btn = ({ label, href, primary }: { label?: string; href?: string; primary?: boolean }) => (label && href ? <Link href={href} className={`btn ${primary ? "btn-primary" : "btn-ghost"}`}>{label}</Link> : null);
+const Btn = ({ label, href, primary }: { label?: string; href?: string; primary?: boolean }) =>
+  label && href ? <Magnetic strength={0.22}><Link href={href} className={`btn ${primary ? "btn-primary" : "btn-ghost"}`}>{label}<span className="arrow" aria-hidden>→</span></Link></Magnetic> : null;
 
 /* ---------------- individual blocks ---------------- */
 function Hero({ d, first }: { d: D; first: boolean }) {
@@ -29,34 +32,43 @@ function Hero({ d, first }: { d: D; first: boolean }) {
   const bg = d.mediaMode === "background" && src;
   const words = String(d.heading || "").split(/\s+/).filter(Boolean);
   const Tag = first ? "h1" : "h2";
+  const grad = words.length > 3 ? words.length - 2 : words.length - 1;
+  const delay = (n: number) => `${200 + n * 70}ms`;
   return (
-    <section className={`tex relative overflow-hidden ${first ? "pb-20 pt-16 sm:pb-28 sm:pt-24" : "section"}`}>
-      <div className="aurora" aria-hidden><span /><span /><span /></div>
+    <section className={`tex relative overflow-hidden ${first ? "pb-24 pt-8 sm:pb-36 sm:pt-16" : "section"}`}>
+      <HeroCanvas />
       {bg && <div className="absolute inset-0 -z-10 opacity-40"><Media src={src} alt="" priority className="h-full w-full" /><div className="absolute inset-0 bg-gradient-to-b from-bg/40 via-bg/70 to-bg" /></div>}
-      <div className={`container-x grid items-center gap-12 ${src && !bg ? "lg:grid-cols-[1.15fr_.85fr]" : ""}`}>
-        <div className={src && !bg ? "" : "max-w-4xl"}>
-          {arr(d.badges).length > 0 && (
-            <div className="fade-in mb-7 flex flex-wrap gap-2" style={{ animationDelay: "80ms" }}>
-              {arr(d.badges).map((b: string) => <span key={b} className="chip">{b}</span>)}
+      <div className="container-x">
+        <div className={`grid items-end gap-14 ${src && !bg ? "lg:grid-cols-[1.3fr_.7fr]" : ""}`}>
+          <div>
+            {arr(d.badges).length > 0 && (
+              <div className="fade-in mb-8 flex flex-wrap gap-2" style={{ animationDelay: "100ms" }}>
+                {arr(d.badges).map((b: string) => <span key={b} className="chip">{b}</span>)}
+              </div>
+            )}
+            <Tag className={first ? "h-display" : "h-section"} aria-label={d.heading}>
+              {words.map((w, i) => <span key={i} className="word" aria-hidden><span className={i >= grad ? "text-gradient" : ""} style={{ animationDelay: delay(i) }}>{w}</span>{i < words.length - 1 ? "\u00a0" : ""}</span>)}
+            </Tag>
+            <div className="mt-10 flex flex-col gap-10 sm:mt-14 sm:flex-row sm:items-end sm:justify-between">
+              <div className="max-w-xl">
+                {d.subheading && <p className="lead fade-in" style={{ animationDelay: delay(words.length + 1) }}>{d.subheading}</p>}
+                {(d.primaryLabel || d.secondaryLabel) && (
+                  <div className="fade-in mt-9 flex flex-wrap gap-3" style={{ animationDelay: delay(words.length + 3) }}>
+                    <Btn label={d.primaryLabel} href={d.primaryHref} primary /><Btn label={d.secondaryLabel} href={d.secondaryHref} />
+                  </div>
+                )}
+              </div>
+              {first && !src && d.primaryHref && <div className="fade-in hidden sm:block" style={{ animationDelay: delay(words.length + 5) }}><RotatingBadge text={d.primaryLabel || "Let's talk"} href={d.primaryHref} /></div>}
             </div>
-          )}
-          <Tag className={first ? "h-display" : "h-section"} aria-label={d.heading}>
-            {words.map((w, i) => <span key={i} className="word" aria-hidden><span style={{ animationDelay: `${120 + i * 55}ms` }}>{w}</span>{i < words.length - 1 ? "\u00a0" : ""}</span>)}
-          </Tag>
-          {d.subheading && <p className="lead fade-in mt-7" style={{ animationDelay: `${200 + words.length * 55}ms` }}>{d.subheading}</p>}
-          {(d.primaryLabel || d.secondaryLabel) && (
-            <div className="fade-in mt-10 flex flex-wrap gap-3" style={{ animationDelay: `${320 + words.length * 55}ms` }}>
-              <Btn label={d.primaryLabel} href={d.primaryHref} primary /><Btn label={d.secondaryLabel} href={d.secondaryHref} />
+          </div>
+          {src && !bg && (
+            <div className="fade-in relative" style={{ animationDelay: "500ms" }}>
+              <div aria-hidden className="float absolute -right-6 -top-6 h-24 w-24 rounded-full border border-accent/40" />
+              <div aria-hidden className="float absolute -bottom-8 -left-8 h-16 w-16 border border-accent2/50" style={{ borderRadius: "var(--r-md)", animationDelay: "-3s" }} />
+              <Tilt className="!bg-surface/40 p-2"><Media src={src} alt={mediaAlt(d.media, d.heading)} priority className="aspect-[4/5] w-full" cover /></Tilt>
             </div>
           )}
         </div>
-        {src && !bg && (
-          <div className="fade-in relative" style={{ animationDelay: "350ms" }}>
-            <div aria-hidden className="float absolute -right-6 -top-6 h-24 w-24 rounded-full border border-accent/40" />
-            <div aria-hidden className="float absolute -bottom-8 -left-8 h-16 w-16 border border-accent2/50" style={{ borderRadius: "var(--r-md)", animationDelay: "-3s" }} />
-            <div className="glass overflow-hidden p-2"><Media src={src} alt={mediaAlt(d.media, d.heading)} priority className="aspect-[16/10] w-full" cover /></div>
-          </div>
-        )}
       </div>
     </section>
   );
@@ -66,13 +78,13 @@ function Split({ d }: { d: D }) {
   const src = mediaUrl(d.media);
   return (
     <section className="section">
-      <div className={`container-x grid items-center gap-12 ${src ? "lg:grid-cols-2" : ""}`}>
-        <Reveal className={d.reverse ? "lg:order-2" : ""}>
-          {d.heading && <h2 className="h-section">{d.heading}</h2>}
-          {d.body && <div className="prose-site mt-5 text-lg" dangerouslySetInnerHTML={{ __html: renderMarkdown(d.body) }} />}
-          {d.linkLabel && <div className="mt-8"><Btn label={d.linkLabel} href={d.linkHref} /></div>}
-        </Reveal>
-        {src && <Reveal delay={120} className={d.reverse ? "lg:order-1" : ""}><div className="glass overflow-hidden p-2"><Media src={src} alt={mediaAlt(d.media, d.heading)} className="aspect-[4/3] w-full" /></div></Reveal>}
+      <div className={`container-x grid items-center gap-14 ${src ? "lg:grid-cols-2" : ""}`}>
+        <div className={d.reverse ? "lg:order-2" : ""}>
+          {d.heading && <SplitText text={d.heading} as="h2" className="h-section" />}
+          {d.body && <Reveal delay={120}><div className="prose-site mt-8 text-lg" dangerouslySetInnerHTML={{ __html: renderMarkdown(d.body) }} /></Reveal>}
+          {d.linkLabel && <Reveal delay={200}><div className="mt-10"><Btn label={d.linkLabel} href={d.linkHref} /></div></Reveal>}
+        </div>
+        {src && <ClipReveal className={`${d.reverse ? "lg:order-1" : ""} !rounded-[var(--r-xl)]`}><Media src={src} alt={mediaAlt(d.media, d.heading)} className="aspect-[4/3] w-full" /></ClipReveal>}
       </div>
     </section>
   );
@@ -100,9 +112,15 @@ const Cards = ({ d }: { d: D }) => (
 );
 
 const Features = ({ d }: { d: D }) => (
-  <section className="section"><div className="container-x grid gap-12 lg:grid-cols-[.8fr_1.2fr]"><Head d={d} className="!mb-0" />
-    <div className="grid gap-x-10 gap-y-8 sm:grid-cols-2">
-      {arr(d.items).map((f, i) => <Reveal key={i} delay={i * 60} className="border-t border-line pt-5"><h3 className="text-lg font-semibold">{f.title}</h3><p className="mt-2 text-fg2">{f.text}</p></Reveal>)}
+  <section className="section"><div className="container-x grid gap-14 lg:grid-cols-[.85fr_1.15fr]">
+    <Head d={d} className="!mb-0 lg:sticky lg:top-32 lg:self-start" />
+    <div className="divide-y divide-line border-y border-line">
+      {arr(d.items).map((f, i) => (
+        <Reveal key={i} delay={i * 50} className="grid gap-3 py-8 sm:grid-cols-[84px_1fr]">
+          <span className="font-mono text-sm text-accent">{String(i + 1).padStart(2, "0")}</span>
+          <div><h3 className="h-card">{f.title}</h3>{f.text && <p className="mt-3 text-lg text-fg2">{f.text}</p>}</div>
+        </Reveal>
+      ))}
     </div>
   </div></section>
 );
@@ -110,30 +128,24 @@ const Features = ({ d }: { d: D }) => (
 function Steps({ d }: { d: D }) {
   const src = mediaUrl(d.media);
   return (
-    <section className="section"><div className="container-x"><Head d={d} />
-      <div className={`grid gap-12 ${src ? "lg:grid-cols-2" : ""}`}>
-        <ol className={`grid gap-5 ${src ? "" : "md:grid-cols-2 lg:grid-cols-4"}`}>
-          {arr(d.items).map((s, i) => (
-            <Reveal as="li" key={i} delay={i * 90} className="glass relative p-6">
-              <span className="font-mono text-sm text-accent">Step {i + 1}</span>
-              <h3 className="mt-3 text-xl font-semibold">{s.title}</h3>{s.text && <p className="mt-2 text-fg2">{s.text}</p>}
-            </Reveal>
-          ))}
-        </ol>
-        {src && <Reveal><div className="glass sticky top-24 overflow-hidden p-2"><Media src={src} alt={mediaAlt(d.media, d.heading)} className="aspect-[4/3] w-full" /></div></Reveal>}
+    <section className="section"><div className="container-x grid gap-16 lg:grid-cols-[.8fr_1.2fr]">
+      <div className="lg:sticky lg:top-32 lg:self-start">
+        <Head d={d} className="!mb-8" />
+        {src && <ClipReveal className="!rounded-[var(--r-xl)]"><Media src={src} alt={mediaAlt(d.media, d.heading)} className="aspect-[4/3] w-full" /></ClipReveal>}
       </div>
+      <StepsProgress items={arr(d.items).map((x) => ({ title: x.title, text: x.text }))} />
     </div></section>
   );
 }
 
 const Stats = ({ d }: { d: D }) => (
-  <section className="section"><div className="container-x"><Head d={d} center />
-    <div className="grid grid-cols-2 gap-px overflow-hidden border border-line bg-line lg:grid-cols-4" style={{ borderRadius: "var(--r-lg)" }}>
+  <section className="section"><div className="container-x"><Head d={d} />
+    <div className="grid grid-cols-2 gap-y-14 border-t border-line pt-14 lg:grid-cols-4">
       {arr(d.items).map((s, i) => (
-        <div key={i} className="bg-bg p-8 text-center">
-          <p className="font-display text-4xl font-bold sm:text-5xl"><Counter value={Number(s.value) || 0} suffix={s.suffix || ""} /></p>
-          <p className="mt-2 text-fg2">{s.label}</p>
-        </div>
+        <Reveal key={i} delay={i * 90} className="pr-6 lg:border-l lg:border-line lg:pl-8 lg:first:border-0 lg:first:pl-0">
+          <p className="font-display text-[clamp(3.2rem,7.5vw,7rem)] font-bold leading-none tracking-tighter"><Counter value={Number(s.value) || 0} suffix={s.suffix || ""} /></p>
+          <p className="mt-4 text-fg2">{s.label}</p>
+        </Reveal>
       ))}
     </div>
   </div></section>
@@ -172,10 +184,15 @@ export async function faqItems(d: D) {
 
 const Cta = ({ d }: { d: D }) => (
   <section className="section"><div className="container-x"><Reveal>
-    <div className="tex relative overflow-hidden border border-line px-6 py-16 text-center sm:px-16" style={{ borderRadius: "var(--r-xl)", background: "radial-gradient(80% 120% at 50% 0%, rgb(var(--c-accent) / .22), transparent 70%), rgb(var(--c-surface))" }}>
-      <h2 className="h-section mx-auto max-w-3xl">{d.heading}</h2>
-      {d.text && <p className="lead mx-auto mt-4">{d.text}</p>}
-      <div className="mt-9 flex flex-wrap justify-center gap-3"><Btn label={d.primaryLabel} href={d.primaryHref} primary /><Btn label={d.secondaryLabel} href={d.secondaryHref} /></div>
+    <div className="relative overflow-hidden px-6 py-20 text-onaccent sm:px-16 sm:py-32" style={{ borderRadius: "var(--r-xl)", background: "linear-gradient(125deg, rgb(var(--c-accent)), rgb(var(--c-accent2)))" }}>
+      <div aria-hidden className="float absolute -right-24 -top-24 h-96 w-96 rounded-full bg-white/15 blur-3xl" />
+      <div aria-hidden className="absolute -bottom-32 left-1/4 h-80 w-80 rounded-full bg-black/10 blur-3xl" />
+      <SplitText text={d.heading || ""} as="h2" className="relative max-w-5xl !text-onaccent [font-size:clamp(2.6rem,7.4vw,7rem)] font-bold leading-[.92] tracking-[-0.04em]" />
+      {d.text && <p className="relative mt-8 max-w-xl text-xl opacity-90">{d.text}</p>}
+      <div className="relative mt-12 flex flex-wrap gap-3">
+        {d.primaryLabel && d.primaryHref && <Magnetic strength={0.25}><Link href={d.primaryHref} className="btn !bg-bg !text-fg hover:!shadow-2xl">{d.primaryLabel}<span className="arrow" aria-hidden>→</span></Link></Magnetic>}
+        {d.secondaryLabel && d.secondaryHref && <Link href={d.secondaryHref} className="btn border border-onaccent/50 !text-onaccent hover:bg-white/10">{d.secondaryLabel}</Link>}
+      </div>
     </div>
   </Reveal></div></section>
 );
@@ -184,14 +201,15 @@ function Marquee({ d }: { d: D }) {
   const items = arr(d.items); if (!items.length) return null;
   const row = [...items, ...items];
   return (
-    <section className="py-12">
-      <div className="container-x">{d.heading && <p className="mb-6 text-center text-fg2">{d.heading}</p>}</div>
-      <div className="marquee overflow-hidden" aria-label={d.heading || "Clients"}>
-        <ul className="marquee-track items-center gap-14 px-7">
+    <section className="overflow-hidden py-14 sm:py-20">
+      {d.heading && <p className="container-x kicker mb-8">{d.heading}</p>}
+      <div className="marquee" aria-label={d.heading || "Clients"}>
+        <ul className="marquee-track items-center gap-14 px-7" style={{ ["--speed" as any]: "55s" }}>
           {row.map((l, i) => (
-            <li key={i} aria-hidden={i >= items.length} className="shrink-0">
-              {mediaUrl(l.logo) ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={mediaUrl(l.logo)} alt={mediaAlt(l.logo, l.label)} className="h-8 w-auto opacity-70 grayscale transition hover:opacity-100 hover:grayscale-0" loading="lazy" />
-                : <span className="font-display text-2xl font-bold text-muted">{l.label}</span>}
+            <li key={i} aria-hidden={i >= items.length} className="flex shrink-0 items-center gap-14">
+              {mediaUrl(l.logo) ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={mediaUrl(l.logo)} alt={mediaAlt(l.logo, l.label)} className="h-10 w-auto opacity-70 grayscale transition hover:opacity-100 hover:grayscale-0" loading="lazy" />
+                : <span className={`font-display text-[clamp(2.2rem,5vw,4.4rem)] font-bold leading-none tracking-tight ${i % 2 ? "text-outline" : "text-fg"}`}>{l.label}</span>}
+              <span aria-hidden className="text-2xl text-accent">✦</span>
             </li>
           ))}
         </ul>
@@ -224,16 +242,7 @@ async function Services({ d }: { d: D }) {
   const list = await getPublished("services");
   return (
     <section className="section"><div className="container-x"><Head d={d} />
-      <div className="grid gap-6 md:grid-cols-2">
-        {list.map((s, i) => (
-          <Reveal key={s.id} delay={i * 70}><Tilt className="h-full"><Link href={`/services/${s.slug}`} className="flex h-full flex-col p-7">
-            <span aria-hidden className="grid h-12 w-12 place-items-center text-xl text-accent" style={{ borderRadius: "var(--r-md)", background: "rgb(var(--c-accent) / .12)" }}>{s.data.icon || "◆"}</span>
-            <h3 className="mt-6 text-2xl font-semibold">{s.title}</h3>
-            <p className="mt-3 text-fg2">{s.data.summary}</p>
-            <span className="mt-auto pt-6 font-medium text-accent">Explore {s.title.toLowerCase()}</span>
-          </Link></Tilt></Reveal>
-        ))}
-      </div>
+      <ServiceRows items={list.map((s) => ({ id: s.id, title: s.title, href: `/services/${s.slug}`, summary: s.data.summary || "", icon: s.data.icon || "", img: mediaUrl(s.data.cover) || mediaUrl(s.data.media) }))} />
     </div></section>
   );
 }
@@ -344,19 +353,9 @@ async function Testimonials({ d }: { d: D }) {
   let list = await getPublished("testimonials"); if (Number(d.limit) > 0) list = list.slice(0, Number(d.limit));
   if (!list.length) return null;
   return (
-    <section className="section"><div className="container-x"><Head d={d} />
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {list.map((t, i) => (
-          <Reveal key={t.id} delay={i * 70}><figure className="glass flex h-full flex-col p-7">
-            <span aria-hidden className="font-display text-5xl leading-none text-accent">“</span>
-            <blockquote className="mt-2 flex-1 text-lg text-fg">{t.data.quote}</blockquote>
-            <figcaption className="mt-6 flex items-center gap-3">
-              {mediaUrl(t.data.photo) && /* eslint-disable-next-line @next/next/no-img-element */ <img src={mediaUrl(t.data.photo)} alt={mediaAlt(t.data.photo, t.title)} className="h-11 w-11 rounded-full object-cover" loading="lazy" />}
-              <div><p className="font-semibold">{t.title}</p><p className="text-sm text-fg2">{[t.data.role, t.data.company].filter(Boolean).join(", ")}</p></div>
-            </figcaption>
-          </figure></Reveal>
-        ))}
-      </div>
+    <section className="section"><div className="container-x grid gap-14 lg:grid-cols-[.45fr_1fr]">
+      <Head d={d} className="!mb-0" />
+      <TestimonialSlider items={list.map((t) => ({ quote: t.data.quote || "", name: t.title, role: [t.data.role, t.data.company].filter(Boolean).join(", "), photo: mediaUrl(t.data.photo), alt: mediaAlt(t.data.photo, t.title) }))} />
     </div></section>
   );
 }
