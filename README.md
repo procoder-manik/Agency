@@ -1,7 +1,7 @@
 # Agency Website Platform
 
 Next.js 14 (App Router) + PostgreSQL (Drizzle ORM) + Tailwind CSS. A themeable, animated agency website with a full admin panel, SEO system and AI writing tools.
-https://agency-murex-ten.vercel.app/
+
 ## দ্রুত শুরু (Quick start)
 
 ```bash
@@ -82,3 +82,22 @@ npm run dev                 # http://localhost:3000  |  অ্যাডমিন
 ## আপডেট করার সময়
 
 প্রজেক্ট ফাইল বদলানোর পর সবসময় `npm install` চালান, তারপর `npm run dev`। ডেটাবেস আর `.env` অপরিবর্তিত থাকে।
+
+## আপনার niche-এর রেডি কনটেন্ট, লোকেশন পেজ আর মডিউল (নতুন)
+
+**কনটেন্ট প্যাক:** web development (Next.js, Laravel, WordPress, Shopify, Squarespace, Wix), SEO, digital marketing, video editing, AI automation আর website care নিয়ে পুরো সাইটের লেখা তৈরি আছে। এতে আছে ৬টা সার্ভিস, ১৭টা প্যাকেজ, ২৬টা FAQ, ৬টা ব্লগ পোস্ট, ১৪টা কোর পেজ (হোম, সার্ভিস, প্ল্যাটফর্ম, প্রাইসিং, About ইত্যাদি), ৬টা প্ল্যাটফর্ম পেজ, ৭টা সার্ভিস টপিক পেজ। নতুন সেটআপে `npm run setup` নিজেই এগুলো বসায়। আগের সাইটে বসাতে: **Admin > Settings > Starter content** থেকে "Replace with new pack" চাপুন (অথবা `npm run db:content -- --replace`)। সবকিছু Admin থেকে দেখা, বদলানো ও মোছা যায়।
+
+**প্যাকেজের দাম উদাহরণ মাত্র।** Admin > Packages থেকে নিজের আসল দাম বসান। Testimonial, প্রজেক্ট ও কেস স্টাডি ইচ্ছা করেই দেওয়া হয়নি, কারণ ওগুলো আসল হতে হবে।
+
+**লোকেশন ও ইন্ডাস্ট্রি পেজ (Admin > Location pages):** "Website design for plumbers in Houston" বা "Local SEO for dental clinics in New Jersey" ধরনের পেজ এক ক্লিকে বানানো যায়।
+1. একটা **টেমপ্লেট পেজ** বেছে নিন (পেজ বিল্ডারে ডিজাইন নিজে বদলানো যায়)। টেমপ্লেটে `{{service}}`, `{{industries}}`, `{{location}}`, `{{city}}` ভেরিয়েবল আছে। `{Website design|Web development}` লিখলে প্রতিটা পেজে একটা অপশন বসে, তাই পেজগুলো হুবহু এক হয় না।
+2. সার্ভিস, ইন্ডাস্ট্রির তালিকা আর লোকেশনের তালিকা দিন। Preview দেখে Create চাপুন। একবারে সর্বোচ্চ ৩০০ পেজ। আগে থেকে থাকা পেজ বাদ যায়।
+3. পেজগুলো ডিফল্টভাবে **draft** হয়। দেখে, নিজের আসল তথ্য যোগ করে, ছোট ব্যাচে publish করুন।
+4. প্রতিটা পেজে schema-তে areaServed থাকে, sitemap-এ যায়, আর "Location and industry links" সেকশন (যেমন /areas-we-serve) সেগুলোর লিংক ফিল্টারসহ দেখায়।
+সতর্কতা: শুধু শহরের নাম বদলানো কপি পেজ সার্চ ইঞ্জিন পছন্দ করে না। টেমপ্লেটকে প্রতিটা ইন্ডাস্ট্রির জন্য কাজের কথা দিয়ে সাজান, আর যে লোকাল অফিস বা ক্লায়েন্ট নেই সেটা দাবি করবেন না।
+
+**মডিউল ও টেমপ্লেট:**
+- **নতুন পেজ টেমপ্লেট:** Pages > "Add page from template" (সার্ভিস, প্ল্যাটফর্ম, লোকাল, লিড-জেন, About, গাইড)।
+- **রেডি সেকশন:** পেজ বিল্ডারে "Add section" > "Ready-made sections"। নতুন ব্লক: Bento grid, Platforms, Comparison table, Location links।
+- **Custom HTML সেকশন:** নিজের HTML/CSS বসানো যায় (শুধু admin)। কয়েকটা স্টার্টার টেমপ্লেট আছে, থিমের রঙ ব্যবহার করে। `<script>` মুছে ফেলা হয় আর CSS শুধু ওই সেকশনেই কাজ করে।
+- **নিজের মডিউল বানানো:** Admin > Design > Custom modules। ফিল্ড ঠিক করুন, HTML টেমপ্লেটে `{{field}}`, `{{#each items}}...{{/each}}`, `{{#if field}}` ব্যবহার করুন, লাইভ প্রিভিউ দেখুন। তারপর পেজ বিল্ডারে "Custom module" সেকশন থেকে যেকোনো পেজে বসান। দুটো নমুনা মডিউল দেওয়া আছে।

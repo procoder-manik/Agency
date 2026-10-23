@@ -153,7 +153,8 @@ export async function chatReply(messages: ChatMsg[]): Promise<ChatReply> {
   })();
 
   const services = chunks.filter((c) => c.id.startsWith("svc-") && !c.id.startsWith("svc-steps") && !c.id.startsWith("svc-faq"));
-  const findService = (q: string) => { const hit = search(services, q, 1)[0]; return hit && hit.score > 1.2 ? hit.c : null; };
+  // "website" alone must not match a service such as "Website care", so generic words are dropped before matching.
+  const findService = (q: string) => { const hit = search(services, q.replace(/\b(websites?|sites?)\b/gi, " "), 1)[0]; return hit && hit.score > 1.2 ? hit.c : null; };
   const kb = (() => {
     if (topic === "contact") return make(chunks.find((c) => c.id === "contact")!.say, { links: [contactLink], suggestions: sugg(["Talk to a human", ...base]) });
     if (topic === "hours") return make(`${s.identity.hours ? `Our hours: ${s.identity.hours}.` : "We work remotely and reply during business hours."} We reply ${s.identity.replyTime}.`, { links: [contactLink], suggestions: sugg(["Talk to a human", ...base]) });

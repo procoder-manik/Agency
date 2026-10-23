@@ -9,6 +9,7 @@ import { FieldInput } from "./FieldInput";
 import { BlocksEditor } from "./BlocksEditor";
 import { SeoPanel } from "./SeoPanel";
 import { ItemProvider } from "./context";
+import { ModulePreview, resetModules } from "./ModuleTools";
 
 interface Props { collection: string; initial: any | null; titleTemplate: string; menu?: { header: boolean; footer: boolean; footerCol: number }; footerColumns?: string[] }
 
@@ -35,6 +36,7 @@ export function Editor({ collection, initial, titleTemplate, menu: menu0, footer
         setDirty(false); toast(status === "published" ? "Published." : "Saved as draft."); router.replace(`/admin/c/${collection}/${r.item.id}`);
       } else {
         const r = await apiFetch(`/api/admin/entries/${item.id}`, { method: "PUT", json: body });
+        if (collection === "modules") resetModules();
         setItem(r.item); setDirty(false); toast(status === "published" && item.status !== "published" ? "Published." : status === "draft" && item.status === "published" ? "Unpublished. It's a draft now." : "Changes saved.");
         router.refresh();
       }
@@ -56,6 +58,7 @@ export function Editor({ collection, initial, titleTemplate, menu: menu0, footer
 
   const fields = (names: string[]) => (
     <div className="grid gap-6">{names.map((n) => {
+      if (n === "__preview") return <ModulePreview key={n} item={item} />;
       if (n === "blocks") return <BlocksEditor key={n} blocks={item.data.blocks || []} onChange={(b) => setData("blocks", b)} pageTitle={item.title} builtin={!!item.builtin} />;
       const f = col.fields.find((x) => x.name === n); if (!f) return null;
       return <FieldInput key={n} field={f} value={item.data[n]} onChange={(v) => setData(n, v)} />;
@@ -101,6 +104,7 @@ export function Editor({ collection, initial, titleTemplate, menu: menu0, footer
               <div><label className="label" htmlFor="pub">Publish date</label><input id="pub" type="datetime-local" className="input" value={item.publishedAt ? new Date(item.publishedAt).toISOString().slice(0, 16) : ""} onChange={(e) => upd({ publishedAt: e.target.value })} /></div>
             </div>
             <Toggle label="Featured" help="Featured items show first on grids and the home page." checked={!!item.featured} onChange={(v) => upd({ featured: v })} />
+            {collection === "pages" && !item.builtin && <Toggle label="Use this page as a location template" help="Template pages are hidden from the site. Use {{service}}, {{industries}}, {{location}} and {{city}} in the text, then generate pages from Location pages." checked={!!item.data.template} onChange={(v) => setData("template", v || undefined)} />}
             {collection === "pages" && (
               <div className="rounded border border-line p-4">
                 <p className="mb-3 font-medium">Menus</p>

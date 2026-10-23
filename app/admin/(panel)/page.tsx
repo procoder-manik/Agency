@@ -3,6 +3,8 @@ import { and, desc, eq, isNull, sql as dsql } from "drizzle-orm";
 import { requirePage } from "@/lib/auth";
 import { db, schema } from "@/lib/db";
 import { aiAvailable } from "@/lib/ai/providers";
+import { getSetting } from "@/lib/settings";
+import { PACK_VERSION } from "@/lib/content-pack/services";
 import { PageHead } from "@/components/admin/ui";
 
 const E = schema.entries;
@@ -21,6 +23,7 @@ export default async function Dashboard({ searchParams }: { searchParams: { deni
     db().select().from(E).where(and(eq(E.status, "draft"), isNull(E.deletedAt))).orderBy(desc(E.updatedAt)).limit(6),
     aiAvailable(),
   ]);
+  const packOld = ((await getSetting("general")) as any).packVersion < PACK_VERSION;
   const stats = [
     { label: "Projects", n: projects, href: "/admin/c/projects" }, { label: "Blog posts", n: posts, href: "/admin/c/posts" },
     { label: "Leads", n: leads.n, sub: `${leads.fresh} new`, href: "/admin/leads" }, { label: "Form submissions", n: subs.n, sub: `${subs.unread} unread`, href: "/admin/submissions" },
@@ -30,6 +33,7 @@ export default async function Dashboard({ searchParams }: { searchParams: { deni
     <>
       <PageHead title={`Welcome back${user.name ? ", " + user.name : ""}`} sub="Here's what's happening on your site." />
       {searchParams.denied && <p className="glass mb-6 !border-warning/60 p-4 text-sm text-warning">That screen is for admins only. Ask an admin if you need access.</p>}
+      {packOld && user.role === "admin" && <p className="glass mb-6 !border-accent/60 p-4 text-sm text-fg2">New starter content is available: richer home, services, about, contact and pricing pages for your niche. <Link href="/admin/settings" className="text-accent underline">Open Settings &gt; Starter content</Link> and click “Replace with new pack”. Items you created yourself are kept.</p>}
       {!ai && <p className="glass mb-6 p-4 text-sm text-fg2">AI writing tools are off. <Link href="/admin/ai" className="text-accent underline">Add a free Gemini, Groq or OpenRouter key</Link> to turn them on.</p>}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
         {stats.map((s) => <Link key={s.label} href={s.href} className="glass p-5 transition-colors hover:border-accent/50"><p className="text-sm text-fg2">{s.label}</p><p className="mt-1 font-display text-3xl font-bold">{s.n}</p>{s.sub && <p className="text-sm text-accent">{s.sub}</p>}</Link>)}

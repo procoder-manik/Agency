@@ -3,12 +3,14 @@ import type { Block } from "@/lib/blocks";
 import { getPublished, type Entry } from "@/lib/content";
 import { getAllSettings } from "@/lib/settings";
 import { renderMarkdown } from "@/lib/markdown";
+import { renderMustache, scopeCss } from "@/lib/mustache";
+import { hash } from "@/lib/templating";
 import { mediaAlt, mediaUrl } from "@/lib/media";
 import { fmtDate, formatPrice } from "@/lib/util";
 import { Counter, Media, Reveal, Tilt } from "./motion";
 import { ClipReveal, HeroCanvas, Magnetic, RotatingBadge, ScrambleText, SplitText } from "./fx";
 import { ServiceRows, StepsProgress, TestimonialSlider } from "./Showcase";
-import { BlogList, ContactForm, FaqList, PricingTabs, WorkGrid } from "./Interactive";
+import { BlogList, ContactForm, FaqList, LocationsGrid, PricingTabs, WorkGrid } from "./Interactive";
 
 type D = Record<string, any>;
 const arr = (v: any): any[] => (Array.isArray(v) ? v : []);
@@ -101,14 +103,31 @@ const RichText = ({ d, first }: { d: D; first: boolean }) => (
 
 const Cards = ({ d }: { d: D }) => (
   <section className="section"><div className="container-x"><Head d={d} />
-    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {arr(d.items).map((c, i) => {
         const inner = (<>
-          {mediaUrl(c.image) && <div className="aspect-[4/3] overflow-hidden border-b border-line"><Media src={mediaUrl(c.image)} alt={mediaAlt(c.image, c.title)} className="h-full w-full" /></div>}
-          <div className="p-6"><h3 className="text-xl font-semibold">{c.title}</h3>{c.text && <p className="mt-2 text-fg2">{c.text}</p>}</div>
+          {mediaUrl(c.image) && <div className="-mx-7 -mt-7 mb-6 aspect-[4/3] overflow-hidden border-b border-line"><Media src={mediaUrl(c.image)} alt={mediaAlt(c.image, c.title)} className="h-full w-full" /></div>}
+          <span aria-hidden className="mono-tag grid h-11 w-11 place-items-center rounded-full border border-line text-base text-accent transition-all duration-500 group-hover:border-accent group-hover:bg-accent group-hover:text-onaccent">{c.icon || String(i + 1).padStart(2, "0")}</span>
+          <h3 className="mt-8 text-xl font-semibold leading-snug">{c.title}</h3>
+          {c.text && <p className="mt-3 text-[0.95rem] text-fg2">{c.text}</p>}
+          {c.href && <span className="mt-auto pt-6 text-sm font-medium text-accent">Explore <span aria-hidden className="inline-block transition-transform duration-500 group-hover:translate-x-1">→</span></span>}
         </>);
-        return <Reveal key={i} delay={i * 70}><Tilt className="h-full">{c.href ? <Link href={c.href} className="block h-full">{inner}</Link> : inner}</Tilt></Reveal>;
+        return <Reveal key={i} delay={(i % 4) * 70}><Tilt className="group h-full">{c.href ? <Link href={c.href} className="flex h-full flex-col p-7">{inner}</Link> : <div className="flex h-full flex-col p-7">{inner}</div>}</Tilt></Reveal>;
       })}
+    </div>
+  </div></section>
+);
+
+const Highlights = ({ d }: { d: D }) => (
+  <section className="py-12 sm:py-16"><div className="container-x">
+    <div className="grid grid-cols-2 gap-y-10 border-y border-line py-10 lg:grid-cols-4">
+      {arr(d.items).map((h, i) => (
+        <Reveal key={i} delay={i * 80} className="px-4 lg:border-l lg:border-line lg:px-8 lg:first:border-0 lg:first:pl-0">
+          <p className="text-gradient font-display text-[clamp(2.4rem,5vw,4rem)] font-bold leading-none tracking-tight">{h.value}</p>
+          <p className="mt-3 font-semibold text-fg">{h.title}</p>
+          {h.text && <p className="mt-1.5 text-sm text-fg2">{h.text}</p>}
+        </Reveal>
+      ))}
     </div>
   </div></section>
 );
@@ -415,18 +434,117 @@ async function Contact({ d }: { d: D }) {
   );
 }
 
+
+/* ---------------- advanced layout modules ---------------- */
+function Bento({ d }: { d: D }) {
+  const items = arr(d.items); if (!items.length) return null;
+  const pattern = ["md", "md", "sm", "sm", "sm", "md", "md", "sm", "sm", "sm"];
+  return (
+    <section className="section"><div className="container-x"><Head d={d} />
+      <div className="grid gap-4 md:grid-cols-6 md:auto-rows-[minmax(200px,auto)]">
+        {items.map((it, i) => {
+          const size = it.size || pattern[i % pattern.length];
+          const span = size === "lg" ? "md:col-span-3 md:row-span-2" : size === "md" ? "md:col-span-3" : "md:col-span-2";
+          const inner = (<>
+            <span aria-hidden className="mono-tag grid h-11 w-11 place-items-center rounded-full border border-line text-base text-accent transition-colors group-hover:border-accent group-hover:bg-accent group-hover:text-onaccent">{it.icon || String(i + 1).padStart(2, "0")}</span>
+            <div className="mt-auto pt-10"><h3 className="h-card">{it.title}</h3>{it.text && <p className="mt-3 text-fg2">{it.text}</p>}</div>
+          </>);
+          return <Reveal key={i} delay={(i % 4) * 70} className={span}><Tilt className="group flex h-full min-h-[200px] flex-col p-7">{it.href ? <Link href={it.href} className="flex h-full flex-col">{inner}</Link> : <div className="flex h-full flex-col">{inner}</div>}</Tilt></Reveal>;
+        })}
+      </div>
+    </div></section>
+  );
+}
+
+function Platforms({ d }: { d: D }) {
+  const items = arr(d.items); if (!items.length) return null;
+  return (
+    <section className="section"><div className="container-x"><Head d={d} />
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {items.map((p, i) => {
+          const inner = (<>
+            <div className="flex items-start justify-between gap-4">
+              <span aria-hidden className="grid h-14 w-14 place-items-center font-display text-lg font-bold text-onaccent" style={{ borderRadius: "var(--r-md)", background: "linear-gradient(135deg, rgb(var(--c-accent)), rgb(var(--c-accent2)))" }}>{String(p.name || "?").replace(/[^A-Za-z0-9]/g, "").slice(0, 2).toUpperCase()}</span>
+              {p.tag && <span className="chip mono-tag">{p.tag}</span>}
+            </div>
+            <h3 className="h-card mt-8">{p.name}</h3>
+            {p.text && <p className="mt-3 text-fg2">{p.text}</p>}
+            {p.href && <span className="mt-auto pt-6 font-medium text-accent">Learn more <span aria-hidden>→</span></span>}
+          </>);
+          return <Reveal key={i} delay={(i % 3) * 80}><Tilt className="h-full">{p.href ? <Link href={p.href} className="flex h-full flex-col p-7">{inner}</Link> : <div className="flex h-full flex-col p-7">{inner}</div>}</Tilt></Reveal>;
+        })}
+      </div>
+    </div></section>
+  );
+}
+
+function Compare({ d }: { d: D }) {
+  const cols: string[] = arr(d.columns); const rows = arr(d.rows); if (!cols.length || !rows.length) return null;
+  const cell = (v: any) => { const t = String(v ?? "").trim(); if (/^(yes|y|✓|true)$/i.test(t)) return <span className="text-success" aria-label="Yes">✓</span>; if (/^(no|n|-|x|✕|false)$/i.test(t)) return <span className="text-muted" aria-label="No">–</span>; return t; };
+  return (
+    <section className="section"><div className="container-x"><Head d={d} />
+      <Reveal><div className="glass overflow-x-auto" data-lenis-prevent-wheel>
+        <table className="w-full min-w-[680px] border-separate border-spacing-0 text-left">
+          <thead><tr><th scope="col" className="p-5 text-sm font-medium text-muted"><span className="sr-only">Feature</span></th>
+            {cols.map((c) => <th key={c} scope="col" className={`p-5 font-display text-lg font-semibold ${c === d.highlight ? "bg-accent/10 text-fg" : "text-fg"}`} style={c === d.highlight ? { boxShadow: "inset 0 3px 0 rgb(var(--c-accent))" } : undefined}>{c}</th>)}</tr></thead>
+          <tbody>{rows.map((r, i) => (
+            <tr key={i}><th scope="row" className="border-t border-line p-5 text-sm font-medium text-fg2">{r.label}</th>
+              {cols.map((c, j) => <td key={c} className={`border-t border-line p-5 text-[0.95rem] text-fg ${c === d.highlight ? "bg-accent/10" : ""}`}>{cell(arr(r.values)[j])}</td>)}</tr>
+          ))}</tbody>
+        </table>
+      </div></Reveal>
+    </div></section>
+  );
+}
+
+async function Locations({ d }: { d: D }) {
+  const pages = (await getPublished("pages")).filter((p) => p.data.location && !p.data.template);
+  if (!pages.length) return null;
+  let list = pages.map((p) => ({ title: p.title, href: `/${p.slug}`, service: p.data.location.service || "", industry: p.data.location.industry || "", city: p.data.location.label || p.data.location.city || "" }));
+  if (Number(d.limit) > 0 && !d.filters) list = list.slice(0, Number(d.limit));
+  return <section className="section"><div className="container-x"><Head d={d} /><LocationsGrid items={list} filters={!!d.filters} /></div></section>;
+}
+
+function HtmlBlock({ d }: { d: D }) {
+  const html = String(d.html || "").replace(/<script[\s\S]*?<\/script>/gi, ""); if (!html.trim()) return null;
+  const id = "h" + hash(html + (d.css || "")).toString(36);
+  const css = d.css ? scopeCss(String(d.css), "#" + id) : "";
+  const body = (<div id={id}>{css && <style dangerouslySetInnerHTML={{ __html: css }} />}<div dangerouslySetInnerHTML={{ __html: html }} /></div>);
+  return d.fullWidth ? body : <section className="section"><div className="container-x">{body}</div></section>;
+}
+
+async function ModuleBlock({ d }: { d: D }) {
+  const mods = await getPublished("modules");
+  const m = mods.find((x) => x.id === Number(d.module)); if (!m) return null;
+  const defs: any[] = arr(m.data.fields); const vals: Record<string, any> = d.values || {};
+  const ctx: Record<string, any> = {};
+  for (const f of defs) {
+    const v = vals[f.name];
+    if (f.type === "markdown") ctx[f.name] = renderMarkdown(String(v || ""));
+    else if (f.type === "image") ctx[f.name] = mediaUrl(v);
+    else if (f.type === "list") ctx[f.name] = arr(v).map((it: any) => Object.fromEntries(Object.entries(it || {}).map(([k, x]) => [k, mediaUrl(x as any) || x])));
+    else if (f.type === "tags") ctx[f.name] = arr(v);
+    else ctx[f.name] = v ?? "";
+  }
+  const id = "m" + m.id + "-" + (hash(JSON.stringify(vals)) % 99999).toString(36);
+  const html = renderMustache(String(m.data.html || ""), ctx).replace(/<script[\s\S]*?<\/script>/gi, "");
+  const css = m.data.css ? scopeCss(String(m.data.css), "#" + id) : "";
+  return <section className="section"><div className="container-x"><div id={id}>{css && <style dangerouslySetInnerHTML={{ __html: css }} />}<div dangerouslySetInnerHTML={{ __html: html }} /></div></div></section>;
+}
+
 /* ---------------- renderer ---------------- */
 const MAP: Record<string, (p: { d: D; first: boolean }) => any> = {
   hero: Hero, richtext: RichText, split: Split, cards: Cards, features: Features, steps: Steps, stats: Stats, timeline: Timeline,
   faq: Faq, cta: Cta, marquee: Marquee, gallery: Gallery, video: Video, services: Services, work: Work, casestudies: CaseStudies,
   blog: Blog, pricing: Pricing, testimonials: Testimonials, team: Team, contact: Contact,
+  highlights: Highlights, bento: Bento, platforms: Platforms, compare: Compare, locations: Locations, html: HtmlBlock, module: ModuleBlock,
 };
 
 export function Blocks({ blocks, status }: { blocks: Block[]; status?: string }) {
   const visible = (blocks || []).filter((b) => !b.hidden && MAP[b.type]);
   let n = 0;
   return <>{visible.map((b, i) => {
-    const C = MAP[b.type]; const numbered = i > 0 && b.type !== "marquee" && b.type !== "cta";
+    const C = MAP[b.type]; const numbered = i > 0 && b.type !== "marquee" && b.type !== "cta" && b.type !== "highlights";
     return <C key={b.id || i} d={{ ...(b.data || {}), ...(numbered ? { _n: ++n } : {}), ...(i === 0 && b.type === "hero" ? { _status: status } : {}) }} first={i === 0} />;
   })}</>;
 }

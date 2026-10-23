@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
 import { BLOCKS, getBlockDef, newBlock, type Block } from "@/lib/blocks";
+import { HTML_STARTERS, SECTION_PRESETS } from "@/lib/templates";
+import { ModuleFields } from "./ModuleTools";
 import { FieldInput } from "./FieldInput";
 import { apiFetch, Modal, Spinner, toast } from "./ui";
 import { useAdmin } from "./context";
@@ -8,11 +10,12 @@ import { useAdmin } from "./context";
 export function BlocksEditor({ blocks, onChange, pageTitle, builtin }: { blocks: Block[]; onChange: (b: Block[]) => void; pageTitle: string; builtin: boolean }) {
   const [open, setOpen] = useState<string | null>(blocks[0]?.id ?? null);
   const [adding, setAdding] = useState<number | null>(null);
+  const [addTab, setAddTab] = useState<"types" | "ready">("types");
   const [busy, setBusy] = useState<string | null>(null);
-  const { aiOn } = useAdmin();
+  const { aiOn, role } = useAdmin();
   const set = (i: number, b: Block) => onChange(blocks.map((x, j) => (j === i ? b : x)));
   const move = (i: number, d: number) => { const n = [...blocks]; const [x] = n.splice(i, 1); n.splice(i + d, 0, x); onChange(n); };
-  const insert = (at: number, type: string) => { const b = newBlock(type); const n = [...blocks]; n.splice(at, 0, b); onChange(n); setOpen(b.id); setAdding(null); };
+  const insert = (at: number, type: string, data: Record<string, any> = {}) => { const b = newBlock(type, structuredClone(data)); const n = [...blocks]; n.splice(at, 0, b); onChange(n); setOpen(b.id); setAdding(null); };
   async function aiSection(i: number) {
     const b = blocks[i]; setBusy(b.id);
     try {
@@ -45,7 +48,16 @@ export function BlocksEditor({ blocks, onChange, pageTitle, builtin }: { blocks:
               </div>
               {isOpen && def && (
                 <div className="grid gap-5 border-t border-line p-4 sm:grid-cols-2">
-                  {def.fields.map((f) => <div key={f.name} className={["textarea", "markdown", "list", "media", "image", "tags"].includes(f.type) ? "sm:col-span-2" : ""}><FieldInput field={f} value={b.data[f.name]} onChange={(v) => set(i, { ...b, data: { ...b.data, [f.name]: v } })} /></div>)}
+                  {b.type === "module" ? <ModuleFields data={b.data} onChange={(d) => set(i, { ...b, data: d })} />
+                    : b.type === "html" && role !== "admin" ? <p className="rounded border border-warning/40 p-4 text-sm text-fg2 sm:col-span-2">Custom HTML can only be edited by an admin. You can still move, hide or delete this section.</p>
+                    : <>
+                      {b.type === "html" && (
+                        <div className="sm:col-span-2"><label className="mb-1.5 block text-sm font-medium text-fg2" htmlFor={`st-${b.id}`}>Start from a template</label>
+                          <select id={`st-${b.id}`} className="input max-w-sm" value="" onChange={(e) => { const t = HTML_STARTERS.find((x) => x.id === e.target.value); if (t && (!b.data.html || confirm("Replace the current HTML and CSS with this template?"))) set(i, { ...b, data: { ...b.data, html: t.html, css: t.css } }); }}>
+                            <option value="">Choose a starter…</option>{HTML_STARTERS.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}</select></div>
+                      )}
+                      {def.fields.map((f) => <div key={f.name} className={["textarea", "markdown", "list", "media", "image", "tags"].includes(f.type) ? "sm:col-span-2" : ""}><FieldInput field={f} value={b.data[f.name]} onChange={(v) => set(i, { ...b, data: { ...b.data, [f.name]: v } })} /></div>)}
+                    </>}
                 </div>
               )}
             </div>
@@ -55,9 +67,17 @@ export function BlocksEditor({ blocks, onChange, pageTitle, builtin }: { blocks:
       })}
       {blocks.length === 0 && <button type="button" className="btn btn-primary" onClick={() => setAdding(0)}>Add section</button>}
       <Modal open={adding !== null} onClose={() => setAdding(null)} title="Add a section" wide>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {BLOCKS.map((d) => <button key={d.type} type="button" onClick={() => insert(adding!, d.type)} className="rounded border border-line p-4 text-left transition-colors hover:border-accent"><p className="font-medium">{d.label}</p><p className="mt-1 text-sm text-fg2">{d.description}</p></button>)}
-        </div>
+        <div role="tablist" className="mb-5 flex gap-1 border-b border-line">{([["types", "Section types"], ["ready", "Ready-made sections"]] as const).map(([k, l]) => <button key={k} role="tab" aria-selected={addTab === k} onClick={() => setAddTab(k)} className={`border-b-2 px-4 py-2 text-sm font-medium ${addTab === k ? "border-accent text-fg" : "border-transparent text-fg2"}`}>{l}</button>)}</div>
+        {addTab === "types" ? (
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {BLOCKS.filter((d) => d.type !== "html" || role === "admin").map((d) => <button key={d.type} type="button" onClick={() => insert(adding!, d.type)} className="rounded border border-line p-4 text-left transition-colors hover:border-accent"><p className="font-medium">{d.label}</p><p className="mt-1 text-sm text-fg2">{d.description}</p></button>)}
+          </div>
+        ) : (
+          <div className="space-y-6">{Array.from(new Set(SECTION_PRESETS.map((p) => p.category))).map((cat) => (
+            <div key={cat}><p className="mb-2 text-xs font-medium uppercase tracking-wider text-muted">{cat}</p>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{SECTION_PRESETS.filter((p) => p.category === cat && (p.type !== "html" || role === "admin")).map((p) => <button key={p.id} type="button" onClick={() => insert(adding!, p.type, p.data)} className="rounded border border-line p-4 text-left transition-colors hover:border-accent"><p className="font-medium">{p.label}</p><p className="mt-1 text-sm text-fg2">{getBlockDef(p.type)?.label}, filled with example text you can edit.</p></button>)}</div></div>
+          ))}</div>
+        )}
       </Modal>
     </div>
   );

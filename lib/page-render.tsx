@@ -29,7 +29,7 @@ export async function handleMissing(path: string): Promise<never> {
 export async function loadPage(slug: string) {
   const page = await getPublishedBySlug("pages", slug);
   const path = slug === "home" ? "/" : `/${slug}`;
-  if (!page || (await hiddenPaths()).has(path)) return null;
+  if (!page || page.data?.template || (await hiddenPaths()).has(path)) return null;
   return page;
 }
 
@@ -48,8 +48,10 @@ export async function pageSchema(slug: string, page: NonNullable<Awaited<ReturnT
   let type = page.seo?.schemaType && page.seo.schemaType !== "auto" ? page.seo.schemaType : "WebPage";
   if (type === "FAQPage" && !faqs.length) type = "WebPage";
   const path = slug === "home" ? "/" : `/${slug}`;
+  const loc = (page.data as any)?.location as { label?: string; city?: string; service?: string } | undefined;
   return buildJsonLd({
     type, title: page.seo?.metaTitle || page.title, description: page.seo?.metaDescription || hero?.data?.subheading, path, image: mediaUrl(page.data.cover) || undefined,
     faqs, steps, crumbs: slug === "home" ? [] : [{ name: page.seo?.breadcrumbTitle || page.title, path }], dateModified: page.updatedAt,
+    ...(loc ? { extra: { areaServed: { "@type": "AdministrativeArea", name: loc.label || loc.city }, serviceType: loc.service || page.title } } : {}),
   });
 }

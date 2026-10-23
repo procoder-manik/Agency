@@ -94,7 +94,7 @@ function Control({ id, field: f, value, onChange }: { id: string; field: Field; 
   const [preview, setPreview] = useState(false); const [pick, setPick] = useState(false); const [tag, setTag] = useState("");
   const rel = useRelation(f.type === "relation" ? f.collection : undefined);
   switch (f.type) {
-    case "textarea": return <textarea id={id} className="input min-h-[90px]" rows={3} value={value || ""} placeholder={f.placeholder} onChange={(e) => onChange(e.target.value)} />;
+    case "textarea": return <textarea id={id} className={`input min-h-[90px] ${f.mono ? "font-mono text-[13px] leading-relaxed" : ""}`} rows={f.rows || 3} value={value || ""} placeholder={f.placeholder} spellCheck={!f.mono} onChange={(e) => onChange(e.target.value)} />;
     case "markdown": return (
       <div>
         <div className="mb-1 flex gap-3 text-xs"><button type="button" className={!preview ? "text-accent" : "text-fg2"} onClick={() => setPreview(false)}>Write</button><button type="button" className={preview ? "text-accent" : "text-fg2"} onClick={() => setPreview(true)}>Preview</button><span className="text-muted">Markdown: ## heading, **bold**, - list, [link](/path)</span></div>

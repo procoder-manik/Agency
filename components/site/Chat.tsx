@@ -132,8 +132,9 @@ export function ChatWidget({ side, greeting, name, suggestions, leadCapture }: {
         </button>
       )}
       <button ref={launcher} type="button" onClick={() => setOpen(!open)} aria-expanded={open} aria-label={open ? "Close chat" : "Open chat"}
-        className="btn btn-primary relative h-14 w-14 !overflow-visible !p-0" style={{ borderRadius: 999 }}>
+        className="chat-launcher relative grid h-14 w-14 place-items-center rounded-full text-white">
         {!open && <span aria-hidden className="absolute inset-0 animate-ping rounded-full bg-accent/30 [animation-duration:2.6s]" />}
+        <span aria-hidden className="chat-launcher-glow" />
         <svg className="relative" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{open ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z" />}</svg>
         {unread && !open && <span aria-label="New message" className="absolute -right-0.5 -top-0.5 h-4 w-4 rounded-full border-2 border-bg bg-danger" />}
       </button>

@@ -8,6 +8,8 @@ import { apiFetch, Empty, fmt, Modal, PageHead, Spinner, toast } from "./ui";
 import { aiSeo, mergeSeo } from "./SeoPanel";
 import { useAdmin } from "./context";
 import { useRelation } from "./FieldInput";
+import { PAGE_TEMPLATES } from "@/lib/templates";
+import { newBlock } from "@/lib/blocks";
 
 type Status = "all" | "published" | "draft" | "trash";
 
@@ -18,6 +20,7 @@ export function ListScreen({ collection, openAi }: { collection: string; openAi?
   const [items, setItems] = useState<any[]>([]); const [counts, setCounts] = useState<any>({}); const [loading, setLoading] = useState(true);
   const [sel, setSel] = useState<number[]>([]); const [quick, setQuick] = useState<any>(null);
   const [job, setJob] = useState<{ label: string; done: number; total: number; log: string[] } | null>(null); const stop = useRef(false);
+  const [picker, setPicker] = useState(false);
   const [modal, setModal] = useState<"" | "page" | "location" | "case">(openAi ? (collection === "caseStudies" ? "case" : collection === "pages" ? "page" : "") : "");
 
   const load = useCallback(async () => {
@@ -78,7 +81,7 @@ export function ListScreen({ collection, openAi }: { collection: string; openAi?
         {collection === "caseStudies" && <button className="btn btn-ghost !py-2 text-sm" disabled={!aiOn} onClick={() => setModal("case")}>✦ Write a case study with AI</button>}
         {collection === "services" && <button className="btn btn-ghost !py-2 text-sm" disabled={!aiOn || !!job} onClick={servicePages}>✦ Create pages from {sel.length ? "selected" : "all"} services</button>}
         {col.seo && <button className="btn btn-ghost !py-2 text-sm" disabled={!aiOn || !!job} onClick={bulkSeo}>✦ Write SEO for {sel.length ? "selected" : "items missing it"}</button>}
-        <Link href={`/admin/c/${collection}/new`} className="btn btn-primary !py-2 text-sm">Add {col.singular.toLowerCase()}</Link>
+        {collection === "pages" ? <button className="btn btn-primary !py-2 text-sm" onClick={() => setPicker(true)}>Add page from template</button> : <Link href={`/admin/c/${collection}/new`} className="btn btn-primary !py-2 text-sm">Add {col.singular.toLowerCase()}</Link>}
       </PageHead>
       {!aiOn && (col.seo || collection === "services") && <p className="-mt-3 mb-4 text-xs text-muted">AI buttons are disabled until you add a key in Admin &gt; AI.</p>}
 
@@ -120,7 +123,7 @@ export function ListScreen({ collection, openAi }: { collection: string; openAi?
                   <td className="px-3"><input type="checkbox" aria-label={`Select ${it.title}`} checked={sel.includes(it.id)} onChange={(e) => setSel(e.target.checked ? [...sel, it.id] : sel.filter((x) => x !== it.id))} /></td>
                   <td className="px-3 py-2.5">
                     <Link href={`/admin/c/${collection}/${it.id}`} className="font-medium text-fg hover:text-accent">{it.title || "(untitled)"}</Link>
-                    <div className="flex flex-wrap gap-2 text-xs text-muted">{it.slug && <span className="font-mono">/{it.slug}</span>}{it.builtin && <span>Built-in</span>}{it.featured && <span className="text-accent">Featured</span>}{col.seo && !it.seo?.metaDescription && <span className="text-warning">No meta description</span>}</div>
+                    <div className="flex flex-wrap gap-2 text-xs text-muted">{it.slug && <span className="font-mono">/{it.slug}</span>}{it.data?.template && <span className="text-accent">Template</span>}{it.data?.location && <span>Location page</span>}{it.builtin && <span>Built-in</span>}{it.featured && <span className="text-accent">Featured</span>}{col.seo && !it.seo?.metaDescription && <span className="text-warning">No meta description</span>}</div>
                   </td>
                   <td className="px-3"><span className={`chip !py-0.5 ${it.status === "published" ? "!text-success" : ""}`}>{it.deletedAt ? "Trashed" : it.status === "published" ? "Published" : "Draft"}</span></td>
                   <td className="px-3 text-fg2">{it.sortOrder}</td>
@@ -144,6 +147,7 @@ export function ListScreen({ collection, openAi }: { collection: string; openAi?
           <button className="btn btn-primary" onClick={saveQuick}>Save changes</button>
         </div>}
       </Modal>
+      {picker && <TemplatePicker onClose={() => setPicker(false)} onDone={(id) => router.push(`/admin/c/pages/${id}`)} />}
       {modal === "page" && <PageWriter onClose={() => setModal("")} onDone={(id) => router.push(`/admin/c/pages/${id}`)} />}
       {modal === "location" && <LocationWriter onClose={() => { setModal(""); load(); }} />}
       {modal === "case" && <CaseWriter onClose={() => setModal("")} onDone={(id) => router.push(`/admin/c/caseStudies/${id}`)} />}
@@ -245,6 +249,32 @@ function CaseWriter({ onClose, onDone }: { onClose: () => void; onDone: (id: num
         <div><label className="label">Real results (the only numbers the AI may use)</label><textarea className="input" rows={3} value={f.results} onChange={(e) => setF({ ...f, results: e.target.value })} placeholder="e.g. Online bookings went from 0 to 140 a month" /></div>
         <button className="btn btn-primary" disabled={busy} onClick={go}>{busy ? <><Spinner /> Writing…</> : "Write draft case study"}</button>
       </div>
+    </Modal>
+  );
+}
+
+/* ---------------- New page from a template ---------------- */
+function TemplatePicker({ onClose, onDone }: { onClose: () => void; onDone: (id: number) => void }) {
+  const [sel, setSel] = useState("service"); const [title, setTitle] = useState(""); const [busy, setBusy] = useState(false);
+  const t = PAGE_TEMPLATES.find((x) => x.id === sel)!;
+  async function go() {
+    setBusy(true);
+    try {
+      const name = title.trim() || t.label.replace(/ \(.*\)/, "");
+      const r = await apiFetch("/api/admin/entries", { method: "POST", json: { collection: "pages", title: name, slug: slugify(name), status: "draft", data: { blocks: t.blocks.map(([type, data]) => newBlock(type, structuredClone(data))), ...(t.template ? { template: true } : {}) }, seo: { schemaType: t.schema, ...(t.template ? { noindex: true } : {}) } } });
+      toast("Draft page created."); onDone(r.item.id);
+    } catch (e: any) { toast(e.message, "error"); }
+    setBusy(false);
+  }
+  return (
+    <Modal open onClose={onClose} title="New page" wide>
+      <div className="mb-5"><label className="label" htmlFor="np-title">Page name</label><input id="np-title" className="input max-w-lg" value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t.label.replace(/ \(.*\)/, "")} /></div>
+      <p className="label">Start from</p>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{PAGE_TEMPLATES.map((x) => (
+        <button key={x.id} type="button" onClick={() => setSel(x.id)} aria-pressed={sel === x.id} className={`rounded border p-4 text-left transition-colors ${sel === x.id ? "border-accent bg-accent/10" : "border-line hover:border-fg/30"}`}>
+          <p className="font-medium">{x.label}</p><p className="mt-1 text-sm text-fg2">{x.description}</p><p className="mono-tag mt-2 text-muted">{x.blocks.length} sections</p></button>
+      ))}</div>
+      <button className="btn btn-primary mt-6" disabled={busy} onClick={go}>{busy ? <Spinner /> : "Create draft page"}</button>
     </Modal>
   );
 }

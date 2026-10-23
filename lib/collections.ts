@@ -12,7 +12,7 @@ export interface CollectionDef {
   seo: boolean;
   defaultSchema?: string;
   ogLabel?: string;
-  group: "Content" | "Marketing";
+  group: "Content" | "Marketing" | "Design";
   roles?: ("admin" | "editor")[];
 }
 
@@ -181,6 +181,23 @@ export const COLLECTIONS: CollectionDef[] = [
     tabs: { Content: ["kind", "content", "linkLabel", "linkHref"], Details: ["trigger", "delay", "paths"] },
   },
 ];
+
+COLLECTIONS.push({
+  key: "modules", label: "Custom modules", singular: "Module", titleLabel: "Module name", hasSlug: true, seo: false, group: "Design", roles: ["admin"],
+  fields: [
+    { name: "description", label: "What is this module for?", type: "textarea", ai: false },
+    { name: "fields", label: "Fields editors can fill in", type: "list", fields: [
+      { name: "name", label: "Key (letters and numbers, no spaces)", type: "text", ai: false },
+      { name: "label", label: "Label", type: "text", ai: false },
+      { name: "type", label: "Type", type: "select", options: opts("text|Short text", "textarea|Long text", "markdown|Formatted text", "url|Link", "image|Image", "number|Number", "toggle|Switch", "tags|List of words", "list|Repeating group") },
+      { name: "subfields", label: "For a repeating group: item keys, comma separated", type: "text", ai: false, help: "e.g. title, text, image" },
+    ] },
+    { name: "html", label: "HTML template", type: "textarea", mono: true, rows: 14, ai: false, help: "{{key}} inserts text safely, {{{key}}} inserts formatted text or HTML, {{#each key}}{{title}}{{/each}} repeats a group, {{#if key}}...{{/if}} shows something only when filled." },
+    { name: "css", label: "CSS", type: "textarea", mono: true, rows: 10, ai: false, help: "Automatically scoped to this module. Use theme colours: rgb(var(--c-accent)), rgb(var(--c-fg)), rgb(var(--c-surface)), rgb(var(--c-line))." },
+    { name: "__preview", label: "Live preview", type: "text" },
+  ],
+  tabs: { Template: ["description", "html", "css"], Fields: ["fields"], Preview: ["__preview"] },
+});
 
 export const getCollection = (k: string) => COLLECTIONS.find((c) => c.key === k);
 export const allFieldsOf = (c: CollectionDef) => c.fields;

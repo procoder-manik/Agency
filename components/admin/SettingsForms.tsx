@@ -41,7 +41,7 @@ const t = (name: string, label: string, type: Field["type"] = "text", extra: Par
 
 export function SiteSettings() {
   const [tab, setTab] = useState("Site identity");
-  const tabs = ["Site identity", "Contact & social", "Payments", "Integrations", "Features", "General"];
+  const tabs = ["Site identity", "Contact & social", "Payments", "Integrations", "Features", "General", "Starter content"];
   return (
     <>
       <PageHead title="Site settings" sub="Everything here is read by every page, email and schema block. Nothing is hard-coded." />
@@ -72,6 +72,7 @@ export function SiteSettings() {
           t("pricing", "Public pricing pages and tables", "toggle", { help: "Turn off to work by custom quote only." }), t("blog", "Blog", "toggle"), t("caseStudies", "Case studies", "toggle"),
           t("team", "Team sections", "toggle"), t("helpCenter", "Help center", "toggle"), t("chat", "Chat widget", "toggle"), t("backToTop", "Back-to-top button", "toggle"), t("announcement", "Announcement bar and popups", "toggle"),
         ]} />}
+        {tab === "Starter content" && <StarterContent />}
         {tab === "General" && <SettingsSection k="general" fields={[t("trashDays", "Days to keep items in the trash", "number"), t("notifyEmail", "Send form notifications to (blank = contact email)")]} />}
       </div>
     </>
@@ -225,5 +226,27 @@ export function UsersAdmin({ me, isAdmin }: { me: number; isAdmin: boolean }) {
         </div>
       </>}
     </>
+  );
+}
+
+/* ---------------- Starter content pack ---------------- */
+export function StarterContent() {
+  const [busy, setBusy] = useState(""); const [report, setReport] = useState<any>(null);
+  async function run(mode: "missing" | "replace") {
+    if (mode === "replace" && !confirm("Rewrite the built-in pages, platform pages, services, FAQs, posts and menus with the new starter pack? Pages you edited by hand are overwritten. Items you created yourself and your package prices are kept.")) return;
+    setBusy(mode);
+    try { const r = await apiFetch("/api/admin/content-pack", { method: "POST", json: { mode } }); setReport(r); toast("Starter content installed."); } catch (e: any) { toast(e.message, "error"); }
+    setBusy("");
+  }
+  return (
+    <div className="space-y-5">
+      <p className="max-w-3xl text-fg2">The starter pack contains ready-to-edit content for web development, SEO, digital marketing, video editing and AI automation: 6 services, 17 packages, 26 FAQs, 6 blog posts, 14 core pages, 6 platform pages, 7 service topic pages, 2 location page templates, sample location pages (as drafts), and 2 custom modules. Every item can be edited or deleted in the admin.</p>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="rounded border border-line p-5"><h3 className="font-semibold">Add what is missing</h3><p className="mt-1 text-sm text-fg2">Safe. Creates anything that does not exist yet and never changes what you already have.</p><button className="btn btn-ghost mt-4" disabled={!!busy} onClick={() => run("missing")}>{busy === "missing" ? <Spinner /> : "Add missing content"}</button></div>
+        <div className="rounded border border-warning/40 p-5"><h3 className="font-semibold">Replace with the new pack</h3><p className="mt-1 text-sm text-fg2">Rewrites the built-in pages, platform and topic pages, services, FAQs, posts and menus. Old example items go to the trash. Your own items and package prices are kept.</p><button className="btn btn-primary mt-4" disabled={!!busy} onClick={() => run("replace")}>{busy === "replace" ? <Spinner /> : "Replace with new pack"}</button></div>
+      </div>
+      {report && <p className="text-sm text-success">Done: {report.created} created, {report.updated} updated, {report.skipped} left as they were, {report.trashed} moved to the trash.</p>}
+      <p className="text-xs text-muted">Prices in the packages are examples. Change them in Packages to match your real prices. Testimonials, projects and case studies are not included, because those must be real.</p>
+    </div>
   );
 }

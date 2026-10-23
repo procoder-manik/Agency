@@ -12,16 +12,31 @@ import type { Session } from "./jwt";
 const E = schema.entries;
 export const bust = () => revalidatePath("/", "layout");
 
+function assertRole(user: Session, collection: string) {
+  const col = getCollection(collection);
+  if (col?.roles && !col.roles.includes(user.role)) throw new Error("Only admins can change this.");
+}
+/** Raw HTML blocks run as code on the public site, so only admins may add or change them. */
+function assertHtmlBlocks(user: Session, next: any[], prev: any[] = []) {
+  if (user.role === "admin") return;
+  for (const b of next) {
+    if (b?.type !== "html") continue;
+    const old = prev.find((x) => x.id === b.id);
+    if (!old ? (b.data?.html || b.data?.css) : (old.data?.html !== b.data?.html || old.data?.css !== b.data?.css)) throw new Error("Only admins can add or edit custom HTML sections.");
+  }
+}
+
 function cleanBlocks(blocks: any): Block[] {
   return (Array.isArray(blocks) ? blocks : []).map((b) => ({ id: String(b.id || newBlock(b.type).id), type: String(b.type), hidden: !!b.hidden, ...(b.required ? { required: true } : {}), data: b.data && typeof b.data === "object" ? b.data : {} }));
 }
 
 export async function createEntry(user: Session, input: any) {
   const col = getCollection(input.collection); if (!col) throw new Error("Unknown collection.");
+  assertRole(user, col.key);
   const title = String(input.title || `Untitled ${col.singular.toLowerCase()}`).slice(0, 300);
   const slug = col.hasSlug ? await uniqueSlug(col.key, slugify(input.slug || title)) : "";
   if (col.key === "pages" && BUILTIN_SLUGS.includes(slug)) throw new Error("That address belongs to a built-in page.");
-  const data = { ...(input.data || {}) }; if (col.key === "pages") data.blocks = cleanBlocks(data.blocks);
+  const data = { ...(input.data || {}) }; if (col.key === "pages") { data.blocks = cleanBlocks(data.blocks); assertHtmlBlocks(user, data.blocks); }
   const status = input.status === "published" ? "published" : "draft";
   const [row] = await db().insert(E).values({ collection: col.key, title, slug, status, data, seo: input.seo || {}, sortOrder: Number(input.sortOrder) || 0, featured: !!input.featured, publishedAt: status === "published" ? new Date() : null }).returning();
   await audit(user.email, "create", `${col.singular}: ${title}`);
@@ -32,6 +47,7 @@ export async function createEntry(user: Session, input: any) {
 export async function updateEntry(user: Session, id: number, input: any) {
   const cur = await getEntry(id); if (!cur) throw new Error("Not found.");
   const col = getCollection(cur.collection)!;
+  assertRole(user, col.key);
   const patch: any = { updatedAt: new Date() };
   if (input.title !== undefined) patch.title = String(input.title).slice(0, 300);
   if (input.slug !== undefined && col.hasSlug && !cur.builtin) {
@@ -48,6 +64,7 @@ export async function updateEntry(user: Session, id: number, input: any) {
     const data = { ...input.data };
     if (col.key === "pages") {
       data.blocks = cleanBlocks(data.blocks);
+      assertHtmlBlocks(user, data.blocks, (cur.data.blocks || []) as any[]);
       if (cur.builtin) { // required parts cannot be deleted
         const req = ((cur.data.blocks || []) as Block[]).filter((b) => b.required);
         for (const r of req) if (!data.blocks.some((b: Block) => b.id === r.id)) data.blocks.push({ ...r, hidden: true });
@@ -80,6 +97,7 @@ export async function bulk(user: Session, ids: number[], action: string) {
   let count = 0;
   for (const r of rows) {
     const col = getCollection(r.collection)!;
+    assertRole(user, col.key);
     if (action === "publish" || action === "draft") { await db().update(E).set({ status: action === "publish" ? "published" : "draft", updatedAt: new Date(), ...(action === "publish" && !r.publishedAt ? { publishedAt: new Date() } : {}) }).where(eq(E.id, r.id)); await audit(user.email, action === "publish" ? "publish" : "unpublish", `${col.singular}: ${r.title}`); }
     else if (action === "trash") { if (r.builtin) continue; await db().update(E).set({ deletedAt: new Date() }).where(eq(E.id, r.id)); await audit(user.email, "trash", `${col.singular}: ${r.title}`); }
     else if (action === "restore") { const slug = r.slug ? await uniqueSlug(r.collection, r.slug, r.id) : ""; await db().update(E).set({ deletedAt: null, slug }).where(eq(E.id, r.id)); await audit(user.email, "restore", `${col.singular}: ${r.title}`); }

@@ -16,6 +16,8 @@ export interface Field {
   ai?: boolean; // show "Write with AI" (defaults on for text/textarea/markdown)
   placeholder?: string;
   required?: boolean;
+  mono?: boolean; // monospace textarea for code
+  rows?: number;
 }
 
 export const opts = (...v: string[]) => v.map((x) => { const [value, label] = x.split("|"); return { value, label: label || value }; });

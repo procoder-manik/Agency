@@ -214,3 +214,30 @@ export function ContactForm({ formId, fields, success }: { formId: number | null
     </form>
   );
 }
+
+/* ---------------- Location / industry link grid with filters ---------------- */
+export function LocationsGrid({ items, filters }: { items: { title: string; href: string; service: string; industry: string; city: string }[]; filters?: boolean }) {
+  const [q, setQ] = useState(""); const [service, setService] = useState(""); const [industry, setIndustry] = useState("");
+  const svcs = Array.from(new Set(items.map((i) => i.service).filter(Boolean))); const inds = Array.from(new Set(items.map((i) => i.industry).filter(Boolean)));
+  const list = items.filter((i) => (!service || i.service === service) && (!industry || i.industry === industry) && (!q || (i.title + " " + i.city).toLowerCase().includes(q.toLowerCase())));
+  return (
+    <div>
+      {filters && (
+        <div className="mb-8 flex flex-col gap-3 sm:flex-row">
+          <label className="sm:w-80"><span className="sr-only">Search locations</span><input className="input !rounded-full" placeholder="Search a city or industry" value={q} onChange={(e) => setQ(e.target.value)} /></label>
+          <Select label="Service" value={service} onChange={setService} options={svcs} />
+          <Select label="Industry" value={industry} onChange={setIndustry} options={inds} />
+        </div>
+      )}
+      {list.length === 0 && <p className="text-fg2">No pages match.</p>}
+      <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {list.map((l) => (
+          <li key={l.href}><Link href={l.href} className="group flex h-full items-center justify-between gap-4 rounded-[var(--r-lg)] border border-line bg-surface/50 p-5 transition-all hover:border-accent hover:bg-raised">
+            <span><span className="block font-medium text-fg">{l.title}</span><span className="mono-tag mt-1 block text-muted">{[l.service, l.city].filter(Boolean).join(" · ")}</span></span>
+            <span aria-hidden className="text-accent transition-transform duration-500 group-hover:translate-x-1">→</span>
+          </Link></li>
+        ))}
+      </ul>
+    </div>
+  );
+}

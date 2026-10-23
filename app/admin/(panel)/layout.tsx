@@ -19,8 +19,9 @@ export default async function PanelLayout({ children }: { children: React.ReactN
   const admin = user.role === "admin";
   const groups: NavGroup[] = [
     { title: "Content", items: [{ label: "Dashboard", href: "/admin" }, ...COLLECTIONS.filter((c) => c.group === "Content").map((c) => ({ label: c.label, href: `/admin/c/${c.key}` })), { label: "Media library", href: "/admin/media" }] },
-    { title: "Marketing", items: [{ label: "Leads", href: "/admin/leads", badge: newLeads }, { label: "Form submissions", href: "/admin/submissions", badge: unread }, ...COLLECTIONS.filter((c) => c.group === "Marketing").map((c) => ({ label: c.label, href: `/admin/c/${c.key}` }))] },
+    { title: "Marketing", items: [{ label: "Location pages", href: "/admin/locations" }, { label: "Leads", href: "/admin/leads", badge: newLeads }, { label: "Form submissions", href: "/admin/submissions", badge: unread }, ...COLLECTIONS.filter((c) => c.group === "Marketing").map((c) => ({ label: c.label, href: `/admin/c/${c.key}` }))] },
     ...(admin ? [
+      { title: "Design", items: COLLECTIONS.filter((c) => c.group === "Design").map((c) => ({ label: c.label, href: `/admin/c/${c.key}` })) },
       { title: "AI", items: [{ label: "AI tools", href: "/admin/ai" }] },
       { title: "SEO", items: [{ label: "SEO, redirects & 404s", href: "/admin/seo" }] },
       { title: "Appearance", items: [{ label: "Themes", href: "/admin/appearance" }, { label: "Navigation", href: "/admin/navigation" }] },
