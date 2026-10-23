@@ -131,8 +131,10 @@ export function ThemeStudio({ themes, active }: { themes: Theme[]; active: strin
         <h2 className="mb-1 text-lg font-semibold">Experience settings</h2>
         <p className="mb-5 text-sm text-fg2">Sitewide switches for mode and motion effects.</p>
         <SettingsSection k="appearance" fields={[
-          { name: "defaultMode", label: "Mode for first-time visitors", type: "select", ai: false, options: [{ value: "system", label: "Follow the visitor's device" }, { value: "dark", label: "Always start dark" }, { value: "light", label: "Always start light" }, { value: "theme", label: "Use the theme's default" }] },
-          { name: "modeToggle", label: "Show the dark / light toggle in the header", type: "toggle", ai: false },
+          { name: "defaultMode", label: "Mode for first-time visitors", type: "select", ai: false, options: [{ value: "system", label: "System (follow the visitor's device)" }, { value: "dark", label: "Always start dark" }, { value: "light", label: "Always start light" }, { value: "theme", label: "Use the theme's default" }] },
+          { name: "modeToggle", label: "Show the System / Light / Dark switch in the header", type: "toggle", ai: false },
+          { name: "accentPicker", label: "Let visitors pick an accent colour", type: "toggle", ai: false },
+          { name: "ambient", label: "Pointer spotlight and grid across the page", type: "toggle", ai: false },
           { name: "smoothScroll", label: "Smooth, inertial scrolling", type: "toggle", ai: false },
           { name: "cursor", label: "Custom cursor (desktop only)", type: "toggle", ai: false },
           { name: "intro", label: "Intro curtain on first visit", type: "toggle", ai: false },

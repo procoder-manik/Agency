@@ -22,7 +22,8 @@ export default async function WorkPage({ params }: P) {
   const d = p.data;
   const services = await related("services", d.services);
   const cs = (await getPublished("caseStudies")).find((c) => Number(c.data.project) === p.id);
-  const hero = mediaUrl(d.cover) || mediaUrl(d.screenshot) || ogFallback(p.title, "page", "Work");
+  const heroSrc = mediaUrl(d.cover) || mediaUrl(d.screenshot);
+  const hero = heroSrc || ogFallback(p.title, "page", "Work");
   const ld = await buildJsonLd({ type: p.seo?.schemaType && p.seo.schemaType !== "auto" ? p.seo.schemaType : "CreativeWork", title: p.title, description: d.summary, path: `/work/${p.slug}`, image: hero, crumbs: [{ name: "Work", path: "/work" }, { name: p.seo?.breadcrumbTitle || p.title, path: `/work/${p.slug}` }], dateModified: p.updatedAt });
   const facts: [string, React.ReactNode][] = [
     ["Client", d.client], ["Industry", d.industry], ["Status", STATUS[d.workStatus] || "Live"], ["Platform", d.platform],
@@ -35,7 +36,7 @@ export default async function WorkPage({ params }: P) {
       <DetailHero crumbs={[{ name: "Work", href: "/work" }, { name: p.title }]} title={p.title} sub={d.summary}>
         {d.liveUrl && <a href={d.liveUrl} target="_blank" rel="noopener" className="btn btn-ghost fade-in mt-8">Visit the live site</a>}
       </DetailHero>
-      <section className="pb-10"><div className="container-x"><Reveal><div className="glass overflow-hidden p-2" style={d.accent ? { boxShadow: `0 40px 120px -50px ${d.accent}` } : undefined}><Media src={hero} alt={mediaAlt(d.cover || d.screenshot, p.title)} priority className="aspect-[16/9] w-full" /></div></Reveal></div></section>
+      <section className="pb-10"><div className="container-x"><Reveal><div className="glass overflow-hidden p-2" style={d.accent ? { boxShadow: `0 40px 120px -50px ${d.accent}` } : undefined}><Media src={heroSrc} poster={p.title} alt={mediaAlt(d.cover || d.screenshot, p.title)} priority className="aspect-[16/9] w-full" /></div></Reveal></div></section>
       <section className="section !pt-10"><div className="container-x grid gap-12 lg:grid-cols-[1fr_320px]">
         <div className="prose-site text-lg" dangerouslySetInnerHTML={{ __html: renderMarkdown(d.body || "") }} />
         <aside><dl className="glass sticky top-24 space-y-4 p-6">{facts.filter(([, v]) => v).map(([k, v]) => <div key={k}><dt className="text-sm text-muted">{k}</dt><dd className="mt-0.5 text-fg">{v}</dd></div>)}</dl></aside>

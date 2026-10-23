@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { ModeSegment } from "@/components/site/ThemePanel";
 
 export interface NavGroup { title: string; items: { label: string; href: string; badge?: number }[] }
 
@@ -29,6 +30,7 @@ export function Sidebar({ groups, user, siteName }: { groups: NavGroup[]; user: 
         ))}
       </div>
       <div className="border-t border-line px-5 py-4 text-sm">
+        <div className="mb-4"><ModeSegment /></div>
         <p className="truncate text-fg">{user.email}</p><p className="text-xs capitalize text-muted">{user.role}</p>
         <button onClick={logout} className="mt-2 text-fg2 hover:text-danger">Sign out</button>
       </div>

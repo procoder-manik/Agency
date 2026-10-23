@@ -18,6 +18,7 @@ export async function handleMissing(path: string): Promise<never> {
   try {
     const [r] = await db().select().from(schema.redirects).where(eq(schema.redirects.fromPath, path.replace(/\/+$/, "") || "/")).limit(1);
     if (r) { if (r.type === 302) redirect(r.toPath); permanentRedirect(r.toPath); }
+    if (/\.(ico|png|jpe?g|gif|svg|webp|avif|map|js|css|woff2?|ttf|txt|xml|php|env|json)$/i.test(path) || /^\/(wp-|\.well-known|_next|xmlrpc)/i.test(path)) notFound();
     const ref = headers().get("referer") || "";
     await db().insert(schema.notFoundLog).values({ path: path.slice(0, 500), referrer: ref.slice(0, 500) })
       .onConflictDoUpdate({ target: schema.notFoundLog.path, set: { hits: dsql`${schema.notFoundLog.hits} + 1`, lastSeen: new Date(), referrer: ref.slice(0, 500), updatedAt: new Date() } });

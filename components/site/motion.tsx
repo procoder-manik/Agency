@@ -44,8 +44,19 @@ export function Tilt({ children, className = "", style }: { children: ReactNode;
 }
 
 /** Renders an image, animated GIF, looping muted video, Lottie JSON or YouTube URL. Lazy below the fold. */
-export function Media({ src, alt = "", className = "", priority = false, cover = true }: { src: string; alt?: string; className?: string; priority?: boolean; cover?: boolean }) {
-  const kind = mediaKind(src);
+export function Poster({ title, className = "" }: { title?: string; className?: string }) {
+  const t = (title || "").trim();
+  return (
+    <div role="img" aria-label={t || "Image placeholder"} className={`poster relative grid place-items-center overflow-hidden ${className}`}>
+      <span aria-hidden className="poster-grid" /><span aria-hidden className="poster-orb" />
+      {t && <span className="relative px-6 text-center font-display text-[clamp(1.3rem,3.4vw,2.4rem)] font-bold leading-[1.05] tracking-tight text-fg">{t.length > 46 ? t.slice(0, 45) + "…" : t}</span>}
+    </div>
+  );
+}
+
+export function Media({ src, alt = "", className = "", priority = false, cover = true, poster }: { src: string; alt?: string; className?: string; priority?: boolean; cover?: boolean; poster?: string }) {
+  const [failed, setFailed] = useState(false);
+  const kind = failed ? "none" : mediaKind(src);
   const ref = useRef<HTMLDivElement>(null);
   const vref = useRef<HTMLVideoElement>(null);
   const fit = cover ? "object-cover" : "object-contain";
@@ -62,13 +73,14 @@ export function Media({ src, alt = "", className = "", priority = false, cover =
     }
     if (kind === "video" && vref.current && window.matchMedia("(prefers-reduced-motion: reduce)").matches) vref.current.pause();
   }, [kind, src]);
-  if (kind === "none") return null;
+  useEffect(() => setFailed(false), [src]);
+  if (kind === "none") return <Poster title={poster ?? alt} className={className} />;
   if (kind === "youtube") {
     const id = src.match(/(?:v=|youtu\.be\/|embed\/)([\w-]{11})/)?.[1];
     return <div className={`aspect-video overflow-hidden ${className}`}><iframe className="h-full w-full" loading="lazy" src={`https://www.youtube-nocookie.com/embed/${id}`} title={alt || "Video"} allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen /></div>;
   }
-  if (kind === "video") return <video ref={vref} className={`${fit} ${className}`} src={src} autoPlay muted loop playsInline preload={priority ? "auto" : "none"} aria-label={alt} />;
+  if (kind === "video") return <video ref={vref} className={`${fit} ${className}`} src={src} autoPlay muted loop playsInline preload={priority ? "auto" : "none"} aria-label={alt} onError={() => setFailed(true)} />;
   if (kind === "lottie") return <div ref={ref} className={className} role="img" aria-label={alt} />;
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src={src} alt={alt} className={`${fit} ${className}`} loading={priority ? "eager" : "lazy"} decoding="async" fetchPriority={priority ? "high" : "auto"} />;
+  return <img src={src} alt={alt} className={`${fit} ${className}`} loading={priority ? "eager" : "lazy"} decoding="async" fetchPriority={priority ? "high" : "auto"} onError={() => setFailed(true)} />;
 }

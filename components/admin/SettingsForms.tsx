@@ -52,7 +52,7 @@ export function SiteSettings() {
           t("tagline", "Tagline", "text", { ai: true }), t("ctaLabel", "Main call to action label"), t("description", "One-line description", "textarea", { ai: true }),
           t("longDescription", "Long description", "textarea", { ai: true }), t("logo", "Logo (leave empty for the generated mark)", "image", { size: "400 × 120" }), t("logoAlt", "Logo alt text"),
           t("ctaHref", "Main call to action link"), t("domain", "Primary domain", "url", { help: "e.g. https://youragency.com, used for canonical URLs and the sitemap." }),
-          t("legalName", "Legal business name"), t("registration", "Registration details"),
+          t("legalName", "Legal business name"), t("registration", "Registration details"), t("availability", "Availability line shown on the home hero", "text", { help: "A small status pill with a pulsing dot. Leave empty to hide it. Keep it true." }),
         ]} />}
         {tab === "Contact & social" && <SettingsSection k="identity" fields={[
           t("email", "Contact email"), t("phone", "Phone"), t("whatsapp", "WhatsApp number"), t("address", "Address (optional)"), t("hours", "Business hours"), t("replyTime", "Typical reply time", "text", { placeholder: "within one business day" }),
@@ -66,7 +66,7 @@ export function SiteSettings() {
           t("chatMode", "Chat widget", "select", { options: [{ value: "builtin", label: "Built-in assistant (answers from FAQ)" }, { value: "thirdparty", label: "Third-party chat script" }, { value: "off", label: "Off" }] }),
           t("chatPosition", "Chat position", "select", { options: [{ value: "right", label: "Right" }, { value: "left", label: "Left" }] }),
           t("backToTopPosition", "Back-to-top button position", "select", { options: [{ value: "right", label: "Right" }, { value: "left", label: "Left" }], help: "If it shares a side with the chat button, it moves up automatically." }),
-          t("chatGreeting", "Chat greeting", "textarea"), t("chatScript", "Third-party chat embed code", "textarea", { help: "Paste the snippet from Crisp, Tawk.to, Intercom, etc." }),
+          t("chatBotName", "Assistant name (blank = your agency name)"), t("chatGreeting", "Chat greeting", "textarea"), t("chatSuggestions", "Quick-reply buttons (blank = automatic)", "tags", { help: "Short questions visitors can tap. Example: How much does it cost?" }), t("chatLeadCapture", "Let the chat collect name and email for a human follow-up", "toggle"), t("chatScript", "Third-party chat embed code", "textarea", { help: "Paste the snippet from Crisp, Tawk.to, Intercom, etc." }),
         ]} />}
         {tab === "Features" && <SettingsSection k="features" fields={[
           t("pricing", "Public pricing pages and tables", "toggle", { help: "Turn off to work by custom quote only." }), t("blog", "Blog", "toggle"), t("caseStudies", "Case studies", "toggle"),

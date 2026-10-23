@@ -26,7 +26,8 @@ export default async function PostPage({ params }: P) {
   const [cats, team, posts] = await Promise.all([getPublished("categories"), getPublished("team"), getPublished("posts")]);
   const cat = cats.find((c) => c.id === Number(d.category));
   const author = team.find((t) => t.id === Number(d.author));
-  const cover = mediaUrl(d.cover) || ogFallback(p.title, "post", d.kind === "update" ? "Update" : "Article");
+  const coverSrc = mediaUrl(d.cover);
+  const cover = coverSrc || ogFallback(p.title, "post", d.kind === "update" ? "Update" : "Article");
   const more = posts.filter((x) => x.id !== p.id && (!cat || Number(x.data.category) === cat.id)).slice(0, 3);
   const ld = await buildJsonLd({ type: p.seo?.schemaType && p.seo.schemaType !== "auto" ? p.seo.schemaType : "BlogPosting", title: p.title, description: d.excerpt, path: `/blog/${p.slug}`, image: cover, datePublished: p.publishedAt, dateModified: p.updatedAt, author: author?.title, crumbs: [{ name: "Blog", path: "/blog" }, { name: p.seo?.breadcrumbTitle || p.title, path: `/blog/${p.slug}` }] });
   return (
@@ -40,7 +41,7 @@ export default async function PostPage({ params }: P) {
           {d.excerpt && <p className="lead mt-5">{d.excerpt}</p>}
           {author && <p className="mt-6 text-fg2">By <span className="text-fg">{author.title}</span>{author.data.role ? `, ${author.data.role}` : ""}</p>}
         </header>
-        <div className="container-x mt-10 max-w-5xl"><div className="glass overflow-hidden p-2"><Media src={cover} alt={mediaAlt(d.cover, p.title)} priority className="aspect-[16/9] w-full" /></div></div>
+        <div className="container-x mt-10 max-w-5xl"><div className="glass overflow-hidden p-2"><Media src={coverSrc} poster={p.title} alt={mediaAlt(d.cover, p.title)} priority className="aspect-[16/9] w-full" /></div></div>
         <div className="container-x max-w-3xl py-14"><div className="prose-site text-lg" dangerouslySetInnerHTML={{ __html: renderMarkdown(d.body || "") }} />
           {(d.tags || []).length > 0 && <div className="mt-10 flex flex-wrap gap-2">{d.tags.map((t: string) => <span key={t} className="chip">#{t}</span>)}</div>}
           {author && <div className="glass mt-12 flex items-center gap-4 p-6">

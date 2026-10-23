@@ -76,23 +76,6 @@ export function Intro({ name }: { name: string }) {
   );
 }
 
-/* ---------- Dark / light toggle ---------- */
-export function ModeToggle({ className = "" }: { className?: string }) {
-  const toggle = () => {
-    const d = document.documentElement; const next = d.dataset.mode === "dark" ? "light" : "dark";
-    const apply = () => { d.dataset.mode = next; d.classList.toggle("dark", next === "dark"); try { localStorage.setItem("mode", next); } catch {} window.dispatchEvent(new Event("modechange")); };
-    const vt = (document as any).startViewTransition;
-    if (vt && !reduced()) vt.call(document, apply); else apply();
-  };
-  return (
-    <button type="button" onClick={toggle} aria-label="Switch dark or light mode" title="Dark / light"
-      className={`mode-toggle relative grid h-11 w-11 place-items-center rounded-full border border-line bg-surface/40 text-fg backdrop-blur transition-colors hover:border-fg/40 ${className}`}>
-      <svg className="sun absolute" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="4.2" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></svg>
-      <svg className="moon absolute" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M20.5 14.2A8.5 8.5 0 1 1 9.8 3.5a7 7 0 0 0 10.7 10.7z" /></svg>
-    </button>
-  );
-}
-
 /* ---------- Magnetic wrapper ---------- */
 export function Magnetic({ children, strength = 0.35, className = "" }: { children: ReactNode; strength?: number; className?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -173,7 +156,7 @@ export function HeroCanvas() {
     if (reduced()) draw(); else raf = requestAnimationFrame(loop);
     return () => { cancelAnimationFrame(raf); io.disconnect(); window.removeEventListener("resize", size); window.removeEventListener("pointermove", move); window.removeEventListener("modechange", onMode); };
   }, []);
-  return <canvas ref={ref} className="hero-canvas" aria-hidden />;
+  return <><canvas ref={ref} className="hero-canvas" aria-hidden /><Particles /></>;
 }
 
 /* ---------- Rotating circular text badge ---------- */
@@ -196,4 +179,81 @@ export function Clock({ tz }: { tz?: string }) {
   const [now, setNow] = useState("");
   useEffect(() => { const f = () => { try { setNow(new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZone: tz || undefined })); } catch { setNow(new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })); } }; f(); const i = setInterval(f, 15000); return () => clearInterval(i); }, [tz]);
   return <span suppressHydrationWarning>{now}</span>;
+}
+
+/* ---------- Constellation of particles that react to the pointer ---------- */
+function Particles() {
+  const ref = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const cv = ref.current; if (!cv || reduced()) return; const ctx = cv.getContext("2d"); if (!ctx) return;
+    const dpr = Math.min(1.5, devicePixelRatio || 1);
+    let w = 0, h = 0, raf = 0, vis = true; let col = cssRgb("accent");
+    const mouse = { x: -9999, y: -9999 };
+    type P = { x: number; y: number; vx: number; vy: number; r: number };
+    let ps: P[] = [];
+    const size = () => {
+      const r = cv.getBoundingClientRect(); w = cv.width = Math.max(1, r.width * dpr); h = cv.height = Math.max(1, r.height * dpr);
+      const n = Math.round(Math.min(64, Math.max(20, (r.width * r.height) / 28000)));
+      ps = Array.from({ length: n }, () => ({ x: Math.random() * w, y: Math.random() * h, vx: (Math.random() - 0.5) * 0.28 * dpr, vy: (Math.random() - 0.5) * 0.28 * dpr, r: (Math.random() * 1.4 + 0.7) * dpr }));
+    };
+    const rgba = (a: number) => col.replace("rgb(", "rgba(").replace(")", `,${a})`);
+    const loop = () => {
+      if (vis) {
+        ctx.clearRect(0, 0, w, h); const link = 150 * dpr; const rad = 190 * dpr;
+        for (let i = 0; i < ps.length; i++) {
+          const p = ps[i]; p.x += p.vx; p.y += p.vy; if (p.x < 0 || p.x > w) p.vx *= -1; if (p.y < 0 || p.y > h) p.vy *= -1;
+          const dx = p.x - mouse.x, dy = p.y - mouse.y, d = Math.hypot(dx, dy);
+          if (d > 0 && d < rad) { const f = (1 - d / rad) * 0.9 * dpr; p.x += (dx / d) * f; p.y += (dy / d) * f; }
+          ctx.fillStyle = rgba(0.75); ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.2832); ctx.fill();
+          for (let j = i + 1; j < ps.length; j++) {
+            const q = ps[j]; const dd = Math.hypot(p.x - q.x, p.y - q.y);
+            if (dd < link) { ctx.strokeStyle = rgba(0.2 * (1 - dd / link)); ctx.lineWidth = dpr * 0.8; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.stroke(); }
+          }
+        }
+      }
+      raf = requestAnimationFrame(loop);
+    };
+    const move = (e: PointerEvent) => { const r = cv.getBoundingClientRect(); mouse.x = (e.clientX - r.left) * dpr; mouse.y = (e.clientY - r.top) * dpr; };
+    const onMode = () => { col = cssRgb("accent"); };
+    size(); const io = new IntersectionObserver(([e]) => (vis = e.isIntersecting)); io.observe(cv);
+    window.addEventListener("resize", size); window.addEventListener("pointermove", move, { passive: true }); window.addEventListener("modechange", onMode);
+    raf = requestAnimationFrame(loop);
+    return () => { cancelAnimationFrame(raf); io.disconnect(); window.removeEventListener("resize", size); window.removeEventListener("pointermove", move); window.removeEventListener("modechange", onMode); };
+  }, []);
+  return <canvas ref={ref} className="hero-canvas !opacity-70" aria-hidden />;
+}
+
+/* ---------- Pointer spotlight that reveals a faint grid across the whole page ---------- */
+export function Ambient() {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!fine() || reduced()) return;
+    let x = innerWidth / 2, y = innerHeight / 3, cx = x, cy = y, raf = 0;
+    const mv = (e: PointerEvent) => { x = e.clientX; y = e.clientY; };
+    const loop = () => { cx += (x - cx) * 0.08; cy += (y - cy) * 0.08; ref.current?.style.setProperty("--sx", cx.toFixed(1) + "px"); ref.current?.style.setProperty("--sy", cy.toFixed(1) + "px"); raf = requestAnimationFrame(loop); };
+    window.addEventListener("pointermove", mv, { passive: true }); raf = requestAnimationFrame(loop);
+    return () => { window.removeEventListener("pointermove", mv); cancelAnimationFrame(raf); };
+  }, []);
+  return <div ref={ref} className="ambient" aria-hidden />;
+}
+
+/* ---------- Decode / scramble text effect ---------- */
+export function ScrambleText({ text, className = "" }: { text: string; className?: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    const el = ref.current; if (!el) return; if (reduced()) { el.textContent = text; return; }
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*+<>/"; let raf = 0;
+    const run = () => {
+      const start = performance.now(); const dur = 600 + text.length * 30;
+      const tick = (now: number) => {
+        const p = Math.min(1, (now - start) / dur); let out = "";
+        for (let i = 0; i < text.length; i++) out += text[i] === " " || i < text.length * p ? text[i] : chars[Math.floor(Math.random() * chars.length)];
+        el.textContent = out; if (p < 1) raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+    };
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { run(); io.disconnect(); } }, { threshold: 0.6 });
+    io.observe(el); return () => { cancelAnimationFrame(raf); io.disconnect(); };
+  }, [text]);
+  return <span className={className}><span ref={ref} aria-hidden>{text}</span><span className="sr-only">{text}</span></span>;
 }

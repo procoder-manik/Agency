@@ -60,6 +60,13 @@ export const BLOCKS: BlockDef[] = [
   { type: "contact", label: "Contact form", description: "A form from the Forms collection", fields: [heading, { name: "text", label: "Text", type: "textarea" }, { name: "form", label: "Form", type: "relation", collection: "forms" }, { name: "details", label: "Show contact details", type: "toggle" }] },
 ];
 
+const eyebrow: Field = { name: "eyebrow", label: "Small label above the heading", type: "text", placeholder: "e.g. Services" };
+for (const b of BLOCKS) {
+  if (b.type === "hero") continue;
+  const i = b.fields.findIndex((f) => f.name === "heading");
+  if (i >= 0 && !b.fields.some((f) => f.name === "eyebrow")) b.fields.splice(i + 1, 0, eyebrow);
+}
+
 export const getBlockDef = (t: string) => BLOCKS.find((b) => b.type === t);
 export const newBlock = (type: string, data: Record<string, any> = {}, required = false): Block => ({
   id: Math.random().toString(36).slice(2, 10), type, data, ...(required ? { required: true } : {}),
@@ -71,15 +78,15 @@ export const BUILTIN_PAGES: { slug: string; title: string; schema: string; block
     ["hero", { heading: "Websites that win you clients, not just compliments", subheading: "We design, build and grow fast websites for small and mid-sized businesses, then keep them working.", primaryLabel: "Book a free consultation", primaryHref: "/contact", secondaryLabel: "See our work", secondaryHref: "/work", badges: ["Design", "Development", "SEO", "Automation"], mediaMode: "side" }],
     ["marquee", { heading: "Teams we've built for", items: [{ label: "Northwind" }, { label: "Acme Co" }, { label: "Harbor & Pine" }, { label: "Lumen Clinic" }, { label: "Fieldstone" }, { label: "Kite Labs" }] }],
     ["split", { heading: "A small team that ships", body: "We keep projects small enough that the people you talk to are the people doing the work. Strategy, design, code and search all sit at one table." }],
-    ["services", { heading: "What we do", intro: "Pick one service or combine them. Every project starts with a free call." }],
-    ["work", { heading: "Selected work", limit: 6, featuredOnly: true }],
-    ["casestudies", { heading: "Case study", limit: 1 }],
-    ["steps", { heading: "How we work", items: [{ title: "Discovery call", text: "We learn what you sell, who buys it and what the site has to do." }, { title: "Plan and design", text: "Sitemap, wireframes and a visual direction you approve before we build." }, { title: "Build and launch", text: "Fast, accessible pages, set up for search from day one." }, { title: "Grow and care", text: "Monthly updates, SEO and fixes so the site keeps earning." }] }],
-    ["team", { heading: "The people behind the work", limit: 4 }],
-    ["testimonials", { heading: "What clients say", limit: 3 }],
-    ["pricing", { heading: "Simple packages", intro: "Fixed prices for common projects. Custom quotes for everything else.", teaser: true }],
-    ["blog", { heading: "From the blog", limit: 3 }],
-    ["faq", { heading: "Questions we hear often", source: "collection", limit: 5 }],
+    ["services", { heading: "What we do", eyebrow: "Services", intro: "Pick one service or combine them. Every project starts with a free call." }],
+    ["work", { heading: "Selected work", eyebrow: "Work", limit: 6, featuredOnly: true }],
+    ["casestudies", { heading: "Case study", eyebrow: "Case study", limit: 1 }],
+    ["steps", { heading: "How we work", eyebrow: "Process", items: [{ title: "Discovery call", text: "We learn what you sell, who buys it and what the site has to do." }, { title: "Plan and design", text: "Sitemap, wireframes and a visual direction you approve before we build." }, { title: "Build and launch", text: "Fast, accessible pages, set up for search from day one." }, { title: "Grow and care", text: "Monthly updates, SEO and fixes so the site keeps earning." }] }],
+    ["team", { heading: "The people behind the work", eyebrow: "Team", limit: 4 }],
+    ["testimonials", { heading: "What clients say", eyebrow: "Clients", limit: 3 }],
+    ["pricing", { heading: "Simple packages", eyebrow: "Pricing", intro: "Fixed prices for common projects. Custom quotes for everything else.", teaser: true }],
+    ["blog", { heading: "From the blog", eyebrow: "Journal", limit: 3 }],
+    ["faq", { heading: "Questions we hear often", eyebrow: "FAQ", source: "collection", limit: 5 }],
     ["cta", { heading: "Have a project in mind?", text: "Tell us what you need. We reply within one business day.", primaryLabel: "Book a free consultation", primaryHref: "/contact" }],
   ] },
   { slug: "services", title: "Services", schema: "CollectionPage", blocks: [["hero", { heading: "Services", subheading: "Design, development, search and automation for growing businesses." }], ["services", {}], ["cta", { heading: "Not sure what you need?", text: "A short call usually answers it.", primaryLabel: "Book a free consultation", primaryHref: "/contact" }]] },

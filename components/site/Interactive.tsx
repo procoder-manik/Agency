@@ -32,7 +32,7 @@ export function WorkGrid({ items, filters }: { items: WorkCard[]; filters?: bool
               <Link href={p.href} data-cursor="View" className="group img-zoom block">
                 <ClipReveal className="relative bg-raised">
                   <div className="relative aspect-[16/11]">
-                    <Media src={p.img} alt={p.alt} className="h-full w-full" />
+                    <Media src={p.img} alt={p.alt} poster={p.title} className="h-full w-full" />
                     <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-bg/80 px-3 py-1 text-xs font-medium text-fg backdrop-blur">
                       <span className={`h-1.5 w-1.5 rounded-full ${p.status === "completed" ? "bg-success" : "animate-pulse bg-accent"}`} />{STATUS[p.status] || "Live"}
                     </span>
@@ -88,7 +88,7 @@ export function BlogList({ items, filters }: { items: PostCard[]; filters?: bool
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {list.map((p) => (
           <Link key={p.id} href={p.href} className="card group flex flex-col transition-colors hover:border-accent/50">
-            <div className="aspect-[16/9] overflow-hidden bg-raised"><Media src={p.img} alt={p.alt} className="h-full w-full transition-transform duration-700 group-hover:scale-[1.03]" /></div>
+            <div className="aspect-[16/9] overflow-hidden bg-raised"><Media src={p.img} alt={p.alt} poster={p.title} className="h-full w-full transition-transform duration-700 group-hover:scale-[1.03]" /></div>
             <div className="flex flex-1 flex-col p-5">
               <p className="text-sm text-muted">{[p.category, p.date].filter(Boolean).join(", ")}</p>
               <h3 className="mt-1.5 text-lg font-semibold leading-snug">{p.title}</h3>

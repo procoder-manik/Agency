@@ -40,33 +40,33 @@ export const PRESETS: Theme[] = [
   { slug: "signal", name: "Signal", builtin: true, tokens: {
     mode: "dark", radius: "soft", texture: "grid", motion: "standard",
     fonts: { display: "Space Grotesk", body: "IBM Plex Sans", mono: "IBM Plex Mono" },
-    colors: { bg: "#07101F", surface: "#0C1A30", raised: "#12243F", line: "#1E3456", fg: "#EAF2FF", fg2: "#B5C6E0", muted: "#7F93B3",
-      accent: "#3D8BFF", accent2: "#22D3EE", onaccent: "#04101F", success: "#34D399", warning: "#FBBF24", danger: "#F87171" }, alt: { bg: "#F4F7FC", surface: "#FFFFFF", raised: "#E9EFF8", line: "#D3DDEC", fg: "#081427", fg2: "#33445F", muted: "#5F6F88", accent: "#1F5FE0", accent2: "#0891B2", onaccent: "#FFFFFF", success: "#047857", warning: "#A16207", danger: "#B91C1C" } } },
+    colors: { bg: "#060913", surface: "#0B111F", raised: "#121A2D", line: "#1E2A45", fg: "#EAF0FF", fg2: "#A9B6D3", muted: "#7283A6", accent: "#4C8DFF", accent2: "#22E5D0", onaccent: "#04101F", success: "#34D399", warning: "#FBBF24", danger: "#F87171" },
+    alt: { bg: "#F5F8FD", surface: "#FFFFFF", raised: "#EBF0F9", line: "#D5DDEC", fg: "#0A1226", fg2: "#38486A", muted: "#5C6B89", accent: "#1E5CF2", accent2: "#0A8FA6", onaccent: "#FFFFFF", success: "#047857", warning: "#A16207", danger: "#B91C1C" } } },
   { slug: "nebula", name: "Nebula", builtin: true, tokens: {
     mode: "dark", radius: "pill", texture: "aurora", motion: "playful",
     fonts: { display: "Nunito", body: "Nunito Sans", mono: "JetBrains Mono" },
-    colors: { bg: "#0A0612", surface: "#140C22", raised: "#1D1230", line: "#2E1F48", fg: "#F6EEFF", fg2: "#CDBDE6", muted: "#9584B3",
-      accent: "#B266FF", accent2: "#FF4FB8", onaccent: "#10051C", success: "#4ADE80", warning: "#FACC15", danger: "#FB7185" }, alt: { bg: "#FBF7FF", surface: "#FFFFFF", raised: "#F3EBFF", line: "#E4D6F7", fg: "#1A0B2E", fg2: "#4A3966", muted: "#6E5E8A", accent: "#8B2BE2", accent2: "#D6247F", onaccent: "#FFFFFF", success: "#15803D", warning: "#A16207", danger: "#BE123C" } } },
+    colors: { bg: "#0A0613", surface: "#130D22", raised: "#1B1330", line: "#2C2048", fg: "#F5EEFF", fg2: "#C6B8E2", muted: "#8E7DB0", accent: "#A66BFF", accent2: "#FF5CC0", onaccent: "#12051F", success: "#34D399", warning: "#FBBF24", danger: "#F87171" },
+    alt: { bg: "#FAF6FF", surface: "#FFFFFF", raised: "#F2EAFE", line: "#E1D3F6", fg: "#170A2B", fg2: "#46355F", muted: "#675684", accent: "#7C2FE0", accent2: "#C41E78", onaccent: "#FFFFFF", success: "#047857", warning: "#A16207", danger: "#B91C1C" } } },
   { slug: "emerald", name: "Emerald", builtin: true, tokens: {
     mode: "dark", radius: "sharp", texture: "dots", motion: "standard",
     fonts: { display: "Syne", body: "DM Sans", mono: "DM Mono" },
-    colors: { bg: "#0F1412", surface: "#161D1A", raised: "#1D2622", line: "#2A3832", fg: "#E8F5EF", fg2: "#B3CABF", muted: "#7E978B",
-      accent: "#19C9A7", accent2: "#7BE07A", onaccent: "#04130F", success: "#4ADE80", warning: "#F5B83D", danger: "#F26D6D" }, alt: { bg: "#F4F8F6", surface: "#FFFFFF", raised: "#E8F1ED", line: "#CFE0D8", fg: "#0C1A15", fg2: "#33483F", muted: "#5B7066", accent: "#0B8A72", accent2: "#3F8F2E", onaccent: "#FFFFFF", success: "#15803D", warning: "#A16207", danger: "#B91C1C" } } },
+    colors: { bg: "#06110D", surface: "#0D1A15", raised: "#14251F", line: "#1F362D", fg: "#E7F7F0", fg2: "#A8C9BC", muted: "#6F9486", accent: "#1FD1A8", accent2: "#8BE04E", onaccent: "#03130E", success: "#34D399", warning: "#FBBF24", danger: "#F87171" },
+    alt: { bg: "#F2F9F6", surface: "#FFFFFF", raised: "#E6F1EC", line: "#CCDFD6", fg: "#0B1A14", fg2: "#32483E", muted: "#586F63", accent: "#08795F", accent2: "#3A8A1E", onaccent: "#FFFFFF", success: "#047857", warning: "#A16207", danger: "#B91C1C" } } },
   { slug: "sunrise", name: "Sunrise", builtin: true, tokens: {
     mode: "light", radius: "soft", texture: "none", motion: "minimal",
     fonts: { display: "Fraunces", body: "Outfit", mono: "Space Mono" },
-    colors: { bg: "#FFF9F2", surface: "#FFFFFF", raised: "#FFF1E3", line: "#F1DCC6", fg: "#2A1A10", fg2: "#5B4334", muted: "#8A7060",
-      accent: "#C2410C", accent2: "#E11D74", onaccent: "#FFFFFF", success: "#15803D", warning: "#B45309", danger: "#B91C1C" }, alt: { bg: "#1A110B", surface: "#231710", raised: "#2E1F16", line: "#433024", fg: "#FFF3E8", fg2: "#E2C9B5", muted: "#B3967F", accent: "#FB923C", accent2: "#F472B6", onaccent: "#1A0E06", success: "#4ADE80", warning: "#FBBF24", danger: "#F87171" } } },
+    colors: { bg: "#FFF8F0", surface: "#FFFFFF", raised: "#FFEEDB", line: "#EFD8BE", fg: "#2A1608", fg2: "#5A4030", muted: "#7E6350", accent: "#C2410C", accent2: "#D1236F", onaccent: "#FFFFFF", success: "#047857", warning: "#A16207", danger: "#B91C1C" },
+    alt: { bg: "#140C07", surface: "#1D120B", raised: "#281910", line: "#3B2718", fg: "#FFF1E3", fg2: "#E0C6AF", muted: "#AC8D75", accent: "#FF8A3D", accent2: "#FF5FA2", onaccent: "#1A0C03", success: "#34D399", warning: "#FBBF24", danger: "#F87171" } } },
   { slug: "mono", name: "Mono", builtin: true, tokens: {
     mode: "dark", radius: "sharp", texture: "noise", motion: "minimal",
     fonts: { display: "Space Mono", body: "Inter Tight", mono: "Space Mono" },
-    colors: { bg: "#131313", surface: "#1A1A1A", raised: "#222222", line: "#333333", fg: "#F2F2F2", fg2: "#BDBDBD", muted: "#8C8C8C",
-      accent: "#F5D90A", accent2: "#F5D90A", onaccent: "#131313", success: "#9BE38B", warning: "#F5D90A", danger: "#FF8A80" }, alt: { bg: "#F5F5F2", surface: "#FFFFFF", raised: "#EBEBE6", line: "#D4D4CE", fg: "#111111", fg2: "#3D3D3D", muted: "#6B6B6B", accent: "#111111", accent2: "#111111", onaccent: "#F5D90A", success: "#15803D", warning: "#854D0E", danger: "#B91C1C" } } },
+    colors: { bg: "#0E0E0E", surface: "#161616", raised: "#1F1F1F", line: "#2E2E2E", fg: "#F4F4F4", fg2: "#BEBEBE", muted: "#8A8A8A", accent: "#F5E50A", accent2: "#FFB800", onaccent: "#0E0E0E", success: "#34D399", warning: "#FBBF24", danger: "#F87171" },
+    alt: { bg: "#F4F4F1", surface: "#FFFFFF", raised: "#EAEAE6", line: "#D4D4CE", fg: "#0E0E0E", fg2: "#3C3C3C", muted: "#666666", accent: "#111111", accent2: "#3A3A3A", onaccent: "#F5E50A", success: "#047857", warning: "#A16207", danger: "#B91C1C" } } },
   { slug: "paper", name: "Paper", builtin: true, tokens: {
     mode: "light", radius: "sharp", texture: "grid", motion: "standard",
     fonts: { display: "Bricolage Grotesque", body: "Instrument Sans", mono: "Red Hat Mono" },
-    colors: { bg: "#F5F7FA", surface: "#FFFFFF", raised: "#EDF1F6", line: "#D7DEE8", fg: "#0E1726", fg2: "#3A4759", muted: "#677489",
-      accent: "#1D4ED8", accent2: "#0EA5E9", onaccent: "#FFFFFF", success: "#15803D", warning: "#A16207", danger: "#B91C1C" }, alt: { bg: "#0B1220", surface: "#111A2C", raised: "#18233A", line: "#26344F", fg: "#EEF3FB", fg2: "#B7C3D6", muted: "#8392AA", accent: "#5B8CFF", accent2: "#38BDF8", onaccent: "#06101F", success: "#4ADE80", warning: "#FACC15", danger: "#F87171" } } },
+    colors: { bg: "#F4F6FA", surface: "#FFFFFF", raised: "#EBEFF5", line: "#D5DCE8", fg: "#0E1726", fg2: "#3A4759", muted: "#627086", accent: "#1D4ED8", accent2: "#0284C7", onaccent: "#FFFFFF", success: "#047857", warning: "#A16207", danger: "#B91C1C" },
+    alt: { bg: "#0A101C", surface: "#111A2C", raised: "#18233A", line: "#26344F", fg: "#EEF3FB", fg2: "#B7C3D6", muted: "#8392AA", accent: "#5B8CFF", accent2: "#38BDF8", onaccent: "#06101F", success: "#34D399", warning: "#FBBF24", danger: "#F87171" } } },
 ];
 
 export const DEFAULT_THEME = PRESETS[0];
@@ -138,7 +138,7 @@ function colorVars(c: Record<ColorToken, string>) {
 /** CSS for both modes. The <html data-mode> attribute picks one; the visitor toggle flips it. */
 export function themeCssBoth(t: ThemeTokens) {
   const other = t.mode === "dark" ? "light" : "dark";
-  return `${themeCss(t)}:root[data-mode="${t.mode}"]{${colorVars(t.colors)};color-scheme:${t.mode}}:root[data-mode="${other}"]{${colorVars(paletteFor(t, other))};color-scheme:${other}}`;
+  return `${themeCss(t)}:root[data-mode="${t.mode}"]{${colorVars(t.colors)};color-scheme:${t.mode}}:root[data-mode="${other}"]{${colorVars(paletteFor(t, other))};color-scheme:${other}}${accentCss(t)}`;
 }
 
 export function themeCss(t: ThemeTokens, selector = ":root", mode?: "dark" | "light") {
@@ -178,4 +178,39 @@ export function normalizeTokens(input: any): ThemeTokens {
     texture: ["none", "grid", "dots", "noise", "aurora"].includes(t.texture) ? t.texture : base.texture,
     motion: ["minimal", "standard", "playful"].includes(t.motion) ? t.motion : base.motion,
   };
+}
+
+
+/* ---------- Visitor-selectable accent shades ---------- */
+export const ACCENTS: { id: string; label: string; a: string; b: string }[] = [
+  { id: "azure", label: "Azure", a: "#3D8BFF", b: "#22D3EE" },
+  { id: "violet", label: "Violet", a: "#8B5CF6", b: "#EC4899" },
+  { id: "emerald", label: "Emerald", a: "#10B981", b: "#84CC16" },
+  { id: "sunset", label: "Sunset", a: "#F97316", b: "#EF4444" },
+  { id: "rose", label: "Rose", a: "#F43F5E", b: "#FB923C" },
+  { id: "aqua", label: "Aqua", a: "#06B6D4", b: "#6366F1" },
+  { id: "lime", label: "Lime", a: "#84CC16", b: "#14B8A6" },
+  { id: "gold", label: "Gold", a: "#EAB308", b: "#F97316" },
+  { id: "graphite", label: "Graphite", a: "#9CA3AF", b: "#E5E7EB" },
+];
+
+function fitToBg(hex: string, bg: string, mode: "dark" | "light", min = 3.4) {
+  let c = hex;
+  for (let i = 0; i < 14 && contrast(c, bg) < min; i++) c = mix(c, mode === "dark" ? "#FFFFFF" : "#000000", 0.1);
+  return c;
+}
+
+/** CSS that re-points the accent for each visitor-chosen shade, once per mode, contrast-checked against that mode's background. */
+export function accentCss(t: ThemeTokens) {
+  let css = "";
+  for (const mode of ["dark", "light"] as const) {
+    const pal = paletteFor(t, mode);
+    for (const ac of ACCENTS) {
+      let a = fitToBg(ac.a, pal.bg, mode), b = fitToBg(ac.b, pal.bg, mode, 3);
+      if (ac.id === "graphite") { a = mode === "dark" ? "#E5E7EB" : "#1F2937"; b = mode === "dark" ? "#9CA3AF" : "#4B5563"; }
+      const on = contrast("#FFFFFF", a) >= 4.5 ? "#FFFFFF" : contrast("#0A0A0A", a) >= 4.5 ? "#0A0A0A" : (contrast("#FFFFFF", a) > contrast("#0A0A0A", a) ? "#FFFFFF" : "#0A0A0A");
+      css += `:root[data-accent="${ac.id}"][data-mode="${mode}"]{--c-accent:${hexToRgb(a).join(" ")};--c-accent2:${hexToRgb(b).join(" ")};--c-onaccent:${hexToRgb(on).join(" ")}}`;
+    }
+  }
+  return css;
 }

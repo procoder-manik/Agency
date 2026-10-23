@@ -1,13 +1,12 @@
 import Link from "next/link";
 import type { Block } from "@/lib/blocks";
-import { getPublished, related, type Entry } from "@/lib/content";
+import { getPublished, type Entry } from "@/lib/content";
 import { getAllSettings } from "@/lib/settings";
 import { renderMarkdown } from "@/lib/markdown";
 import { mediaAlt, mediaUrl } from "@/lib/media";
-import { ogFallback } from "@/lib/seo";
 import { fmtDate, formatPrice } from "@/lib/util";
 import { Counter, Media, Reveal, Tilt } from "./motion";
-import { ClipReveal, HeroCanvas, Magnetic, RotatingBadge, SplitText } from "./fx";
+import { ClipReveal, HeroCanvas, Magnetic, RotatingBadge, ScrambleText, SplitText } from "./fx";
 import { ServiceRows, StepsProgress, TestimonialSlider } from "./Showcase";
 import { BlogList, ContactForm, FaqList, PricingTabs, WorkGrid } from "./Interactive";
 
@@ -16,8 +15,10 @@ const arr = (v: any): any[] => (Array.isArray(v) ? v : []);
 
 function Head({ d, center = false, className = "" }: { d: D; center?: boolean; className?: string }) {
   if (!d.heading && !d.intro) return null;
+  const n = typeof d._n === "number" ? String(d._n).padStart(2, "0") : "";
   return (
     <div className={`mb-14 max-w-4xl sm:mb-20 ${center ? "mx-auto text-center" : ""} ${className}`}>
+      {(d.eyebrow || n) && <div className={`section-tag mono-tag ${center ? "justify-center" : ""}`}>{n && <span className="idx">[ {n} ]</span>}{d.eyebrow && <ScrambleText text={String(d.eyebrow)} />}</div>}
       {d.heading && <SplitText text={d.heading} as="h2" className="h-section" />}
       {d.intro && <Reveal delay={150}><p className={`lead mt-6 ${center ? "mx-auto" : ""}`}>{d.intro}</p></Reveal>}
     </div>
@@ -41,11 +42,12 @@ function Hero({ d, first }: { d: D; first: boolean }) {
       <div className="container-x">
         <div className={`grid items-end gap-14 ${src && !bg ? "lg:grid-cols-[1.3fr_.7fr]" : ""}`}>
           <div>
-            {arr(d.badges).length > 0 && (
-              <div className="fade-in mb-8 flex flex-wrap gap-2" style={{ animationDelay: "100ms" }}>
-                {arr(d.badges).map((b: string) => <span key={b} className="chip">{b}</span>)}
+            {(first && d._status) || arr(d.badges).length > 0 ? (
+              <div className="fade-in mb-8 flex flex-wrap items-center gap-2" style={{ animationDelay: "100ms" }}>
+                {first && d._status && <span className="chip mono-tag !border-success/40 !text-fg"><span className="pulse-dot" />{d._status}</span>}
+                {arr(d.badges).map((b: string) => <span key={b} className="chip mono-tag">{b}</span>)}
               </div>
-            )}
+            ) : null}
             <Tag className={first ? "h-display" : "h-section"} aria-label={d.heading}>
               {words.map((w, i) => <span key={i} className="word" aria-hidden><span className={i >= grad ? "text-gradient" : ""} style={{ animationDelay: delay(i) }}>{w}</span>{i < words.length - 1 ? "\u00a0" : ""}</span>)}
             </Tag>
@@ -63,9 +65,9 @@ function Hero({ d, first }: { d: D; first: boolean }) {
           </div>
           {src && !bg && (
             <div className="fade-in relative" style={{ animationDelay: "500ms" }}>
-              <div aria-hidden className="float absolute -right-6 -top-6 h-24 w-24 rounded-full border border-accent/40" />
-              <div aria-hidden className="float absolute -bottom-8 -left-8 h-16 w-16 border border-accent2/50" style={{ borderRadius: "var(--r-md)", animationDelay: "-3s" }} />
-              <Tilt className="!bg-surface/40 p-2"><Media src={src} alt={mediaAlt(d.media, d.heading)} priority className="aspect-[4/5] w-full" cover /></Tilt>
+              <div aria-hidden className="orbit -right-10 -top-10 h-[120%] w-[120%] opacity-70" style={{ left: "-10%" }} />
+              <div aria-hidden className="orbit rev left-[8%] top-[8%] h-[84%] w-[84%] opacity-60" />
+              <Tilt className="hud !bg-surface/40 p-2"><Media src={src} alt={mediaAlt(d.media, d.heading)} priority className="aspect-[4/5] w-full" cover /></Tilt>
             </div>
           )}
         </div>
@@ -84,7 +86,7 @@ function Split({ d }: { d: D }) {
           {d.body && <Reveal delay={120}><div className="prose-site mt-8 text-lg" dangerouslySetInnerHTML={{ __html: renderMarkdown(d.body) }} /></Reveal>}
           {d.linkLabel && <Reveal delay={200}><div className="mt-10"><Btn label={d.linkLabel} href={d.linkHref} /></div></Reveal>}
         </div>
-        {src && <ClipReveal className={`${d.reverse ? "lg:order-1" : ""} !rounded-[var(--r-xl)]`}><Media src={src} alt={mediaAlt(d.media, d.heading)} className="aspect-[4/3] w-full" /></ClipReveal>}
+        {src && <ClipReveal className={`hud ${d.reverse ? "lg:order-1" : ""} !rounded-[var(--r-xl)]`}><Media src={src} alt={mediaAlt(d.media, d.heading)} className="aspect-[4/3] w-full" /></ClipReveal>}
       </div>
     </section>
   );
@@ -251,7 +253,7 @@ export async function workCards(list: Entry[]) {
   const services = await getPublished("services");
   return list.map((p) => ({
     id: p.id, title: p.title, href: `/work/${p.slug}`, client: p.data.client || "",
-    img: mediaUrl(p.data.screenshot) || mediaUrl(p.data.cover) || ogFallback(p.title, "page", "Work"),
+    img: mediaUrl(p.data.screenshot) || mediaUrl(p.data.cover),
     alt: mediaAlt(p.data.screenshot, `${p.title} website screenshot`), industry: p.data.industry || "",
     services: (Array.isArray(p.data.services) ? p.data.services : []).map((id: any) => services.find((s) => s.id === Number(id))?.title).filter(Boolean) as string[],
     status: p.data.workStatus || "completed", summary: p.data.summary || "",
@@ -273,11 +275,11 @@ async function CaseStudies({ d }: { d: D }) {
   if (Number(d.limit) > 0) list = list.slice(0, Number(d.limit));
   if (!list.length) return null;
   const [first, ...rest] = list;
-  const img = (c: Entry) => mediaUrl(c.data.cover) || ogFallback(c.title, "case", "Case Study");
+  const img = (c: Entry) => mediaUrl(c.data.cover);
   return (
     <section className="section"><div className="container-x"><Head d={d} />
       <Reveal><Link href={`/case-studies/${first.slug}`} className="card group grid overflow-hidden md:grid-cols-[1fr_1.1fr]">
-        <div className="aspect-[4/5] overflow-hidden bg-raised md:aspect-auto"><Media src={img(first)} alt={mediaAlt(first.data.cover, first.title)} className="h-full w-full transition-transform duration-700 group-hover:scale-[1.03]" /></div>
+        <div className="aspect-[4/5] overflow-hidden bg-raised md:aspect-auto"><Media src={img(first)} poster={first.title} alt={mediaAlt(first.data.cover, first.title)} className="h-full w-full transition-transform duration-700 group-hover:scale-[1.03]" /></div>
         <div className="flex flex-col justify-center p-8 sm:p-12">
           <p className="text-fg2">{[first.data.client, first.data.industry].filter(Boolean).join(", ")}</p>
           <h3 className="mt-3 font-display text-3xl font-bold sm:text-4xl">{first.title}</h3>
@@ -289,7 +291,7 @@ async function CaseStudies({ d }: { d: D }) {
       {rest.length > 0 && <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {rest.map((c, i) => (
           <Reveal key={c.id} delay={i * 70}><Link href={`/case-studies/${c.slug}`} className="card group block h-full">
-            <div className="aspect-[4/3] overflow-hidden bg-raised"><Media src={img(c)} alt={mediaAlt(c.data.cover, c.title)} className="h-full w-full transition-transform duration-700 group-hover:scale-[1.03]" /></div>
+            <div className="aspect-[4/3] overflow-hidden bg-raised"><Media src={img(c)} poster={c.title} alt={mediaAlt(c.data.cover, c.title)} className="h-full w-full transition-transform duration-700 group-hover:scale-[1.03]" /></div>
             <div className="p-6"><p className="text-sm text-muted">{c.data.client}</p><h3 className="mt-1 text-xl font-semibold">{c.title}</h3></div>
           </Link></Reveal>
         ))}
@@ -301,7 +303,7 @@ async function CaseStudies({ d }: { d: D }) {
 export async function postCards(list: Entry[]) {
   const [cats, team] = await Promise.all([getPublished("categories"), getPublished("team")]);
   return list.map((p) => ({
-    id: p.id, title: p.title, href: `/blog/${p.slug}`, img: mediaUrl(p.data.cover) || ogFallback(p.title, "post", p.data.kind === "update" ? "Update" : "Article"),
+    id: p.id, title: p.title, href: `/blog/${p.slug}`, img: mediaUrl(p.data.cover),
     alt: mediaAlt(p.data.cover, p.title), excerpt: p.data.excerpt || "", category: cats.find((c) => c.id === Number(p.data.category))?.title || "",
     date: fmtDate(p.publishedAt || p.createdAt), author: team.find((t) => t.id === Number(p.data.author))?.title || "", kind: p.data.kind || "article",
   }));
@@ -420,7 +422,11 @@ const MAP: Record<string, (p: { d: D; first: boolean }) => any> = {
   blog: Blog, pricing: Pricing, testimonials: Testimonials, team: Team, contact: Contact,
 };
 
-export function Blocks({ blocks }: { blocks: Block[] }) {
+export function Blocks({ blocks, status }: { blocks: Block[]; status?: string }) {
   const visible = (blocks || []).filter((b) => !b.hidden && MAP[b.type]);
-  return <>{visible.map((b, i) => { const C = MAP[b.type]; return <C key={b.id || i} d={b.data || {}} first={i === 0} />; })}</>;
+  let n = 0;
+  return <>{visible.map((b, i) => {
+    const C = MAP[b.type]; const numbered = i > 0 && b.type !== "marquee" && b.type !== "cta";
+    return <C key={b.id || i} d={{ ...(b.data || {}), ...(numbered ? { _n: ++n } : {}), ...(i === 0 && b.type === "hero" ? { _status: status } : {}) }} first={i === 0} />;
+  })}</>;
 }

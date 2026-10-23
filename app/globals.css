@@ -176,6 +176,9 @@
 /* intro curtain */
 .intro { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; background: rgb(var(--c-bg)); transition: clip-path 1s cubic-bezier(.77,0,.18,1); clip-path: inset(0 0 0 0); }
 .intro.out { clip-path: inset(0 0 100% 0); }
+/* failsafe: the curtain removes itself even if scripts fail */
+.intro { animation: introfail .01s 2.6s forwards; }
+@keyframes introfail { to { visibility: hidden; pointer-events: none; opacity: 0; } }
 .intro-bar { height: 2px; background: linear-gradient(90deg, rgb(var(--c-accent)), rgb(var(--c-accent2))); transform-origin: 0 50%; animation: introbar 1s cubic-bezier(.65,0,.35,1) forwards; }
 @keyframes introbar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 
@@ -199,3 +202,67 @@
 }
 [data-motion="minimal"] .float, [data-motion="minimal"] .grain { animation: none; }
 [data-motion="minimal"] .tilt { transform: none; }
+
+/* view transition: circular reveal when the mode changes */
+::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+::view-transition-old(root) { z-index: 1; }
+::view-transition-new(root) { z-index: 2147483646; }
+
+/* announcement bar */
+:root { --bar-h: 0px; }
+.announce-bar { position: absolute; top: 0; left: 0; right: 0; z-index: 60; }
+html[data-bar-closed] .announce-bar { display: none; }
+main#main { padding-top: calc(84px + var(--bar-h)); transition: padding-top .4s ease; }
+
+/* ---------- futuristic layer ---------- */
+.ambient { position: fixed; inset: 0; z-index: -1; pointer-events: none; background: radial-gradient(640px circle at var(--sx, 50%) var(--sy, 30%), rgb(var(--c-accent) / .08), transparent 60%); }
+.ambient::after { content: ""; position: absolute; inset: 0; opacity: .9;
+  background-image: linear-gradient(rgb(var(--c-line) / .55) 1px, transparent 1px), linear-gradient(90deg, rgb(var(--c-line) / .55) 1px, transparent 1px); background-size: 84px 84px;
+  -webkit-mask-image: radial-gradient(420px circle at var(--sx, 50%) var(--sy, 30%), #000, transparent 70%); mask-image: radial-gradient(420px circle at var(--sx, 50%) var(--sy, 30%), #000, transparent 70%); }
+
+.mono-tag { font-family: var(--font-mono); font-size: .74rem; letter-spacing: .14em; text-transform: uppercase; }
+.section-tag { display: flex; align-items: center; gap: .75rem; margin-bottom: 1.75rem; color: rgb(var(--c-fg2)); }
+.section-tag .idx { color: rgb(var(--c-accent)); }
+.section-tag::after { content: ""; height: 1px; width: 64px; background: linear-gradient(90deg, rgb(var(--c-accent)), transparent); }
+
+/* HUD corner brackets */
+.hud { position: relative; }
+.hud::before, .hud::after { content: ""; position: absolute; width: 22px; height: 22px; pointer-events: none; z-index: 5; transition: all .6s cubic-bezier(.16,1,.3,1); }
+.hud::before { top: 10px; left: 10px; border-top: 2px solid rgb(var(--c-accent)); border-left: 2px solid rgb(var(--c-accent)); }
+.hud::after { right: 10px; bottom: 10px; border-right: 2px solid rgb(var(--c-accent)); border-bottom: 2px solid rgb(var(--c-accent)); }
+.hud:hover::before, .group:hover .hud::before { top: 18px; left: 18px; } .hud:hover::after, .group:hover .hud::after { right: 18px; bottom: 18px; }
+
+/* status pill with pulsing dot */
+.pulse-dot { position: relative; width: 8px; height: 8px; border-radius: 999px; background: rgb(var(--c-success)); }
+.pulse-dot::after { content: ""; position: absolute; inset: -4px; border-radius: inherit; border: 1px solid rgb(var(--c-success)); animation: ping 1.8s cubic-bezier(0,0,.2,1) infinite; }
+@keyframes ping { 75%, 100% { transform: scale(2.2); opacity: 0; } }
+
+/* orbit rings */
+.orbit { position: absolute; border: 1px dashed rgb(var(--c-fg) / .18); border-radius: 999px; animation: spin calc(40s / max(var(--motion), .3)) linear infinite; }
+.orbit::after { content: ""; position: absolute; top: -5px; left: 50%; width: 10px; height: 10px; margin-left: -5px; border-radius: 999px; background: rgb(var(--c-accent)); box-shadow: 0 0 18px rgb(var(--c-accent)); }
+.orbit.rev { animation-direction: reverse; }
+
+/* shine sweep on primary buttons */
+.btn-primary::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(110deg, transparent 30%, rgb(255 255 255 / .35) 50%, transparent 70%); transform: translateX(-120%); transition: transform .9s cubic-bezier(.16,1,.3,1); }
+.btn-primary:hover::after { transform: translateX(120%); }
+
+.hr-glow { height: 1px; border: 0; background: linear-gradient(90deg, transparent, rgb(var(--c-accent) / .6), transparent); }
+.neon { text-shadow: 0 0 28px rgb(var(--c-accent) / .55); }
+.card-glow { box-shadow: 0 0 0 1px rgb(var(--c-accent) / .35), 0 30px 80px -40px rgb(var(--c-accent) / .6); }
+@media (prefers-reduced-motion: reduce) { .orbit, .pulse-dot::after { animation: none !important; } .ambient { display: none; } }
+
+/* chat */
+.chat-in { animation: chatIn .45s cubic-bezier(.16,1,.3,1) both; }
+@keyframes chatIn { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
+.chat-panel { animation: chatPanel .5s cubic-bezier(.16,1,.3,1) both; transform-origin: bottom right; }
+@keyframes chatPanel { from { opacity: 0; transform: translateY(18px) scale(.96); } to { opacity: 1; transform: none; } }
+.dots span { width: 7px; height: 7px; border-radius: 999px; background: rgb(var(--c-fg2)); animation: dotBounce 1.2s ease-in-out infinite; }
+.dots span:nth-child(2) { animation-delay: .15s; } .dots span:nth-child(3) { animation-delay: .3s; }
+@keyframes dotBounce { 0%, 60%, 100% { transform: translateY(0); opacity: .4; } 30% { transform: translateY(-5px); opacity: 1; } }
+
+/* image placeholder (used when an image is missing or fails to load) */
+.poster { background: radial-gradient(70% 90% at 20% 0%, rgb(var(--c-accent) / .28), transparent 70%), radial-gradient(60% 80% at 100% 100%, rgb(var(--c-accent2) / .22), transparent 70%), rgb(var(--c-raised)); min-height: 100%; }
+.poster-grid { position: absolute; inset: 0; background-image: linear-gradient(rgb(var(--c-fg) / .06) 1px, transparent 1px), linear-gradient(90deg, rgb(var(--c-fg) / .06) 1px, transparent 1px); background-size: 28px 28px; -webkit-mask-image: radial-gradient(ellipse at center, #000 30%, transparent 80%); mask-image: radial-gradient(ellipse at center, #000 30%, transparent 80%); }
+.poster-orb { position: absolute; width: 55%; aspect-ratio: 1; border-radius: 999px; border: 1px dashed rgb(var(--c-accent) / .45); animation: spin 30s linear infinite; }
+
+.theme-icon .ti-sun { display: none; } [data-mode="light"] .theme-icon .ti-sun { display: block; } [data-mode="light"] .theme-icon .ti-moon { display: none; }

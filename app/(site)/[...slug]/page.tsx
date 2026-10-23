@@ -1,3 +1,4 @@
+import { getAllSettings } from "@/lib/settings";
 import { Blocks } from "@/components/site/Blocks";
 import { JsonLd, handleMissing, loadPage, pageMetadata, pageSchema } from "@/lib/page-render";
 
@@ -13,5 +14,5 @@ export default async function CatchAll({ params }: P) {
   const slug = decodeURIComponent(params.slug[0]);
   const page = await loadPage(slug);
   if (!page) return handleMissing(path);
-  return <><JsonLd data={await pageSchema(slug, page)} /><Blocks blocks={page.data.blocks || []} /></>;
+  return <><JsonLd data={await pageSchema(slug, page)} /><Blocks blocks={page.data.blocks || []} status={(await getAllSettings()).identity.availability} /></>;
 }
