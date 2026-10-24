@@ -5,7 +5,7 @@ export const SETTING_DEFAULTS = {
     description: IDENTITY.description,
     longDescription: IDENTITY.longDescription,
     logo: "", logoDark: "", favicon: "", domain: "",
-    email: "hello@example.com", phone: "", whatsapp: "", address: "", hours: "Sun to Thu, 10am to 7pm", replyTime: "within one business day",
+    email: "hello@example.com", phone: "", whatsapp: "", whatsappOn: true, whatsappCountryCode: "", whatsappMessage: "Hi, I found you on your website and would like to talk.", whatsappFloat: false, whatsappFloatText: "Chat on WhatsApp", whatsappFloatSide: "left", address: "", hours: "Sun to Thu, 10am to 7pm", replyTime: "within one business day",
     socials: { linkedin: "", x: "", instagram: "", facebook: "", youtube: "", dribbble: "", github: "" },
     legalName: "", registration: "", availability: "Open for new projects", ctaLabel: "Book a free consultation", ctaHref: "/contact", logoAlt: "",
   },
@@ -14,7 +14,7 @@ export const SETTING_DEFAULTS = {
   appearance: { ui: null as null | Record<string, any>, activeTheme: "signal", defaultMode: "system", modeToggle: true, accentPicker: true, intro: true, cursor: true, smoothScroll: true, ambient: true },
   integrations: {
     gaId: "", googleAdsId: "", gtmId: "", metaPixelId: "", tiktokPixelId: "", linkedinId: "", clarityId: "", hotjarId: "", googleVerification: "", bingVerification: "", pinterestVerification: "", facebookVerification: "", headCode: "",
-    chatWhatsapp: true, chatWhatsappText: "Can't reach us here?", chatWhatsappMessage: "Hi, I found you on your website and would like to talk.",
+    chatWhatsapp: true, chatWhatsappText: "Can't reach us here?",
     chatMode: "builtin", chatPosition: "right", chatGreeting: "Hi! Ask us anything about our services.",
     chatScript: "", backToTopPosition: "right", chatBotName: "", chatSuggestions: [] as string[], chatLeadCapture: true, chatSound: true, chatIcon: "bubble", chatIconImage: "",
   },

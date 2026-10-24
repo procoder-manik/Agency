@@ -10,6 +10,7 @@ import { getEffectiveTheme } from "@/lib/theme-server";
 import { uiOf } from "@/lib/themes";
 import { Tracking } from "@/components/site/Tracking";
 import { mediaUrl } from "@/lib/media";
+import { waLink } from "@/lib/whatsapp";
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   const [s, nav, theme, allPopups] = await Promise.all([getAllSettings(), visibleNav(), getEffectiveTheme(), getPublished("popups")]);
@@ -31,7 +32,8 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <main id="main" className="page-enter" data-form-style={uiOf(theme.tokens).formStyle}>{children}</main>
       <Footer s={s} columns={nav.footer} />
       <FloatingWidgets
-        chat={chatOn ? { side: i.chatPosition === "left" ? "left" : "right", greeting: i.chatGreeting, mode: i.chatMode, name: id.name, botName: (i as any).chatBotName || "", suggestions: ((i as any).chatSuggestions || []) as string[], leadCapture: (i as any).chatLeadCapture !== false, sound: (i as any).chatSound !== false, icon: (i as any).chatIcon || "bubble", iconImage: mediaUrl((i as any).chatIconImage), whatsapp: (i as any).chatWhatsapp !== false ? id.whatsapp || "" : "", whatsappText: (i as any).chatWhatsappText || "", whatsappMsg: (i as any).chatWhatsappMessage || "" } : null}
+        chat={chatOn ? { side: i.chatPosition === "left" ? "left" : "right", greeting: i.chatGreeting, mode: i.chatMode, name: id.name, botName: (i as any).chatBotName || "", suggestions: ((i as any).chatSuggestions || []) as string[], leadCapture: (i as any).chatLeadCapture !== false, sound: (i as any).chatSound !== false, icon: (i as any).chatIcon || "bubble", iconImage: mediaUrl((i as any).chatIconImage), waUrl: (i as any).chatWhatsapp !== false ? waLink(id as any) : "", whatsappText: (i as any).chatWhatsappText || "" } : null}
+        wa={(id as any).whatsappFloat && waLink(id as any) ? { url: waLink(id as any), text: (id as any).whatsappFloatText || "Chat on WhatsApp", side: (id as any).whatsappFloatSide === "right" ? "right" : "left" } : null}
         backToTop={s.features.backToTop ? { side: i.backToTopPosition === "left" ? "left" : "right" } : null}
       />
       {chatOn && i.chatMode === "thirdparty" && i.chatScript && <ThirdPartyChat html={i.chatScript} />}

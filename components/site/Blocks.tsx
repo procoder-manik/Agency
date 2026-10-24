@@ -6,6 +6,7 @@ import { renderMarkdown } from "@/lib/markdown";
 import { renderMustache, scopeCss } from "@/lib/mustache";
 import { hash } from "@/lib/templating";
 import { resolveCategory } from "@/lib/portfolio";
+import { waLink } from "@/lib/whatsapp";
 import { mediaAlt, mediaUrl } from "@/lib/media";
 import { fmtDate, formatPrice } from "@/lib/util";
 import { Counter, Media, Reveal, Tilt } from "./motion";
@@ -431,7 +432,7 @@ async function Contact({ d }: { d: D }) {
           <dl className="mt-8 space-y-5 text-fg2">
             {id.email && <div><dt className="text-sm text-muted">Email</dt><dd><a className="text-lg text-fg hover:text-accent" href={`mailto:${id.email}`}>{id.email}</a></dd></div>}
             {id.phone && <div><dt className="text-sm text-muted">Phone</dt><dd><a className="text-lg text-fg hover:text-accent" href={`tel:${id.phone.replace(/\s/g, "")}`}>{id.phone}</a></dd></div>}
-            {id.whatsapp && <div><dt className="text-sm text-muted">WhatsApp</dt><dd><a className="text-lg text-fg hover:text-accent" href={`https://wa.me/${id.whatsapp.replace(/\D/g, "")}`} target="_blank" rel="noopener">{id.whatsapp}</a></dd></div>}
+            {waLink(id as any) && <div><dt className="text-sm text-muted">WhatsApp</dt><dd><a className="text-lg text-fg hover:text-accent" href={waLink(id as any)} target="_blank" rel="noopener noreferrer">{id.whatsapp}</a></dd></div>}
             <div><dt className="text-sm text-muted">Where we work</dt><dd className="text-fg">{id.address || "Remotely, with clients across time zones"}</dd></div>
             {id.hours && <div><dt className="text-sm text-muted">Hours</dt><dd className="text-fg">{id.hours}</dd></div>}
             {id.replyTime && <div><dt className="text-sm text-muted">Response time</dt><dd className="text-fg">We reply {id.replyTime}.</dd></div>}

@@ -36,9 +36,8 @@ function Rich({ text }: { text: string }) {
   return <>{blocks}</>;
 }
 
-export function ChatWidget({ side, greeting, name, suggestions, leadCapture, sound = true, icon = "bubble", iconImage = "", whatsapp = "", whatsappText = "", whatsappMsg = "" }: { side: "left" | "right"; greeting: string; name: string; suggestions: string[]; leadCapture: boolean; sound?: boolean; icon?: string; iconImage?: string; whatsapp?: string; whatsappText?: string; whatsappMsg?: string }) {
-  const waDigits = whatsapp.replace(/\D/g, "");
-  const wa = waDigits.length >= 7 ? `https://wa.me/${waDigits}${whatsappMsg ? `?text=${encodeURIComponent(whatsappMsg)}` : ""}` : "";
+export function ChatWidget({ side, greeting, name, suggestions, leadCapture, sound = true, icon = "bubble", iconImage = "", waUrl = "", whatsappText = "" }: { side: "left" | "right"; greeting: string; name: string; suggestions: string[]; leadCapture: boolean; sound?: boolean; icon?: string; iconImage?: string; waUrl?: string; whatsappText?: string }) {
+  const wa = waUrl;
   const [open, setOpen] = useState(false); const [msgs, setMsgs] = useState<Msg[]>([]); const [input, setInput] = useState(""); const [busy, setBusy] = useState(false);
   const [unread, setUnread] = useState(false); const [hint, setHint] = useState(false); const [muted, setMuted] = useState(false);
   const ping = useRef({ key: playKey, send: playSend, recv: playReceive });

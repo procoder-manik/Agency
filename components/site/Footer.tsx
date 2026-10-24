@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Settings } from "@/lib/settings";
+import { waLink } from "@/lib/whatsapp";
 import { Logo } from "./Logo";
 import { Clock, Magnetic } from "./fx";
 
@@ -17,6 +18,7 @@ const NAMES: Record<string, string> = { linkedin: "LinkedIn", x: "X", instagram:
 export function Footer({ s, columns }: { s: Settings; columns: { title: string; links: { label: string; href: string }[] }[] }) {
   const id = s.identity; const ft = s.footer;
   const email = ft.email || id.email, phone = ft.phone || id.phone, whatsapp = ft.whatsapp || id.whatsapp, address = ft.address || id.address, hours = ft.hours || id.hours;
+  const waUrl = waLink(id as any, whatsapp);
   const socials = Object.entries(id.socials || {}).filter(([, v]) => v);
   const year = new Date().getFullYear();
   const bigText = ft.bigText || id.name;
@@ -29,7 +31,7 @@ export function Footer({ s, columns }: { s: Settings; columns: { title: string; 
             {email && <Magnetic strength={0.2}><a href={`mailto:${email}`} className="mt-8 inline-block border-b border-fg/30 pb-1 font-display text-2xl transition-colors hover:border-accent hover:text-accent sm:text-3xl" data-cursor="Email">{email}</a></Magnetic>}
             <div className="mt-8 space-y-1.5 text-[0.95rem] text-fg2">
               {phone && <p><a className="hover:text-accent" href={`tel:${phone.replace(/\s/g, "")}`}>{phone}</a></p>}
-              {whatsapp && <p><a className="hover:text-accent" href={`https://wa.me/${whatsapp.replace(/\D/g, "")}`} rel="noopener" target="_blank">WhatsApp</a></p>}
+              {waUrl && <p><a className="hover:text-accent" href={waUrl} rel="noopener noreferrer" target="_blank">WhatsApp</a></p>}
               {address && <p>{address}</p>}
               {hours && <p className="text-muted">{hours}</p>}
             </div>

@@ -84,7 +84,7 @@ export async function buildKb(): Promise<Chunk[]> {
   add({ id: "about", type: "about", title: `About ${s.identity.name}`, url: "/about", text: `about who we are team agency company ${s.identity.name} ${s.identity.description} ${s.identity.longDescription}`, say: `${s.identity.longDescription || s.identity.description}` });
   const id = s.identity;
   add({ id: "contact", type: "contact", title: "Contact details", url: "/contact", text: `contact reach email phone call whatsapp address hours ${id.email} ${id.phone} ${id.address} ${id.hours}`,
-    say: [`You can reach us here:`, id.email && `- Email: ${id.email}`, id.phone && `- Phone: ${id.phone}`, id.whatsapp && `- WhatsApp: ${id.whatsapp}`, id.address && `- Address: ${id.address}`, id.hours && `- Hours: ${id.hours}`, id.replyTime && `We reply ${id.replyTime}.`].filter(Boolean).join("\n") });
+    say: [`You can reach us here:`, id.email && `- Email: ${id.email}`, id.phone && `- Phone: ${id.phone}`, (id as any).whatsappOn !== false && id.whatsapp && `- WhatsApp: ${id.whatsapp}`, id.address && `- Address: ${id.address}`, id.hours && `- Hours: ${id.hours}`, id.replyTime && `We reply ${id.replyTime}.`].filter(Boolean).join("\n") });
   // Extra pages and notes added in Admin > Chat training
   try {
     const srcs = await db().select().from(schema.chatSources).where(and(isNull(schema.chatSources.deletedAt), eq(schema.chatSources.status, "ok")));

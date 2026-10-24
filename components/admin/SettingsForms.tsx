@@ -5,6 +5,7 @@ import type { Field } from "@/lib/fields";
 import { apiFetch, fmt, PageHead, Spinner, Tabs, Toggle, toast } from "./ui";
 import { FieldInput } from "./FieldInput";
 import { ItemProvider } from "./context";
+import { waLink } from "@/lib/whatsapp";
 import { CHAT_ICONS, ChatIcon } from "@/components/site/chat-icons";
 
 export function useSetting<T = any>(key: string) {
@@ -58,9 +59,21 @@ export function SiteSettings() {
           t("legalName", "Legal business name"), t("registration", "Registration details"), t("availability", "Availability line shown on the home hero", "text", { help: "A small status pill with a pulsing dot. Leave empty to hide it. Keep it true." }),
         ]} />}
         {tab === "Contact & social" && <SettingsSection k="identity" fields={[
-          t("email", "Contact email"), t("phone", "Phone"), t("whatsapp", "WhatsApp number"), t("address", "Address (optional)"), t("hours", "Business hours"), t("replyTime", "Typical reply time", "text", { placeholder: "within one business day" }),
+          t("email", "Contact email"), t("phone", "Phone"), t("whatsapp", "WhatsApp number", "text", { placeholder: "+8801XXXXXXXXX", help: "With the country code. This number is used for every WhatsApp link on the site." }), t("address", "Address (optional)"), t("hours", "Business hours"), t("replyTime", "Typical reply time", "text", { placeholder: "within one business day" }),
+          t("whatsappOn", "Show WhatsApp on the site", "toggle", { help: "Turn this off to remove every WhatsApp link: the footer, the contact page, the chat and the floating button." }),
+          t("whatsappCountryCode", "Country code (only if your number starts with 0)", "text", { ai: false, placeholder: "880", help: "Lets a local number like 01XXXXXXXXX work. WhatsApp links need the international form." }),
+          t("whatsappMessage", "Message WhatsApp pre-fills for the visitor", "text", { ai: true }),
+          t("whatsappFloat", "Show a floating WhatsApp button on every page", "toggle", { help: "A small button fixed to the corner of the screen. Off by default." }),
+          t("whatsappFloatText", "Floating button text", "text", { ai: true }),
+          t("whatsappFloatSide", "Floating button side", "select", { options: [{ value: "left", label: "Left" }, { value: "right", label: "Right" }] }),
           ...["linkedin", "x", "instagram", "facebook", "youtube", "dribbble", "github"].map((s) => ({ ...t(s, `${s === "x" ? "X" : s[0].toUpperCase() + s.slice(1)} URL`, "url"), path: `socials.${s}` })),
-        ]} />}
+        ]}>{(v) => { const link = waLink(v as any); const local = /^0/.test(String(v.whatsapp || "").trim()) && !String(v.whatsappCountryCode || "").trim(); return (
+          <div className="mt-6 rounded-[var(--r-md)] border border-line bg-raised/40 p-4 text-sm">
+            <p className="font-medium text-fg">WhatsApp link</p>
+            {v.whatsappOn === false ? <p className="mt-1 text-fg2">WhatsApp is switched off, so no link is shown on the site.</p>
+              : link ? <p className="mt-1 break-all text-fg2">Visitors who click it open WhatsApp chatting with you: <a className="text-accent underline" href={link} target="_blank" rel="noopener noreferrer">{link}</a><span className="mt-1 block text-xs text-muted">Click it to test. On a phone it opens the WhatsApp app, on a computer WhatsApp Web.</span></p>
+              : <p className="mt-1 text-warning">{local ? "Your number starts with 0. Add the country code above, or write the number as +880…" : "Enter your WhatsApp number with the country code to create the link."}</p>}
+          </div>); }}</SettingsSection>}
         {tab === "Payments" && <SettingsSection k="payments" fields={[
           t("currencies", "Currencies you accept", "tags"), t("defaultCurrency", "Default currency"), t("methods", "Payment methods", "tags", { help: "e.g. Card (Stripe), bKash, Nagad, Bank transfer" }), t("note", "Payment note on the pricing page", "textarea"),
         ]} />}
@@ -236,9 +249,8 @@ export function ChatSettings() {
         t("chatSuggestions", "Quick-reply buttons (blank = automatic)", "tags", { help: "Short questions visitors can tap. Example: How much does it cost?" }),
         t("chatLeadCapture", "Let the chat collect name and email for a human follow-up", "toggle"),
         t("chatSound", "Chat sounds (typing tick, send and reply chime)", "toggle"),
-        t("chatWhatsapp", "Show a WhatsApp link in the chat", "toggle", { help: "A small text link under the message box, and again after someone leaves their details, so they can reach you directly. Uses the WhatsApp number from Site settings > Contact and social." }),
+        t("chatWhatsapp", "Show a WhatsApp link in the chat", "toggle", { help: "A small text link under the message box, and again after someone leaves their details, so they can reach you directly. Uses the WhatsApp number and on/off switch from Site settings > Contact and social." }),
         t("chatWhatsappText", "Text before the WhatsApp link", "text", { ai: true, placeholder: "Can't reach us here?" }),
-        t("chatWhatsappMessage", "Message that WhatsApp pre-fills for the visitor", "text", { ai: true }),
         t("chatIconImage", "Or use your own chat icon image", "image", { size: "128 × 128 (square, transparent PNG)", help: "If set, this image replaces the icon chosen below, on the chat button and in the chat header." }),
         t("chatScript", "Third-party chat script", "textarea", { mono: true, rows: 4, help: "Only used when the chat widget above is set to Third-party." }),
       ]}>{(v, set) => <ChatIconPicker value={v.chatIcon || "bubble"} custom={!!v.chatIconImage} onChange={(id) => set({ ...v, chatIcon: id })} />}</SettingsSection>
