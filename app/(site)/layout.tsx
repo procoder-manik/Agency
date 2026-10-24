@@ -36,7 +36,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <FloatingWidgets
         chat={chatOn ? { side: i.chatPosition === "left" ? "left" : "right", greeting: i.chatGreeting, mode: i.chatMode, name: id.name, botName: (i as any).chatBotName || "", suggestions: ((i as any).chatSuggestions || []) as string[], leadCapture: (i as any).chatLeadCapture !== false, sound: (i as any).chatSound !== false, icon: (i as any).chatIcon || "bubble", iconImage: mediaUrl((i as any).chatIconImage), waUrl: (i as any).chatWhatsapp !== false ? waLink(id as any) : "", whatsappText: (i as any).chatWhatsappText || "", animation: (i as any).chatAnimation || "ring" } : null}
         wa={(id as any).whatsappFloat && waLink(id as any) ? { url: waLink(id as any), text: (id as any).whatsappFloatText || "Chat on WhatsApp", side: (id as any).whatsappFloatSide === "right" ? "right" : "left" } : null}
-        backToTop={s.features.backToTop ? { side: i.backToTopPosition === "left" ? "left" : "right" } : null}
+        backToTop={s.features.backToTop ? { side: i.backToTopPosition === "left" ? "left" : "right", offset: (ap as any).rulerScroll !== false && i.backToTopPosition !== "left" ? 24 : 0 } : null}
       />
       {chatOn && i.chatMode === "thirdparty" && i.chatScript && <ThirdPartyChat html={i.chatScript} />}
       <Tracking ids={{ ga: i.gaId, ads: (i as any).googleAdsId, gtm: (i as any).gtmId, meta: (i as any).metaPixelId, tiktok: (i as any).tiktokPixelId, linkedin: (i as any).linkedinId, clarity: (i as any).clarityId, hotjar: (i as any).hotjarId }} />

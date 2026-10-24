@@ -6,18 +6,18 @@ import { ChatWidget } from "./Chat";
 
 type Side = "left" | "right";
 
-export function FloatingWidgets({ chat, wa, backToTop }: { chat: null | { side: Side; greeting: string; mode: string; name: string; botName: string; suggestions: string[]; leadCapture: boolean; sound?: boolean; icon?: string; iconImage?: string; waUrl?: string; whatsappText?: string; animation?: string }; wa?: null | { url: string; text: string; side: Side }; backToTop: null | { side: Side } }) {
+export function FloatingWidgets({ chat, wa, backToTop }: { chat: null | { side: Side; greeting: string; mode: string; name: string; botName: string; suggestions: string[]; leadCapture: boolean; sound?: boolean; icon?: string; iconImage?: string; waUrl?: string; whatsappText?: string; animation?: string }; wa?: null | { url: string; text: string; side: Side }; backToTop: null | { side: Side; offset?: number } }) {
   const stacked = chat && backToTop && chat.side === backToTop.side;
   return (
     <>
       {chat?.mode === "builtin" && <ChatWidget side={chat.side} greeting={chat.greeting} name={chat.botName || chat.name} suggestions={chat.suggestions} leadCapture={chat.leadCapture} sound={chat.sound !== false} icon={chat.icon} iconImage={chat.iconImage} waUrl={chat.waUrl} whatsappText={chat.whatsappText} animation={chat.animation} />}
       {wa && <a href={wa.url} target="_blank" rel="noopener noreferrer" style={{ [wa.side]: "1.25rem" } as React.CSSProperties} className="fixed bottom-5 z-40 rounded-full border border-line bg-surface/90 px-4 py-2.5 text-sm font-semibold text-fg shadow-lg backdrop-blur transition-all hover:-translate-y-0.5 hover:border-[#25D366] hover:shadow-xl"><span aria-hidden className="mr-2 inline-block h-2 w-2 rounded-full bg-[#25D366]" />{wa.text}</a>}
-      {backToTop && <BackToTop side={backToTop.side} raised={!!stacked} />}
+      {backToTop && <BackToTop side={backToTop.side} raised={!!stacked} offset={backToTop.offset} />}
     </>
   );
 }
 
-function BackToTop({ side, raised }: { side: Side; raised: boolean }) {
+function BackToTop({ side, raised, offset = 0 }: { side: Side; raised: boolean; offset?: number }) {
   const [show, setShow] = useState(false); const [p, setP] = useState(0);
   useEffect(() => {
     let raf = 0;
@@ -28,8 +28,8 @@ function BackToTop({ side, raised }: { side: Side; raised: boolean }) {
   const R = 21, C = 2 * Math.PI * R;
   return (
     <button aria-label={`Back to top (${Math.round(p * 100)}% scrolled)`} onClick={() => window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" })}
-      className={`btt group fixed z-40 grid h-12 w-12 place-items-center rounded-full text-fg transition-all duration-500 ease-out ${show ? "scale-100 opacity-100" : "pointer-events-none translate-y-4 scale-75 opacity-0"}`}
-      style={{ [side]: 20, bottom: raised ? 92 : 20 } as any}>
+      className={`btt group fixed z-[70] grid h-12 w-12 place-items-center rounded-full text-fg transition-all duration-500 ease-out ${show ? "scale-100 opacity-100" : "pointer-events-none translate-y-4 scale-75 opacity-0"}`}
+      style={{ [side]: 20 + offset, bottom: raised ? 92 : 20 } as any}>
       <svg className="absolute inset-0 -rotate-90" width="48" height="48" viewBox="0 0 48 48" aria-hidden>
         <defs><linearGradient id="btt-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style={{ stopColor: "rgb(var(--c-accent))" }} /><stop offset="1" style={{ stopColor: "rgb(var(--c-accent2))" }} /></linearGradient></defs>
         <circle cx="24" cy="24" r={R} fill="none" stroke="rgb(var(--c-line))" strokeWidth="2.5" />
