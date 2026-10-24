@@ -27,7 +27,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <div className="grain" aria-hidden />
       {firstBar && !firstBar.data.paths && <><style>{":root{--bar-h:44px}"}</style><script dangerouslySetInnerHTML={{ __html: `try{var d=JSON.parse(localStorage.getItem("dismissed")||"[]");if(d.indexOf(${firstBar.id})>-1){var r=document.documentElement;r.setAttribute("data-bar-closed","");r.style.setProperty("--bar-h","0px")}}catch(e){}` }} /></>}
       {popups.length > 0 && <Announcements items={popups.map((p) => ({ id: p.id, kind: p.data.kind || "bar", content: p.data.content || "", linkLabel: p.data.linkLabel, linkHref: p.data.linkHref, trigger: p.data.trigger, delay: p.data.delay, paths: p.data.paths }))} />}
-      <HeaderShell logo={<Logo name={id.name} shortName={id.shortName} logo={id.logo} alt={id.logoAlt} />} links={nav.header} cta={id.ctaLabel ? { label: id.ctaLabel, href: id.ctaHref || "/contact" } : undefined} themeUi={{ showMode: !!ap.modeToggle, showAccent: !!ap.accentPicker, themeAccent: { a: theme.tokens.colors.accent, b: theme.tokens.colors.accent2 } }} />
+      <HeaderShell logo={<Logo name={id.name} shortName={id.shortName} logo={id.logo} logoDark={(id as any).logoDark} alt={id.logoAlt} />} links={nav.header} cta={id.ctaLabel ? { label: id.ctaLabel, href: id.ctaHref || "/contact" } : undefined} themeUi={{ showMode: !!ap.modeToggle, showAccent: !!ap.accentPicker, themeAccent: { a: theme.tokens.colors.accent, b: theme.tokens.colors.accent2 } }} />
       <main id="main" className="page-enter" data-form-style={uiOf(theme.tokens).formStyle}>{children}</main>
       <Footer s={s} columns={nav.footer} />
       <FloatingWidgets

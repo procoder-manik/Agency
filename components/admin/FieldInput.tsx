@@ -27,7 +27,7 @@ export function AiButton({ field, value, onChange }: { field: Field; value: any;
   async function go(mode: string) {
     setBusy(mode);
     try {
-      const r = await apiFetch("/api/admin/ai", { method: "POST", json: { task: "field", mode, label: field.label, type: field.type, current: value || "", instruction: instr, item: { collection, ...item } } });
+      const r = await apiFetch("/api/admin/ai", { method: "POST", json: { task: "field", mode, label: field.label, name: field.name, help: field.help, section: item?.data?.type || collection, type: field.type, current: value || "", instruction: instr, item: { collection, ...item } } });
       onChange(r.data.text); setOpen(false); toast(`Written with ${r.provider}. Review before publishing.`);
     } catch (e: any) { toast(e.message, "error"); }
     setBusy("");
@@ -45,6 +45,21 @@ export function AiButton({ field, value, onChange }: { field: Field; value: any;
       )}
     </div>
   );
+}
+
+/* ---------- AI alt text for an image field ---------- */
+export function AltAiButton({ label, url, alt, filename, onAlt }: { label: string; url: string; alt: string; filename?: string; onAlt: (v: string) => void }) {
+  const { aiOn } = useAdmin(); const { collection, item } = useItem(); const [busy, setBusy] = useState(false);
+  async function go() {
+    setBusy(true);
+    try {
+      const name = filename || decodeURIComponent(String(url).split("?")[0].split("/").pop() || "");
+      const r = await apiFetch("/api/admin/ai", { method: "POST", json: { task: "alt", label, filename: name, current: alt, collection, title: item?.title || "" } });
+      onAlt(r.data.text); toast("Alt text written. Review it before saving.");
+    } catch (e: any) { toast(e.message, "error"); }
+    setBusy(false);
+  }
+  return <button type="button" onClick={go} disabled={!aiOn || busy} title={aiOn ? "Write alt text with AI" : "Add an AI key in Admin > AI to enable"} className="shrink-0 rounded-full border border-line px-2.5 py-1 text-xs text-fg2 transition-colors hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-40">{busy ? <Spinner /> : "✦ AI"}</button>;
 }
 
 /* ---------- cover image prompt writer ---------- */
@@ -131,7 +146,7 @@ function Control({ id, field: f, value, onChange }: { id: string; field: Field; 
           <div className="flex-1 space-y-2">
             <div className="flex flex-wrap gap-2"><button type="button" className="btn btn-ghost !py-1.5 text-sm" onClick={() => setPick(true)}>Choose from library</button>{url && <button type="button" className="btn btn-ghost !py-1.5 text-sm" onClick={() => onChange("")}>Remove</button>}</div>
             <input id={id} className="input !py-1.5 text-sm" placeholder={f.type === "media" ? "…or paste an image, GIF, MP4/WebM, Lottie JSON or YouTube URL" : "…or paste an image URL"} value={url} onChange={(e) => onChange(e.target.value ? { url: e.target.value, alt } : "")} />
-            {url && <input className="input !py-1.5 text-sm" placeholder="Alt text (describe the image)" value={alt} onChange={(e) => onChange({ url, alt: e.target.value })} />}
+            {url && <div className="flex items-center gap-2"><input className="input !py-1.5 text-sm" placeholder="Alt text (describe the image)" value={alt} onChange={(e) => onChange({ url, alt: e.target.value })} /><AltAiButton label={f.label} url={url} alt={alt} onAlt={(v) => onChange({ url, alt: v })} /></div>}
           </div>
           <MediaPicker open={pick} onClose={() => setPick(false)} accept={f.type === "image" ? "image" : "all"} onPick={(m) => onChange({ url: m.url, alt: m.alt })} />
         </div>

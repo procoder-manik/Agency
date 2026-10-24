@@ -10,7 +10,7 @@ export default async function Login() {
     <main className="tex relative grid min-h-screen place-items-center overflow-hidden p-5">
       <div className="aurora" aria-hidden><span /><span /><span /></div>
       <div className="glass w-full max-w-sm p-8">
-        <Logo name={s.identity.name} shortName={s.identity.shortName} logo={s.identity.logo} alt={s.identity.logoAlt} />
+        <Logo name={s.identity.name} shortName={s.identity.shortName} logo={s.identity.logo} logoDark={(s.identity as any).logoDark} alt={s.identity.logoAlt} />
         <h1 className="mt-8 text-2xl font-bold">Sign in to {s.identity.name}</h1>
         <p className="mt-1 text-sm text-fg2">Manage your site, content and leads.</p>
         <LoginForm />

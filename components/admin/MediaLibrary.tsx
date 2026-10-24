@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { apiFetch, Empty, PageHead, Spinner, toast } from "./ui";
 import { MediaThumb, useUpload, type MediaItem } from "./MediaPicker";
+import { AltAiButton } from "./FieldInput";
 
 const SLOTS = [["Cover / blog image", "1600 × 900 (16:9)"], ["Social share", "1200 × 630 (1.91:1)"], ["Case study cover", "1200 × 1500 (4:5)"], ["Hero media", "1600 × 1000 (16:10)"], ["Work screenshot", "1440 × 900 (16:10)"], ["Team photo", "800 × 800 (1:1)"], ["Client logo", "320 × 120"]];
 
@@ -30,7 +31,7 @@ export function MediaLibrary() {
                 <MediaThumb url={m.url} className="aspect-[4/3] w-full" />
                 <div className="space-y-2 p-3">
                   <p className="truncate text-xs text-muted">{m.filename}{m.width ? ` · ${m.width}×${m.height}` : ""}{m.size ? ` · ${Math.round(m.size / 1024)} KB` : ""}</p>
-                  <input className={`input !py-1.5 text-sm ${!m.alt ? "!border-warning/60" : ""}`} defaultValue={m.alt} placeholder="Alt text (required)" onBlur={(e) => saveAlt(m, e.target.value)} aria-label={`Alt text for ${m.filename}`} />
+                  <div className="flex items-center gap-2"><input key={m.alt} className={`input !py-1.5 text-sm ${!m.alt ? "!border-warning/60" : ""}`} defaultValue={m.alt} placeholder="Alt text (required)" onBlur={(e) => saveAlt(m, e.target.value)} aria-label={`Alt text for ${m.filename}`} /><AltAiButton label="Library image" url={m.url} filename={m.filename} alt={m.alt} onAlt={(v) => saveAlt(m, v)} /></div>
                   <div className="flex justify-between text-xs"><button className="text-accent hover:underline" onClick={() => { navigator.clipboard.writeText(location.origin + m.url); toast("URL copied."); }}>Copy URL</button><button className="text-danger hover:underline" onClick={() => del(m)}>Delete</button></div>
                 </div>
               </div>

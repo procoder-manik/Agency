@@ -17,7 +17,7 @@ export default async function Dashboard({ searchParams }: { searchParams: { deni
   const user = await requirePage();
   const [projects, posts, pages, services] = await Promise.all(["projects", "posts", "pages", "services"].map(count));
   const [[leads], [subs], recent, drafts, ai] = await Promise.all([
-    db().select({ n: dsql<number>`count(*)::int`, fresh: dsql<number>`count(*) filter (where status = 'new')::int` }).from(schema.leads).where(isNull(schema.leads.deletedAt)),
+    db().select({ n: dsql<number>`count(*)::int`, fresh: dsql<number>`count(*) filter (where status = 'new' and created_at > now() - interval '7 days')::int` }).from(schema.leads).where(isNull(schema.leads.deletedAt)),
     db().select({ n: dsql<number>`count(*)::int`, unread: dsql<number>`count(*) filter (where read = false)::int` }).from(schema.submissions).where(isNull(schema.submissions.deletedAt)),
     db().select().from(schema.auditLog).orderBy(desc(schema.auditLog.createdAt)).limit(8),
     db().select().from(E).where(and(eq(E.status, "draft"), isNull(E.deletedAt))).orderBy(desc(E.updatedAt)).limit(6),

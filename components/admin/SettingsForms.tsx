@@ -37,7 +37,9 @@ export function SettingsSection({ k, fields, title, children }: { k: string; fie
   );
 }
 
-const t = (name: string, label: string, type: Field["type"] = "text", extra: Partial<Field> = {}): Field & { path?: string } => ({ name, label, type, ai: false, ...extra });
+/** Facts the AI must never make up (contact details, legal names, hours) stay manual; everything written in words gets the AI button. */
+const FACTUAL = /^(address|hours|replyTime|legalName|registration|availability|shortName|fromName|replyTo|bigText|copyright|chatBotName|defaultCurrency|ctaHref|domain)$/;
+const t = (name: string, label: string, type: Field["type"] = "text", extra: Partial<Field> = {}): Field & { path?: string } => ({ name, label, type, ...(FACTUAL.test(name) ? { ai: false } : {}), ...extra });
 
 export function SiteSettings() {
   const [tab, setTab] = useState("Site identity");
@@ -50,7 +52,7 @@ export function SiteSettings() {
         {tab === "Site identity" && <SettingsSection k="identity" fields={[
           t("name", "Agency name"), t("shortName", "Short name / initials", "text", { help: "Used for the generated logo mark and favicon." }),
           t("tagline", "Tagline", "text", { ai: true }), t("ctaLabel", "Main call to action label"), t("description", "One-line description", "textarea", { ai: true }),
-          t("longDescription", "Long description", "textarea", { ai: true }), t("logo", "Logo (leave empty for the generated mark)", "image", { size: "400 × 120" }), t("logoAlt", "Logo alt text"),
+          t("longDescription", "Long description", "textarea", { ai: true }), t("logo", "Logo for light mode (dark logo on a light background)", "image", { size: "400 × 120", help: "Leave empty to use the generated mark. Also used in emails." }), t("logoDark", "Logo for dark mode (light or white logo)", "image", { size: "400 × 120", help: "Optional. If empty, the light-mode logo is used in both modes." }), t("logoAlt", "Logo alt text"),
           t("ctaHref", "Main call to action link"), t("domain", "Primary domain", "url", { help: "e.g. https://youragency.com, used for canonical URLs and the sitemap." }),
           t("legalName", "Legal business name"), t("registration", "Registration details"), t("availability", "Availability line shown on the home hero", "text", { help: "A small status pill with a pulsing dot. Leave empty to hide it. Keep it true." }),
         ]} />}
@@ -151,6 +153,32 @@ function HeaderMenuEditor({ list, onChange }: { list: any[]; onChange: (l: any[]
         );
       })}
       <button className="text-sm text-accent hover:underline" onClick={() => onChange([...list, { label: "", href: "/" }])}>Add menu item</button>
+    </div>
+  );
+}
+
+/* ---------------- Header button and footer content ---------------- */
+export function FooterContent() {
+  return (
+    <div className="mt-8 space-y-5">
+      <div className="glass p-5 sm:p-6">
+        <h2 className="mb-1 text-lg font-semibold">Header button</h2>
+        <p className="mb-5 text-sm text-fg2">The call-to-action button at the right of the header.</p>
+        <SettingsSection k="identity" fields={[t("ctaLabel", "Button text"), t("ctaHref", "Button link", "text", { placeholder: "/contact or #chat" })]} />
+      </div>
+      <div className="glass p-5 sm:p-6">
+        <h2 className="mb-1 text-lg font-semibold">Footer content</h2>
+        <p className="mb-5 text-sm text-fg2">Everything shown in the footer. Leave a field empty to use the matching value from Site settings (tagline, contact details).</p>
+        <SettingsSection k="footer" fields={[
+          t("heading", "Footer headline", "text", { help: "The large line at the top left. Empty = your tagline." }),
+          t("email", "Footer email", "text", { help: "The big email link. Empty = the contact email in Site settings." }),
+          t("phone", "Footer phone"), t("whatsapp", "Footer WhatsApp number"), t("address", "Footer address"), t("hours", "Footer business hours"),
+          t("bigText", "Large outlined word at the bottom", "text", { help: "Empty = your agency name." }),
+          t("showBigName", "Show the large outlined word", "toggle"), t("showLocalTime", "Show the local time", "toggle"),
+          t("copyright", "Copyright name", "text", { help: "Shown after the © year. Empty = legal name or agency name." }),
+          t("note", "Extra line in the bottom bar (optional)"),
+        ]} />
+      </div>
     </div>
   );
 }
@@ -276,7 +304,16 @@ export function AiAdmin({ log }: { log: any[] }) {
 }
 
 /* ---------------- Users ---------------- */
-export function UsersAdmin({ me, isAdmin }: { me: number; isAdmin: boolean }) {
+export function UsersAdmin({ me, isAdmin, meEmail = "", meName = "" }: { me: number; isAdmin: boolean; meEmail?: string; meName?: string }) {
+  const [prof, setProf] = useState({ name: meName, email: meEmail, currentPassword: "" }); const [savingProf, setSavingProf] = useState(false);
+  async function saveProfile() {
+    setSavingProf(true);
+    try {
+      const r = await apiFetch("/api/admin/users", { method: "PUT", json: { id: me, name: prof.name, email: prof.email, currentPassword: prof.currentPassword } });
+      if (r.relogin) { toast("Email changed. Please sign in again."); await fetch("/api/admin/logout", { method: "POST" }); window.location.href = "/admin/login"; return; }
+      toast("Profile saved."); setProf({ ...prof, currentPassword: "" });
+    } catch (e: any) { toast(e.message, "error"); } finally { setSavingProf(false); }
+  }
   const [items, setItems] = useState<any[]>([]); const [nu, setNu] = useState({ email: "", name: "", role: "editor", password: "" }); const [pw, setPw] = useState("");
   const load = () => isAdmin && apiFetch("/api/admin/users").then((r) => setItems(r.items)).catch((e) => toast(e.message, "error"));
   useEffect(() => { load(); }, []); // eslint-disable-line
@@ -284,6 +321,13 @@ export function UsersAdmin({ me, isAdmin }: { me: number; isAdmin: boolean }) {
   return (
     <>
       <PageHead title={isAdmin ? "Users" : "My account"} sub={isAdmin ? "Admins can change everything. Editors can manage content but not settings or users." : undefined} />
+      <div className="glass mb-5 p-5"><h2 className="mb-1 font-semibold">My profile</h2><p className="mb-3 text-xs text-muted">This is the email you sign in with. Changing it needs your current password and signs you out.</p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div><label className="label" htmlFor="pf-name">Name</label><input id="pf-name" className="input" value={prof.name} onChange={(e) => setProf({ ...prof, name: e.target.value })} /></div>
+          <div><label className="label" htmlFor="pf-email">Sign-in email</label><input id="pf-email" type="email" className="input" value={prof.email} onChange={(e) => setProf({ ...prof, email: e.target.value })} autoComplete="email" /></div>
+          {prof.email.trim().toLowerCase() !== meEmail.toLowerCase() && <div className="sm:col-span-2"><label className="label" htmlFor="pf-pw">Current password (required to change the email)</label><input id="pf-pw" type="password" className="input max-w-sm" value={prof.currentPassword} onChange={(e) => setProf({ ...prof, currentPassword: e.target.value })} autoComplete="current-password" /></div>}
+        </div>
+        <button className="btn btn-primary mt-4" disabled={savingProf} onClick={saveProfile}>{savingProf ? <Spinner /> : "Save profile"}</button></div>
       <div className="glass mb-5 p-5"><h2 className="mb-3 font-semibold">Change my password</h2><div className="flex flex-wrap gap-2"><input type="password" className="input max-w-xs" placeholder="New password (10+ characters)" value={pw} onChange={(e) => setPw(e.target.value)} autoComplete="new-password" /><button className="btn btn-primary" onClick={() => { upd({ id: me, password: pw }, "Password changed."); setPw(""); }}>Update password</button></div></div>
       {isAdmin && <>
         <div className="glass overflow-x-auto p-5"><table className="w-full min-w-[560px] text-sm"><tbody className="divide-y divide-line">

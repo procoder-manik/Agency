@@ -25,7 +25,8 @@ export const opts = (...v: string[]) => v.map((x) => { const [value, label] = x.
 export function aiAllowed(f: Field) {
   if (f.ai === false) return false;
   if (f.ai === true) return true;
-  return ["text", "textarea", "markdown"].includes(f.type) && !/(slug|url|href|price|date|color|email|phone|icon)/i.test(f.name);
+  if (f.mono) return false;
+  return ["text", "textarea", "markdown"].includes(f.type) && !/(slug|url|href|price|date|colou?r|email|phone|whatsapp|icon|domain|script|gaid|currency|path|key$|^id$|options|subfields|html|css|embed|token|password|hex|registration)/i.test(f.name);
 }
 
 export const SCHEMA_TYPES = ["auto", "WebPage", "AboutPage", "ContactPage", "CollectionPage", "FAQPage", "Article", "BlogPosting", "Service", "Product", "HowTo", "CreativeWork"];

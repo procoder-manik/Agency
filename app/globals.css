@@ -315,3 +315,6 @@ html .btn:hover .arrow { transform: translateX(4px) rotate(-45deg); }
 #main[data-form-style="rounded"] select.input, #main .form-wrap[data-form-style="rounded"] select.input { padding-right: 3rem; background-position: right 1.3rem center; }
 #main .form-wrap[data-form-style="boxed"] .input { background: rgb(var(--c-bg) / .6); border: 1px solid rgb(var(--c-line)); border-radius: var(--r-md); padding-left: 1rem; padding-right: 1rem; }
 #main .form-wrap[data-form-style="boxed"] select.input { padding-right: 2.75rem; }
+
+/* logo versions for dark and light mode */
+[data-mode="dark"] .logo-light, [data-mode="light"] .logo-dark { display: none; }

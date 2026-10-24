@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { getCollection } from "@/lib/collections";
 import { slugify } from "@/lib/util";
 import { apiFetch, Spinner, Tabs, Toggle, toast } from "./ui";
-import { FieldInput } from "./FieldInput";
+import { AiButton, FieldInput } from "./FieldInput";
 import { BlocksEditor } from "./BlocksEditor";
 import { SeoPanel } from "./SeoPanel";
 import { ItemProvider } from "./context";
@@ -71,8 +71,9 @@ export function Editor({ collection, initial, titleTemplate, menu: menu0, footer
         <div className="min-w-0 flex-1">
           <Link href={`/admin/c/${collection}`} className="text-sm text-fg2 hover:text-fg">← {col.label}</Link>
           <label className="sr-only" htmlFor="title">{col.titleLabel}</label>
-          <input id="title" className="mt-2 w-full bg-transparent font-display text-2xl font-bold outline-none placeholder:text-muted sm:text-3xl" placeholder={col.titleLabel} value={item.title}
+          <div className="mt-2 flex items-center gap-3"><input id="title" className="w-full min-w-0 bg-transparent font-display text-2xl font-bold outline-none placeholder:text-muted sm:text-3xl" placeholder={col.titleLabel} value={item.title}
             onChange={(e) => upd({ title: e.target.value, ...(isNew && col.hasSlug && !item.slugTouched ? { slug: slugify(e.target.value) } : {}) })} />
+            <AiButton field={{ name: "title", label: col.titleLabel, type: "text" }} value={item.title} onChange={(v) => upd({ title: String(v).replace(/^["']|["']$/g, ""), ...(isNew && col.hasSlug && !item.slugTouched ? { slug: slugify(String(v)) } : {}) })} /></div>
           <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-fg2">
             <span className={`chip !py-0.5 ${item.status === "published" ? "!text-success" : ""}`}>{item.status === "published" ? "Published" : "Draft"}</span>
             {item.builtin && <span className="chip !py-0.5">Built-in page</span>}

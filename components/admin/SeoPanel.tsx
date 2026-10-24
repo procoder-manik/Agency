@@ -58,11 +58,11 @@ export function SeoPanel({ tab, seo, onChange, titleTemplate, defaultSchema, pat
         <label className="flex items-center gap-2 text-sm text-fg2"><input type="radio" checked={!onlyEmpty} onChange={() => setOnlyEmpty(false)} />Replace all</label>
         {!aiOn && <span className="text-xs text-muted">Add an AI key in Admin &gt; AI to enable.</span>}
       </div>
-      <FieldInput field={{ name: "focusKeyword", label: "Focus keyword", type: "text", ai: false }} value={seo.focusKeyword} onChange={(v) => set("focusKeyword", v)} />
+      <FieldInput field={{ name: "focusKeyword", label: "Focus keyword", type: "text", ai: true }} value={seo.focusKeyword} onChange={(v) => set("focusKeyword", v)} />
       <FieldInput field={{ name: "keywords", label: "Related keywords", type: "tags" }} value={Array.isArray(seo.keywords) ? seo.keywords : (seo.keywords || "").split(",").filter(Boolean)} onChange={(v) => set("keywords", v)} />
-      <div><FieldInput field={{ name: "metaTitle", label: "Meta title", type: "text", ai: false }} value={seo.metaTitle} onChange={(v) => set("metaTitle", v)} /><div className="mt-1 flex flex-wrap justify-between gap-2"><Count n={(fullTitle || "").length} lo={30} hi={60} /><span className="truncate text-xs text-muted">Shows as: {fullTitle}</span></div></div>
-      <div><FieldInput field={{ name: "metaDescription", label: "Meta description", type: "textarea", ai: false }} value={seo.metaDescription} onChange={(v) => set("metaDescription", v)} /><Count n={(seo.metaDescription || "").length} lo={120} hi={160} /></div>
-      <FieldInput field={{ name: "breadcrumbTitle", label: "Breadcrumb title", type: "text", ai: false }} value={seo.breadcrumbTitle} onChange={(v) => set("breadcrumbTitle", v)} />
+      <div><FieldInput field={{ name: "metaTitle", label: "Meta title", type: "text", ai: true }} value={seo.metaTitle} onChange={(v) => set("metaTitle", v)} /><div className="mt-1 flex flex-wrap justify-between gap-2"><Count n={(fullTitle || "").length} lo={30} hi={60} /><span className="truncate text-xs text-muted">Shows as: {fullTitle}</span></div></div>
+      <div><FieldInput field={{ name: "metaDescription", label: "Meta description", type: "textarea", ai: true }} value={seo.metaDescription} onChange={(v) => set("metaDescription", v)} /><Count n={(seo.metaDescription || "").length} lo={120} hi={160} /></div>
+      <FieldInput field={{ name: "breadcrumbTitle", label: "Breadcrumb title", type: "text", ai: true }} value={seo.breadcrumbTitle} onChange={(v) => set("breadcrumbTitle", v)} />
       <FieldInput field={{ name: "canonical", label: "Canonical URL override", type: "url", help: "Leave empty to use this page's own URL." }} value={seo.canonical} onChange={(v) => set("canonical", v)} />
       <div className="grid gap-3 sm:grid-cols-2">
         <Toggle label="noindex (hide from search)" checked={!!seo.noindex} onChange={(v) => set("noindex", v)} />

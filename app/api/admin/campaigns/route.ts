@@ -6,7 +6,7 @@ import { audienceStats, countAudience } from "@/lib/campaigns";
 import { stripUnsafe } from "@/lib/email-templates";
 
 const C = schema.campaigns;
-const aud = (a: any) => ({ verifiedOnly: a?.verifiedOnly !== false, statuses: Array.isArray(a?.statuses) ? a.statuses.filter((x: any) => typeof x === "string").slice(0, 6) : [], source: String(a?.source || "").slice(0, 100) });
+const aud = (a: any) => ({ verifiedOnly: a?.verifiedOnly !== false, statuses: Array.isArray(a?.statuses) ? a.statuses.filter((x: any) => typeof x === "string").slice(0, 6) : [], source: String(a?.source || "").slice(0, 100), ids: Array.isArray(a?.ids) ? a.ids.map(Number).filter((n: number) => Number.isInteger(n) && n > 0).slice(0, 5000) : [] });
 
 export const GET = api(async () => {
   await requireApi("admin");
@@ -18,9 +18,9 @@ export const POST = api(async (req: Request) => {
   if (b.action === "count") return { count: await countAudience(aud(b.audience)) };
   if (b.action === "duplicate") {
     const [src] = await db().select().from(C).where(eq(C.id, Number(b.id))).limit(1); if (!src) throw new HttpError(404, "Not found.");
-    const [row] = await db().insert(C).values({ name: src.name + " copy", subject: src.subject, preheader: src.preheader, html: src.html, templateId: src.templateId, audience: src.audience }).returning(); return { item: row };
+    const [row] = await db().insert(C).values({ name: src.name + " copy", subject: src.subject, preheader: src.preheader, html: src.html, blocks: src.blocks, templateId: src.templateId, audience: src.audience }).returning(); return { item: row };
   }
-  const v = { name: String(b.name || "").trim().slice(0, 120), subject: String(b.subject || "").slice(0, 200), preheader: String(b.preheader || "").slice(0, 200), html: stripUnsafe(String(b.html || "")).slice(0, 400_000), templateId: b.templateId ? Number(b.templateId) : null, audience: aud(b.audience) };
+  const v = { name: String(b.name || "").trim().slice(0, 120), subject: String(b.subject || "").slice(0, 200), preheader: String(b.preheader || "").slice(0, 200), html: stripUnsafe(String(b.html || "")).slice(0, 400_000), blocks: b.blocks && typeof b.blocks === "object" && Array.isArray(b.blocks.blocks) ? b.blocks : null, templateId: b.templateId ? Number(b.templateId) : null, audience: aud(b.audience) };
   if (!v.name) throw new HttpError(400, "Give the campaign a name.");
   if (b.id) {
     const [cur] = await db().select().from(C).where(eq(C.id, Number(b.id))).limit(1);

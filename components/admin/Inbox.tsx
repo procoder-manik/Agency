@@ -1,5 +1,7 @@
 "use client";
+import Link from "next/link";
 import { useEffect, useState } from "react";
+import { LEAD_HELP, LEAD_LABELS, LEAD_STATUSES } from "@/lib/lead-status";
 import { apiFetch, Empty, fmt, Modal, PageHead, toast } from "./ui";
 
 export function Submissions() {
@@ -35,45 +37,104 @@ export function Submissions() {
   );
 }
 
-const COLS = [["new", "New"], ["contacted", "Contacted"], ["won", "Won"], ["lost", "Lost"]];
+const COLS = LEAD_STATUSES.map((k) => [k, LEAD_LABELS[k]] as const);
+const Badges = ({ l }: { l: any }) => (
+  <span className="flex flex-wrap items-center gap-1.5">
+    {l.status === "new" && <span className="chip !border-accent/50 !px-2 !py-0.5 !text-[0.7rem] !text-accent">New</span>}
+    {l.verified ? <span className="chip !px-2 !py-0.5 !text-[0.7rem] !text-success">Verified</span> : l.email ? <span className="chip !px-2 !py-0.5 !text-[0.7rem]">Unverified</span> : null}
+    {l.unsubscribed && <span className="chip !px-2 !py-0.5 !text-[0.7rem] !text-danger">Unsubscribed</span>}
+    {l.contactCount > 1 && <span className="chip !px-2 !py-0.5 !text-[0.7rem]">{l.contactCount} messages</span>}
+  </span>
+);
+
 export function Leads() {
   const [items, setItems] = useState<any[]>([]); const [q, setQ] = useState(""); const [edit, setEdit] = useState<any>(null);
+  const [view, setView] = useState<"board" | "list">("board"); const [sel, setSel] = useState<number[]>([]); const [filter, setFilter] = useState("all");
   const load = () => apiFetch("/api/admin/leads").then((r) => setItems(r.items)).catch((e) => toast(e.message, "error"));
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); try { const v = localStorage.getItem("leads:view"); if (v === "list" || v === "board") setView(v); } catch {} }, []);
+  const setViewP = (v: "board" | "list") => { setView(v); try { localStorage.setItem("leads:view", v); } catch {} };
   async function save(l: any) {
     try { const r = await apiFetch("/api/admin/leads", { method: l.id ? "PUT" : "POST", json: l }); setItems((x) => (l.id ? x.map((i) => (i.id === l.id ? r.item : i)) : [r.item, ...x])); setEdit(null); toast("Lead saved."); } catch (e: any) { toast(e.message, "error"); }
   }
+  async function bulk(body: any, msg: string) {
+    try { await apiFetch("/api/admin/leads/bulk", { method: "POST", json: { ids: sel, ...body } }); toast(msg); setSel([]); load(); } catch (e: any) { toast(e.message, "error"); }
+  }
   const move = (l: any, status: string) => save({ ...l, status });
-  const list = items.filter((i) => !q || [i.name, i.email, i.company, i.notes].join(" ").toLowerCase().includes(q.toLowerCase()));
+  const list = items.filter((i) => (filter === "all" || i.status === filter) && (!q || [i.name, i.email, i.company, i.notes].join(" ").toLowerCase().includes(q.toLowerCase())));
+  const total = items.length, fresh = items.filter((i) => i.status === "new").length, verified = items.filter((i) => i.verified && !i.unsubscribed).length;
+  const allSel = list.length > 0 && list.every((l) => sel.includes(l.id));
   return (
     <>
-      <PageHead title="Leads" sub="A simple pipeline. Drag a card or use its menu to change status."><input className="input max-w-xs" placeholder="Search leads" value={q} onChange={(e) => setQ(e.target.value)} /><a href="/api/admin/leads?format=csv" className="btn btn-ghost !py-2 text-sm">Export CSV</a><button className="btn btn-primary !py-2 text-sm" onClick={() => setEdit({ status: "new", source: "manual" })}>Add lead</button></PageHead>
-      <p className="mb-4 text-sm text-fg2">Each email address is one lead. Repeat enquiries from the same email are added to the same lead. Only <strong className="text-fg">verified</strong> leads who have not unsubscribed receive campaigns.</p>
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {COLS.map(([k, label]) => (
-          <div key={k} className="rounded border border-line bg-surface/40 p-3" onDragOver={(e) => e.preventDefault()} onDrop={(e) => { const id = Number(e.dataTransfer.getData("id")); const l = items.find((x) => x.id === id); if (l && l.status !== k) move(l, k); }}>
-            <p className="mb-3 flex justify-between px-1 font-medium">{label}<span className="text-muted">{list.filter((l) => l.status === k).length}</span></p>
-            <div className="space-y-2">
-              {list.filter((l) => l.status === k).map((l) => (
-                <div key={l.id} draggable onDragStart={(e) => e.dataTransfer.setData("id", String(l.id))} className="glass cursor-grab p-3 text-sm">
-                  <button className="block w-full text-left" onClick={() => setEdit({ ...l })}><p className="font-medium text-fg">{l.name || l.email || "Unnamed"}</p><p className="text-fg2">{[l.company, l.email].filter(Boolean).join(" · ")}</p>{l.notes && <p className="mt-1 line-clamp-2 text-xs text-muted">{l.notes}</p>}</button>
-                  <div className="mt-2 flex flex-wrap items-center gap-1.5">{l.verified ? <span className="chip !px-2 !py-0.5 !text-[0.7rem] !text-success">Verified</span> : l.email ? <span className="chip !px-2 !py-0.5 !text-[0.7rem]">Unverified</span> : null}{l.unsubscribed && <span className="chip !px-2 !py-0.5 !text-[0.7rem] !text-danger">Unsubscribed</span>}{l.contactCount > 1 && <span className="chip !px-2 !py-0.5 !text-[0.7rem]">{l.contactCount} messages</span>}</div>
-                  <div className="mt-2 flex items-center justify-between"><span className="text-xs text-muted">{l.source}</span>
-                    <select aria-label="Status" className="rounded border border-line bg-bg px-1 text-xs" value={l.status} onChange={(e) => move(l, e.target.value)}>{COLS.map(([v, t]) => <option key={v} value={v}>{t}</option>)}</select></div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
+      <PageHead title="Leads" sub="Every email address is one lead. New leads stay under New for 7 days, then move to Contacts on their own.">
+        <input className="input max-w-xs" placeholder="Search leads" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search leads" />
+        <div className="flex rounded-full border border-line p-0.5 text-sm">{(["board", "list"] as const).map((v) => <button key={v} onClick={() => setViewP(v)} className={`rounded-full px-3.5 py-1 capitalize ${view === v ? "bg-accent text-onaccent" : "text-fg2"}`}>{v}</button>)}</div>
+        <a href="/api/admin/leads?format=csv" className="btn btn-ghost !py-2 text-sm">Export CSV</a>
+        <Link href="/admin/email?new=1" className="btn btn-ghost !py-2 text-sm">Send campaign</Link>
+        <button className="btn btn-primary !py-2 text-sm" onClick={() => setEdit({ status: "new", source: "manual" })}>Add lead</button>
+      </PageHead>
+      <div className="mb-5 grid gap-3 sm:grid-cols-4">
+        {[["Total leads", total], ["New (last 7 days)", fresh], ["Verified, can receive campaigns", verified], ["Customers", items.filter((i) => i.status === "won").length]].map(([l, n]) => <div key={l as string} className="glass p-4"><p className="text-sm text-fg2">{l}</p><p className="font-display text-3xl font-bold">{n}</p></div>)}
       </div>
+
+      {view === "board" ? (
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+          {COLS.map(([k, label]) => {
+            const col = list.filter((l) => l.status === k);
+            return (
+              <div key={k} className="rounded-[var(--r-md)] border border-line bg-surface/40 p-3" onDragOver={(e) => e.preventDefault()} onDrop={(e) => { const id = Number(e.dataTransfer.getData("id")); const l = items.find((x) => x.id === id); if (l && l.status !== k) move(l, k); }}>
+                <p className="flex justify-between px-1 font-medium">{label}<span className="text-muted">{col.length}</span></p>
+                <p className="mb-3 px-1 text-xs text-muted">{LEAD_HELP[k]}</p>
+                <div className="space-y-2">
+                  {col.map((l) => (
+                    <div key={l.id} draggable onDragStart={(e) => e.dataTransfer.setData("id", String(l.id))} className="glass cursor-grab p-3 text-sm">
+                      <button className="block w-full text-left" onClick={() => setEdit({ ...l })}><p className="font-medium text-fg">{l.name || l.email || "Unnamed"}</p><p className="break-all text-fg2">{[l.company, l.email].filter(Boolean).join(" · ")}</p>{l.notes && <p className="mt-1 line-clamp-2 text-xs text-muted">{l.notes}</p>}</button>
+                      <div className="mt-2"><Badges l={l} /></div>
+                      <div className="mt-2 flex items-center justify-between"><span className="truncate text-xs text-muted">{l.source}</span>
+                        <select aria-label="Status" className="rounded border border-line bg-bg px-1 text-xs" value={l.status} onChange={(e) => move(l, e.target.value)}>{COLS.map(([v, t]) => <option key={v} value={v}>{t}</option>)}</select></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <>
+          <div className="mb-3 flex flex-wrap gap-2">{[["all", "All"], ...COLS].map(([v, l]) => <button key={v} onClick={() => { setFilter(v); setSel([]); }} className={`chip ${filter === v ? "!border-accent !text-fg" : ""}`}>{l}</button>)}</div>
+          {sel.length > 0 && (
+            <div className="glass mb-3 flex flex-wrap items-center gap-2 p-3 text-sm">
+              <span className="font-medium">{sel.length} selected</span>
+              <select className="input !w-auto !py-1.5 text-sm" value="" onChange={(e) => e.target.value && bulk({ status: e.target.value }, "Status updated.")} aria-label="Move to"><option value="">Move to…</option>{COLS.map(([v, t]) => <option key={v} value={v}>{t}</option>)}</select>
+              <button className="btn btn-ghost !py-1.5 text-sm" onClick={() => bulk({ verified: true }, "Marked verified.")}>Mark verified</button>
+              <button className="btn btn-ghost !py-1.5 text-sm" onClick={() => bulk({ unsubscribed: true }, "Marked unsubscribed.")}>Unsubscribe</button>
+              <Link href={`/admin/email?ids=${sel.join(",")}`} className="btn btn-primary !py-1.5 text-sm">Email selected</Link>
+              <button className="btn btn-ghost !py-1.5 text-sm text-danger" onClick={() => confirm(`Delete ${sel.length} lead(s)?`) && bulk({ action: "delete" }, "Deleted.")}>Delete</button>
+              <button className="ml-auto text-fg2 hover:text-fg" onClick={() => setSel([])}>Clear</button>
+            </div>
+          )}
+          {!list.length ? <Empty title="No leads here">Leads appear when someone fills in a form or the chat.</Empty> : (
+            <div className="glass overflow-x-auto"><table className="w-full min-w-[760px] text-sm">
+              <thead><tr className="border-b border-line text-left text-xs text-muted"><th className="w-10 p-3"><input type="checkbox" checked={allSel} onChange={(e) => setSel(e.target.checked ? list.map((l) => l.id) : [])} aria-label="Select all" /></th><th className="p-3">Contact</th><th className="p-3">Status</th><th className="p-3">Email</th><th className="p-3">Source</th><th className="p-3">Added</th></tr></thead>
+              <tbody className="divide-y divide-line">{list.map((l) => (
+                <tr key={l.id} className="hover:bg-raised/40">
+                  <td className="p-3"><input type="checkbox" checked={sel.includes(l.id)} onChange={(e) => setSel(e.target.checked ? [...sel, l.id] : sel.filter((x) => x !== l.id))} aria-label={`Select ${l.name || l.email}`} /></td>
+                  <td className="p-3"><button className="text-left" onClick={() => setEdit({ ...l })}><span className="block font-medium text-fg">{l.name || l.email || "Unnamed"}</span><span className="block text-fg2">{[l.company, l.email].filter(Boolean).join(" · ")}</span></button></td>
+                  <td className="p-3"><select aria-label="Status" className="rounded border border-line bg-bg px-1.5 py-1 text-xs" value={l.status} onChange={(e) => move(l, e.target.value)}>{COLS.map(([v, t]) => <option key={v} value={v}>{t}</option>)}</select></td>
+                  <td className="p-3"><Badges l={l} /></td>
+                  <td className="p-3 text-fg2">{l.source}</td><td className="p-3 whitespace-nowrap text-xs text-muted">{fmt(l.createdAt)}</td>
+                </tr>))}</tbody></table></div>
+          )}
+        </>
+      )}
       <Modal open={!!edit} onClose={() => setEdit(null)} title={edit?.id ? "Edit lead" : "Add lead"}>
         {edit && <div className="grid gap-3 sm:grid-cols-2">
           {["name", "email", "phone", "company", "source"].map((k) => <div key={k}><label className="label capitalize">{k}</label><input className="input" value={edit[k] || ""} onChange={(e) => setEdit({ ...edit, [k]: e.target.value })} /></div>)}
           <div><label className="label">Status</label><select className="input" value={edit.status} onChange={(e) => setEdit({ ...edit, status: e.target.value })}>{COLS.map(([v, t]) => <option key={v} value={v}>{t}</option>)}</select></div>
           <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={!!edit.verified} onChange={(e) => setEdit({ ...edit, verified: e.target.checked })} /> Email is verified</label>
           <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={!!edit.unsubscribed} onChange={(e) => setEdit({ ...edit, unsubscribed: e.target.checked })} /> Unsubscribed from emails</label>
-          <div className="sm:col-span-2"><label className="label">Notes</label><textarea className="input" rows={5} value={edit.notes || ""} onChange={(e) => setEdit({ ...edit, notes: e.target.value })} /></div>
-          <div className="flex gap-2 sm:col-span-2"><button className="btn btn-primary" onClick={() => save(edit)}>Save lead</button>
+          <div className="sm:col-span-2"><label className="label">Notes</label><textarea className="input" rows={6} value={edit.notes || ""} onChange={(e) => setEdit({ ...edit, notes: e.target.value })} /></div>
+          <div className="flex flex-wrap gap-2 sm:col-span-2"><button className="btn btn-primary" onClick={() => save(edit)}>Save lead</button>
+            {edit.id && edit.email && <Link className="btn btn-ghost" href={`/admin/email?ids=${edit.id}`}>Send an email</Link>}
             {edit.id && <button className="btn btn-ghost text-danger" onClick={async () => { if (!confirm("Delete this lead?")) return; await apiFetch(`/api/admin/leads?id=${edit.id}`, { method: "DELETE" }); setItems((x) => x.filter((i) => i.id !== edit.id)); setEdit(null); }}>Delete</button>}</div>
         </div>}
       </Modal>

@@ -98,7 +98,7 @@ export default async function PostPage({ params }: P) {
                 </div>
               )) : (
                 <div className="glass flex flex-col gap-6 p-6 sm:flex-row sm:items-center sm:p-8">
-                  <Logo name={id.name} shortName={id.shortName} logo={id.logo} alt={id.logoAlt} compact />
+                  <Logo name={id.name} shortName={id.shortName} logo={id.logo} logoDark={(id as any).logoDark} alt={id.logoAlt} compact />
                   <div><p className="mono-tag text-muted">Written by</p><h2 className="mt-1 font-display text-2xl font-bold">The {id.name} team</h2><p className="mt-2 text-fg2">{id.description}</p></div>
                 </div>
               )}

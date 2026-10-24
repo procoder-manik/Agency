@@ -15,21 +15,23 @@ const ICONS: Record<string, string> = {
 const NAMES: Record<string, string> = { linkedin: "LinkedIn", x: "X", instagram: "Instagram", facebook: "Facebook", youtube: "YouTube", dribbble: "Dribbble", github: "GitHub" };
 
 export function Footer({ s, columns }: { s: Settings; columns: { title: string; links: { label: string; href: string }[] }[] }) {
-  const id = s.identity;
+  const id = s.identity; const ft = s.footer;
+  const email = ft.email || id.email, phone = ft.phone || id.phone, whatsapp = ft.whatsapp || id.whatsapp, address = ft.address || id.address, hours = ft.hours || id.hours;
   const socials = Object.entries(id.socials || {}).filter(([, v]) => v);
   const year = new Date().getFullYear();
+  const bigText = ft.bigText || id.name;
   return (
     <footer className="tex relative mt-16 overflow-hidden border-t border-line">
       <div className="container-x pt-20">
         <div className="grid gap-14 lg:grid-cols-[1.2fr_2fr]">
           <div>
-            <p className="font-display text-3xl font-bold leading-tight tracking-tight sm:text-4xl">{id.tagline}</p>
-            {id.email && <Magnetic strength={0.2}><a href={`mailto:${id.email}`} className="mt-8 inline-block border-b border-fg/30 pb-1 font-display text-2xl transition-colors hover:border-accent hover:text-accent sm:text-3xl" data-cursor="Email">{id.email}</a></Magnetic>}
+            <p className="font-display text-3xl font-bold leading-tight tracking-tight sm:text-4xl">{ft.heading || id.tagline}</p>
+            {email && <Magnetic strength={0.2}><a href={`mailto:${email}`} className="mt-8 inline-block border-b border-fg/30 pb-1 font-display text-2xl transition-colors hover:border-accent hover:text-accent sm:text-3xl" data-cursor="Email">{email}</a></Magnetic>}
             <div className="mt-8 space-y-1.5 text-[0.95rem] text-fg2">
-              {id.phone && <p><a className="hover:text-accent" href={`tel:${id.phone.replace(/\s/g, "")}`}>{id.phone}</a></p>}
-              {id.whatsapp && <p><a className="hover:text-accent" href={`https://wa.me/${id.whatsapp.replace(/\D/g, "")}`} rel="noopener" target="_blank">WhatsApp</a></p>}
-              {id.address && <p>{id.address}</p>}
-              {id.hours && <p className="text-muted">{id.hours}</p>}
+              {phone && <p><a className="hover:text-accent" href={`tel:${phone.replace(/\s/g, "")}`}>{phone}</a></p>}
+              {whatsapp && <p><a className="hover:text-accent" href={`https://wa.me/${whatsapp.replace(/\D/g, "")}`} rel="noopener" target="_blank">WhatsApp</a></p>}
+              {address && <p>{address}</p>}
+              {hours && <p className="text-muted">{hours}</p>}
             </div>
             {socials.length > 0 && (
               <div className="mt-8 flex flex-wrap gap-2">
@@ -53,13 +55,15 @@ export function Footer({ s, columns }: { s: Settings; columns: { title: string; 
           </div>
         </div>
       </div>
-      <div className="container-x mt-20" aria-hidden>
-        <p className="select-none whitespace-nowrap text-center font-display font-bold leading-[.8] tracking-[-0.06em] text-outline" style={{ fontSize: `clamp(3rem, ${Math.min(22, 150 / Math.max(4, id.name.length))}vw, 18rem)` }}>{id.name}</p>
+      {ft.showBigName !== false && (
+        <div className="container-x mt-20" aria-hidden>
+        <p className="select-none whitespace-nowrap text-center font-display font-bold leading-[1.05] tracking-[-0.06em] text-outline" style={{ fontSize: `clamp(3rem, ${Math.min(22, 150 / Math.max(4, bigText.length))}vw, 18rem)` }}>{bigText}</p>
       </div>
+      )}
       <div className="border-t border-line/70">
         <div className="container-x flex flex-col gap-3 py-6 text-sm text-muted sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3"><Logo name={id.name} shortName={id.shortName} logo={id.logo} alt={id.logoAlt} compact /><span>© {year} {id.legalName || id.name}</span></div>
-          <p className="flex flex-wrap gap-x-4">{id.registration && <span>{id.registration}</span>}<span>Local time <Clock /></span></p>
+          <div className="flex items-center gap-3"><Logo name={id.name} shortName={id.shortName} logo={id.logo} logoDark={(id as any).logoDark} alt={id.logoAlt} compact /><span>© {year} {ft.copyright || id.legalName || id.name}</span></div>
+          <p className="flex flex-wrap gap-x-4">{id.registration && <span>{id.registration}</span>}{ft.showLocalTime !== false && <span>Local time <Clock /></span>}{ft.note && <span>{ft.note}</span>}</p>
         </div>
       </div>
     </footer>

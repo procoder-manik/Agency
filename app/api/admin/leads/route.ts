@@ -3,9 +3,11 @@ import { desc, eq, isNull } from "drizzle-orm";
 import { api, requireApi, HttpError } from "@/lib/auth";
 import { db, schema } from "@/lib/db";
 import { EMAIL_RX, newToken } from "@/lib/leads";
+import { LEAD_STATUSES, NEW_DAYS } from "@/lib/lead-status";
+import { sql as dsql } from "drizzle-orm";
 
 const L = schema.leads;
-const STATUSES = ["new", "contacted", "won", "lost"];
+const STATUSES: string[] = [...LEAD_STATUSES];
 const pick = (b: any) => {
   const email = String(b.email ?? "").trim().toLowerCase().slice(0, 200);
   if (email && !EMAIL_RX.test(email)) throw new HttpError(400, "Enter a valid email address.");
@@ -20,6 +22,8 @@ const csvCell = (v: any) => `"${String(v ?? "").replace(/"/g, '""').replace(/\r?
 
 export const GET = api(async (req: Request) => {
   await requireApi();
+  // after 7 days a "new" lead becomes a regular contact
+  await db().update(L).set({ status: "contact" }).where(dsql`${L.status} = 'new' AND ${L.deletedAt} IS NULL AND ${L.createdAt} < now() - make_interval(days => ${NEW_DAYS})`);
   const items = await db().select().from(L).where(isNull(L.deletedAt)).orderBy(desc(L.createdAt)).limit(5000);
   if (new URL(req.url).searchParams.get("format") === "csv") {
     const head = ["name", "email", "phone", "company", "source", "status", "verified", "unsubscribed", "contacts", "created"];

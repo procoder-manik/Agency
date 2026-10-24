@@ -101,6 +101,7 @@ export const emailTemplates = pgTable("email_templates", {
   subject: text("subject").notNull().default(""),
   preheader: text("preheader").notNull().default(""),
   html: text("html").notNull().default(""),
+  blocks: jsonb("blocks").$type<Record<string, any> | null>(),
   deletedAt: ts("deleted_at"),
   ...stamps,
 });
@@ -111,6 +112,7 @@ export const campaigns = pgTable("campaigns", {
   subject: text("subject").notNull().default(""),
   preheader: text("preheader").notNull().default(""),
   html: text("html").notNull().default(""),
+  blocks: jsonb("blocks").$type<Record<string, any> | null>(),
   templateId: integer("template_id"),
   audience: jsonb("audience").$type<Record<string, any>>().notNull().default({}),
   status: text("status").notNull().default("draft"),

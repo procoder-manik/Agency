@@ -4,7 +4,7 @@ export const SETTING_DEFAULTS = {
     name: "Your Agency", shortName: "YA", tagline: IDENTITY.tagline,
     description: IDENTITY.description,
     longDescription: IDENTITY.longDescription,
-    logo: "", domain: "",
+    logo: "", logoDark: "", domain: "",
     email: "hello@example.com", phone: "", whatsapp: "", address: "", hours: "Sun to Thu, 10am to 7pm", replyTime: "within one business day",
     socials: { linkedin: "", x: "", instagram: "", facebook: "", youtube: "", dribbble: "", github: "" },
     legalName: "", registration: "", availability: "Open for new projects", ctaLabel: "Book a free consultation", ctaHref: "/contact", logoAlt: "",
@@ -25,6 +25,10 @@ export const SETTING_DEFAULTS = {
     intro: "Thank you for contacting us. We have received your message and will get back to you very shortly.",
     body: "A member of our team is reading it now. We usually reply {{replyTime}}.",
     signature: "The {{siteName}} team", showSummary: true, footerNote: "", unsubscribeNote: "You are receiving this email because you contacted {{siteName}}.",
+  },
+  footer: {
+    heading: "", email: "", phone: "", whatsapp: "", address: "", hours: "", bigText: "", showBigName: true, showLocalTime: true,
+    copyright: "", note: "",
   },
   general: { trashDays: 30, notifyEmail: "", packVersion: 0 },
 };

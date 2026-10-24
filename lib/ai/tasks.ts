@@ -42,6 +42,25 @@ function cleanBlock(b: any) {
   return newBlock(def.type, data);
 }
 
+/** What a field is for, so the AI writes the right kind of text for it (alt text, meta title, button label...). */
+function fieldGuide(name: string, label: string, type: string, section?: string) {
+  const k = `${name} ${label}`.toLowerCase();
+  const g: string[] = [];
+  if (/\balt\b|alt text/.test(k)) g.push("This is the alt text of an image. Describe what the image shows or represents in plain words, under 125 characters, with no 'image of' or 'picture of'. If it is a logo, write '<Brand> logo' (add the brand's descriptor only if it is known).");
+  else if (/meta ?title|seo title|og ?title|open graph title/.test(k)) g.push("Search/social title: 50 to 60 characters, the main keyword near the start, no brand suffix, no clickbait.");
+  else if (/meta ?description|og ?description|open graph description/.test(k)) g.push("Search/social description: 140 to 160 characters, says what the page offers and ends with a light reason to click. No quotes.");
+  else if (/focus keyword/.test(k)) g.push("One search phrase (2 to 4 words) people would really type.");
+  else if (/breadcrumb/.test(k)) g.push("A short label of 1 to 3 words.");
+  else if (/tagline|headline|footer headline/.test(k)) g.push("One short, concrete line (under 10 words). No buzzwords.");
+  else if (/button|cta|label|link text/.test(k)) g.push("A button or link label of 2 to 4 words, starting with a verb where it makes sense.");
+  else if (/placeholder/.test(k)) g.push("A short hint shown inside an empty input (under 6 words).");
+  else if (/heading|title|name/.test(k)) g.push("A short, clear heading (under 9 words).");
+  else if (/subject/.test(k)) g.push("An email subject line under 60 characters, specific, no ALL CAPS.");
+  else if (/greeting|message|intro|body|signature|note/.test(k)) g.push("Friendly, plain and brief.");
+  if (section) g.push(`It sits in the "${section}" part of the site.`);
+  return g.join(" ");
+}
+
 const SEO_SHAPE = `{"focusKeyword":"","keywords":["",""],"metaTitle":"(max 60 chars, without the brand suffix)","metaDescription":"(140-160 chars)","ogTitle":"","ogDescription":"","breadcrumbTitle":"(short)","schemaType":"one of ${SCHEMA_TYPES.filter((t) => t !== "auto").join(", ")}"}`;
 
 export async function runTask(task: string, p: any) {
@@ -52,8 +71,15 @@ export async function runTask(task: string, p: any) {
   switch (task) {
     case "field": {
       const verb = p.mode === "improve" ? "Improve this text, keeping its meaning and facts" : p.mode === "shorten" ? "Shorten this text by about half, keeping the key facts" : "Write this field";
-      const r = await run(ctx, `${verb}.\nField: "${p.label}" (${p.type}${p.type === "markdown" ? ", markdown allowed" : ", plain text"}).\nItem being edited: ${JSON.stringify(p.item || {}).slice(0, 4000)}\nCurrent text: ${p.current || "(empty)"}\nExtra instruction: ${p.instruction || "none"}\nReturn JSON {"text": "..."}.`);
+      const guide = fieldGuide(String(p.name || ""), String(p.label || ""), String(p.type || ""), p.section);
+      const r = await run(ctx, `${verb}.\nField: "${p.label}" (key: ${p.name || "n/a"}; ${p.type}${p.type === "markdown" ? ", markdown allowed" : ", plain text"}).${p.help ? ` Field help: ${p.help}.` : ""}${guide ? `\nWhat this field is for: ${guide}` : ""}\nItem being edited: ${JSON.stringify(p.item || {}).slice(0, 4000)}\nCurrent text: ${p.current || "(empty)"}\nExtra instruction: ${p.instruction || "none"}\nReturn JSON {"text": "..."}.`);
       return { ...r, data: { text: scrubNumbers(String(r.data.text || ""), allowed) } };
+    }
+    case "alt": {
+      // The model cannot see the picture: it writes from the file name, the field the image fills and the page it belongs to.
+      const file = String(p.filename || "").replace(/\.[a-z0-9]{2,5}$/i, "").replace(/[-_]+/g, " ").replace(/\b[0-9a-f]{8,}\b/gi, "").trim();
+      const r = await run(ctx, `Write alt text for an image on this website.\nWhere it is used: field "${p.label || "Image"}" on ${p.collection ? `a ${p.collection} item` : "the site"}${p.title ? ` titled "${p.title}"` : ""}.\nFile name hint: ${file || "none"}.\nCurrent alt text: ${p.current || "(empty)"}.\nRules: describe the image's role and likely content in under 125 characters, plain words, no "image of". If the field is a logo, write "${ctx.agency.name} logo" style text. Do not invent details the file name and context do not support.\nReturn JSON {"text": "..."}.`);
+      return { ...r, data: { text: scrubNumbers(String(r.data.text || "").slice(0, 160), allowed) } };
     }
     case "seo": {
       const col = getCollection(p.collection);

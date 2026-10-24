@@ -5,12 +5,13 @@ import { sendMail } from "./email";
 import { getAllSettings } from "./settings";
 
 const L = schema.leads;
-export interface Audience { verifiedOnly?: boolean; statuses?: string[]; source?: string }
+export interface Audience { verifiedOnly?: boolean; statuses?: string[]; source?: string; ids?: number[] }
 
 export function audienceWhere(a: Audience, afterId = 0) {
   const w = [isNull(L.deletedAt), ne(L.email, ""), eq(L.unsubscribed, false), gt(L.id, afterId)];
   if (a.verifiedOnly !== false) w.push(eq(L.verified, true));
   if (a.statuses?.length) w.push(inArray(L.status, a.statuses));
+  if (a.ids?.length) w.push(inArray(L.id, a.ids));
   if (a.source) w.push(dsql`${L.source} ILIKE ${"%" + a.source + "%"}`);
   return and(...w);
 }

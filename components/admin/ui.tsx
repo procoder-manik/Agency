@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 
 export async function apiFetch<T = any>(url: string, opts: RequestInit & { json?: any } = {}): Promise<T> {
   const { json, ...rest } = opts;
@@ -27,15 +28,22 @@ export function Toaster() {
 }
 
 export function Modal({ open, onClose, title, children, wide }: { open: boolean; onClose: () => void; title: string; children: ReactNode; wide?: boolean }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   useEffect(() => { if (!open) return; const f = (e: KeyboardEvent) => e.key === "Escape" && onClose(); window.addEventListener("keydown", f); return () => window.removeEventListener("keydown", f); }, [open, onClose]);
-  if (!open) return null;
-  return (
-    <div className="fixed inset-0 z-[90] flex items-start justify-center overflow-y-auto bg-bg/70 p-4 backdrop-blur-sm sm:p-10" onMouseDown={onClose}>
+  useEffect(() => { if (!open) return; const prev = document.body.style.overflow; document.body.style.overflow = "hidden"; return () => { document.body.style.overflow = prev; }; }, [open]);
+  if (!open || !mounted) return null;
+  // Rendered into <body> so no parent (blur, transform, scroll area) can push it off-screen. Always centred in the viewport.
+  return createPortal(
+    <div className="fixed inset-0 z-[90] overflow-y-auto bg-bg/70 backdrop-blur-sm" onMouseDown={onClose} data-lenis-prevent>
+      <div className="flex min-h-full items-center justify-center p-4 sm:p-8">
       <div role="dialog" aria-modal="true" aria-label={title} className={`glass fade-in w-full !bg-surface ${wide ? "max-w-5xl" : "max-w-xl"}`} onMouseDown={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between border-b border-line px-5 py-4"><h2 className="text-lg font-semibold">{title}</h2><button onClick={onClose} aria-label="Close" className="text-fg2 hover:text-fg">✕</button></div>
         <div className="p-5">{children}</div>
       </div>
-    </div>
+      </div>
+    </div>,
+    document.body
   );
 }
 

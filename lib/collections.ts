@@ -136,7 +136,7 @@ export const COLLECTIONS: CollectionDef[] = [
       { name: "author", label: "Authors (shown in the author box with photo and bio)", type: "relation", collection: "team", multiple: true },
       { name: "ctaTitle", label: "Sidebar call to action: title (optional)", type: "text" },
       { name: "ctaText", label: "Sidebar call to action: text (optional)", type: "textarea" },
-      { name: "ctaLabel", label: "Sidebar call to action: button label (optional)", type: "text", ai: false },
+      { name: "ctaLabel", label: "Sidebar call to action: button label (optional)", type: "text" },
       { name: "ctaHref", label: "Sidebar call to action: button link (optional)", type: "url" },
       { name: "kind", label: "Type", type: "select", options: opts("article|Article", "update|Short update") },
     ],
@@ -167,7 +167,7 @@ export const COLLECTIONS: CollectionDef[] = [
         { name: "name", label: "Key", type: "text", ai: false }, { name: "label", label: "Label", type: "text" },
         { name: "type", label: "Type", type: "select", options: opts("text", "email", "tel", "textarea", "select", "number") },
         { name: "options", label: "Options (for dropdowns: separate with | or a new line, e.g. Under $1,000 | $1,000 to $3,000)", type: "textarea", rows: 3, ai: false },
-        { name: "placeholder", label: "Placeholder text", type: "text", ai: false },
+        { name: "placeholder", label: "Placeholder text", type: "text" },
         { name: "width", label: "Width", type: "select", options: opts("auto|Automatic", "half|Half width", "full|Full width") },
         { name: "required", label: "Required", type: "toggle" },
       ] },
@@ -198,7 +198,7 @@ export const COLLECTIONS: CollectionDef[] = [
 COLLECTIONS.push({
   key: "modules", label: "Custom modules", singular: "Module", titleLabel: "Module name", hasSlug: true, seo: false, group: "Design", roles: ["admin"],
   fields: [
-    { name: "description", label: "What is this module for?", type: "textarea", ai: false },
+    { name: "description", label: "What is this module for?", type: "textarea" },
     { name: "fields", label: "Fields editors can fill in", type: "list", fields: [
       { name: "name", label: "Key (letters and numbers, no spaces)", type: "text", ai: false },
       { name: "label", label: "Label", type: "text", ai: false },
