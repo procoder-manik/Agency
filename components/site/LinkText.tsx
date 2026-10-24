@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { richFooterHtml } from "@/lib/rich";
 
 const SAFE = /^(https?:\/\/|\/|mailto:|tel:|#)/i;
 /** Plain text that can contain links written as [label](address): "Designed by [NextGen Agency](https://nextgenagency.co)".
@@ -17,4 +18,9 @@ export function LinkText({ text, name = "", className = "" }: { text: string; na
   }
   if (last < src.length) out.push(src.slice(last));
   return <>{out}</>;
+}
+
+/** Footer texts written in the admin's link editor. Links use the theme colour unless you picked another one. */
+export function RichInline({ text, name = "", className = "" }: { text: string; name?: string; className?: string }) {
+  return <span className={`rich-inline ${className}`} dangerouslySetInnerHTML={{ __html: richFooterHtml(text, name) }} />;
 }

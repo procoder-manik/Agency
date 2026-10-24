@@ -1,7 +1,7 @@
 /** Field-definition types shared by collections, page-builder blocks and the admin form renderer. */
 export type FieldType =
   | "text" | "textarea" | "markdown" | "number" | "select" | "toggle" | "image" | "media" | "tags"
-  | "list" | "relation" | "color" | "date" | "url";
+  | "list" | "relation" | "color" | "date" | "url" | "richtext"; // richtext: short text with bold, italic and links (see lib/rich.ts)
 
 export interface Field {
   name: string;

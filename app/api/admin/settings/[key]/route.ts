@@ -7,6 +7,7 @@ import { normalizeTokens } from "@/lib/themes";
 import { and, eq, isNull } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
 import { isValidBase } from "@/lib/portfolio";
+import { sanitizeInline, toRichHtml } from "@/lib/rich";
 
 type C = { params: { key: string } };
 const EDITOR_KEYS = new Set<string>(["portfolio"]); // read-only for editors (the category list in the project editor)
@@ -61,6 +62,7 @@ export const PUT = api(async (req: Request, { params }: C) => {
     }
     value = next;
   }
+  if (params.key === "footer") for (const k of ["heading", "address", "hours", "copyrightText", "note"]) if (typeof value[k] === "string") value[k] = sanitizeInline(toRichHtml(value[k]));
   if (params.key === "general") value.trashDays = Math.min(365, Math.max(1, Number(value.trashDays) || 30));
   const saved = await saveSetting(params.key as SettingKey, value);
   await audit(u.email, "update settings", params.key);

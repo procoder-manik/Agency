@@ -362,27 +362,16 @@ html:not([data-btn-anim="none"]) .btn:hover .arrow, .btn-scope:not([data-btn-ani
 [data-mode="dark"] .logo-light, [data-mode="light"] .logo-dark { display: none; }
 
 /* =========================================================
-   Scrollbar: a comet. A hair-thin tail at the top that swells into a round, glowing head,
-   coloured from the active theme (accent to accent 2). Nothing here is an image.
+   Scrollbar (admin and any page without the ruler): a classic glossy capsule, coloured from the theme (accent to accent 2)
    ========================================================= */
-::-webkit-scrollbar { width: 16px; height: 12px; }
-/* a faint rail the comet travels along */
-::-webkit-scrollbar-track { background: linear-gradient(90deg, transparent 47%, rgb(var(--c-line) / .55) 49.5%, rgb(var(--c-line) / .55) 50.5%, transparent 53%), rgb(var(--c-bg)); }
+::-webkit-scrollbar { width: 14px; height: 14px; }
+::-webkit-scrollbar-track { background: rgb(var(--c-bg)); box-shadow: inset 1px 0 0 rgb(var(--c-line) / .6); }
 ::-webkit-scrollbar-thumb {
-  border: 3px solid transparent; background-clip: padding-box; border-radius: 0 0 999px 999px; min-height: 110px;
-  /* top two layers hide the corners to cut the taper, the bottom layer is the colour */
-  background-image:
-    linear-gradient(to top left, transparent 49.5%, rgb(var(--c-bg)) 50.5%),
-    linear-gradient(to top right, transparent 49.5%, rgb(var(--c-bg)) 50.5%),
-    linear-gradient(180deg, rgb(var(--c-accent2) / .25) 0%, rgb(var(--c-accent2)) 38%, rgb(var(--c-accent)) 100%);
-  background-size: 50% 100%, 50% 100%, 100% 100%; background-position: left top, right top, 0 0; background-repeat: no-repeat;
+  min-height: 56px; border: 3px solid transparent; background-clip: padding-box; border-radius: 999px;
+  background-image: linear-gradient(180deg, rgb(var(--c-accent)), rgb(var(--c-accent2)));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .55), inset 0 -2px 3px rgb(0 0 0 / .22), inset 1px 0 0 rgb(255 255 255 / .18);
 }
-::-webkit-scrollbar-thumb:hover {
-  background-image:
-    linear-gradient(to top left, transparent 49.5%, rgb(var(--c-bg)) 50.5%),
-    linear-gradient(to top right, transparent 49.5%, rgb(var(--c-bg)) 50.5%),
-    linear-gradient(180deg, rgb(var(--c-accent) / .3) 0%, rgb(var(--c-accent)) 38%, rgb(var(--c-accent2)) 100%);
-}
+::-webkit-scrollbar-thumb:hover { background-image: linear-gradient(180deg, rgb(var(--c-accent2)), rgb(var(--c-accent))); box-shadow: inset 0 1px 0 rgb(255 255 255 / .7), inset 0 -2px 3px rgb(0 0 0 / .26), 0 0 6px rgb(var(--c-accent) / .45); }
 ::-webkit-scrollbar-corner { background: transparent; }
 /* Firefox has no gradient scrollbars, so it gets the accent colour */
 @supports not selector(::-webkit-scrollbar) { * { scrollbar-width: thin; scrollbar-color: rgb(var(--c-accent)) rgb(var(--c-bg)); } }
@@ -405,3 +394,19 @@ html.comet-scroll::-webkit-scrollbar { width: 0; height: 0; display: none; }
 .btt:hover .btt-arrow { animation: bttUp 0.9s ease-in-out infinite; }
 @keyframes bttUp { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
 @media (prefers-reduced-motion: reduce) { .btt:hover .btt-arrow { animation: none; } }
+
+/* footer texts edited with the link editor */
+.rich-inline a { color: rgb(var(--c-accent)); text-decoration: underline; text-decoration-color: currentColor; text-decoration-thickness: 1px; text-underline-offset: 3px; transition: opacity .2s, text-decoration-thickness .2s; }
+.rich-inline a:hover { opacity: .8; text-decoration-thickness: 2px; }
+.rich-inline b, .rich-inline strong { font-weight: 600; color: rgb(var(--c-fg)); }
+
+/* ruler handle: a glossy capsule that thickens, turns to frosted glass and blurs what is behind it when you reach for it */
+.ruler-pill { background: linear-gradient(180deg, rgb(var(--c-accent) / .97), rgb(var(--c-accent2) / .97)); border: 1px solid rgb(255 255 255 / .28); transform-origin: right center;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .5), inset 0 -2px 4px rgb(0 0 0 / .2), 0 6px 16px -6px rgb(var(--c-accent) / .7);
+  transition: transform .3s cubic-bezier(.16,1,.3,1), background .3s, box-shadow .3s, backdrop-filter .3s, padding .3s; }
+.ruler-handle:hover .ruler-pill { transform: scale(1.12); padding-left: .85rem; padding-right: .85rem;
+  background: linear-gradient(180deg, rgb(var(--c-accent) / .5), rgb(var(--c-accent2) / .5)); -webkit-backdrop-filter: blur(12px) saturate(1.5); backdrop-filter: blur(12px) saturate(1.5);
+  border-color: rgb(255 255 255 / .5); box-shadow: inset 0 1px 0 rgb(255 255 255 / .7), inset 0 -1px 2px rgb(0 0 0 / .1), 0 12px 26px -8px rgb(var(--c-accent) / .85); }
+.ruler-handle:active .ruler-pill { transform: scale(.97); transition-duration: .12s; }
+.ruler-handle:hover .ruler-grip { opacity: 1; }
+.ruler-grip { opacity: .55; transition: opacity .3s; }

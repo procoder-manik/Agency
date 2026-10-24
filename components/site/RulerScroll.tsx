@@ -54,8 +54,10 @@ export function RulerScroll() {
         {labels.map((k) => { const top = k * 5 * CM - y; return top < -12 || top > vh + 12 ? null : <span key={k} className="absolute font-mono text-[9px] leading-none text-fg2" style={{ right: 18, transform: `translateY(${top + 4}px)` }}>{k * 5}</span>; })}
       </div>
       {/* the handle: drag it up and down */}
-      <div className="absolute right-0 flex cursor-grab items-center active:cursor-grabbing" style={{ top: markY - 10, transition: dragging.current ? "none" : "top .08s linear" }}>
-        <span className="mr-0.5 whitespace-nowrap rounded-full bg-accent px-2.5 py-1 font-mono text-[10px] font-semibold leading-none text-onaccent shadow-[0_0_14px_rgb(var(--c-accent)/.55)]">{reading.toFixed(1)}&nbsp;cm</span>
+      <div className="ruler-handle absolute right-0 flex cursor-grab items-center active:cursor-grabbing" style={{ top: markY - 11, transition: dragging.current ? "none" : "top .08s linear" }}>
+        <span className="ruler-pill mr-0.5 flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-[5px] font-mono text-[10px] font-semibold leading-none text-onaccent">
+          <span aria-hidden className="ruler-grip flex flex-col gap-[2px]"><i className="block h-px w-2 bg-current" /><i className="block h-px w-2 bg-current" /><i className="block h-px w-2 bg-current" /></span>
+          {reading.toFixed(1)}&nbsp;cm</span>
         <span className="h-0 w-0 border-y-[5px] border-l-[7px] border-y-transparent" style={{ borderLeftColor: "rgb(var(--c-accent))" }} />
         <span className="h-px w-5" style={{ background: "linear-gradient(90deg, rgb(var(--c-accent)), rgb(var(--c-accent2)))", boxShadow: "0 0 8px rgb(var(--c-accent) / .8)" }} />
       </div>
