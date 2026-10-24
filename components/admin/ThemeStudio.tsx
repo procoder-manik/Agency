@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { SCROLL_STYLES } from "@/lib/scroll-style";
 import { BTN_ANIMS, BTN_FILLS, COLOR_TOKENS, CURATED_FONTS, FORM_STYLES, contrastReport, fontHref, normalizeTokens, normalizeUi, paletteFor, themeCss, uiOf, type Theme, type ThemeTokens, type UiTokens } from "@/lib/themes";
 import { apiFetch, PageHead, Spinner, toast } from "./ui";
 import { SettingsSection } from "./SettingsForms";
@@ -200,11 +201,23 @@ export function ThemeStudio({ themes, active }: { themes: Theme[]; active: strin
           { name: "accentPicker", label: "Let visitors pick an accent colour", type: "toggle", ai: false },
           { name: "ambient", label: "Pointer spotlight and grid across the page", type: "toggle", ai: false },
           { name: "smoothScroll", label: "Smooth, inertial scrolling", type: "toggle", ai: false },
-          { name: "rulerScroll", label: "Ruler-style scroll indicator instead of the browser scrollbar (desktop only)", type: "toggle", ai: false },
+          { name: "scrollStyle", label: "Scrollbar style", type: "select", ai: false, options: SCROLL_STYLES.map((x) => ({ value: x.value, label: x.label })), help: "Applies to the whole site and the admin. The ruler is for the public site on desktop; the admin uses the capsule instead." },
           { name: "cursor", label: "Custom cursor (desktop only)", type: "toggle", ai: false },
           { name: "intro", label: "Intro curtain on first visit", type: "toggle", ai: false },
-        ]} />
+        ]}>{(v) => <ScrollPreview style={String(v.scrollStyle || "ruler")} />}</SettingsSection>
       </div>
     </>
+  );
+}
+
+/** A small scrollable box that shows the chosen scrollbar style right away. */
+function ScrollPreview({ style }: { style: string }) {
+  return (
+    <div className="mt-5">
+      <p className="mb-2 text-sm text-fg2">Preview{style === "ruler" ? " (the ruler appears on the live site, so the preview shows the capsule the admin uses)" : ""}</p>
+      <div data-scroll={style === "ruler" ? "capsule" : style} className="scroll-demo h-40 max-w-md overflow-y-scroll rounded-[var(--r-md)] border border-line bg-bg/60 p-4 text-sm text-fg2" tabIndex={0} aria-label="Scrollbar preview">
+        {Array.from({ length: 14 }, (_, i) => <p key={i} className="mb-3">Scroll this box to see how the scrollbar looks and feels. Line {i + 1}.</p>)}
+      </div>
+    </div>
   );
 }

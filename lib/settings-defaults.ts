@@ -11,7 +11,7 @@ export const SETTING_DEFAULTS = {
   },
   seo: { titleTemplate: "%s | {name}", defaultDescription: "", ogImage: "", twitterHandle: "", twitterCard: "summary_large_image", localBusiness: false },
   navigation: NAVIGATION,
-  appearance: { ui: null as null | Record<string, any>, activeTheme: "signal", defaultMode: "system", modeToggle: true, accentPicker: true, intro: true, rulerScroll: true, cursor: true, smoothScroll: true, ambient: true },
+  appearance: { ui: null as null | Record<string, any>, activeTheme: "signal", defaultMode: "system", modeToggle: true, accentPicker: true, intro: true, scrollStyle: "ruler", cursor: true, smoothScroll: true, ambient: true },
   integrations: {
     gaId: "", googleAdsId: "", gtmId: "", metaPixelId: "", tiktokPixelId: "", linkedinId: "", clarityId: "", hotjarId: "", googleVerification: "", bingVerification: "", pinterestVerification: "", facebookVerification: "", headCode: "",
     chatWhatsapp: true, chatWhatsappText: "Can't reach us here?",

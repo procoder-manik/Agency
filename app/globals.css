@@ -361,20 +361,6 @@ html:not([data-btn-anim="none"]) .btn:hover .arrow, .btn-scope:not([data-btn-ani
 /* logo versions for dark and light mode */
 [data-mode="dark"] .logo-light, [data-mode="light"] .logo-dark { display: none; }
 
-/* =========================================================
-   Scrollbar (admin and any page without the ruler): a classic glossy capsule, coloured from the theme (accent to accent 2)
-   ========================================================= */
-::-webkit-scrollbar { width: 14px; height: 14px; }
-::-webkit-scrollbar-track { background: rgb(var(--c-bg)); box-shadow: inset 1px 0 0 rgb(var(--c-line) / .6); }
-::-webkit-scrollbar-thumb {
-  min-height: 56px; border: 3px solid transparent; background-clip: padding-box; border-radius: 999px;
-  background-image: linear-gradient(180deg, rgb(var(--c-accent)), rgb(var(--c-accent2)));
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / .55), inset 0 -2px 3px rgb(0 0 0 / .22), inset 1px 0 0 rgb(255 255 255 / .18);
-}
-::-webkit-scrollbar-thumb:hover { background-image: linear-gradient(180deg, rgb(var(--c-accent2)), rgb(var(--c-accent))); box-shadow: inset 0 1px 0 rgb(255 255 255 / .7), inset 0 -2px 3px rgb(0 0 0 / .26), 0 0 6px rgb(var(--c-accent) / .45); }
-::-webkit-scrollbar-corner { background: transparent; }
-/* Firefox has no gradient scrollbars, so it gets the accent colour */
-@supports not selector(::-webkit-scrollbar) { * { scrollbar-width: thin; scrollbar-color: rgb(var(--c-accent)) rgb(var(--c-bg)); } }
 
 /* chat button: optional attention animations (Admin > Chatbot > Settings) */
 @keyframes chatBreathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.07); } }
@@ -384,9 +370,6 @@ html:not([data-btn-anim="none"]) .btn:hover .arrow, .btn-scope:not([data-btn-ani
 .chat-breathe:hover, .chat-wiggle:hover { animation: none; }
 @media (prefers-reduced-motion: reduce) { .chat-breathe, .chat-wiggle { animation: none; } }
 
-/* the comet scrollbar replaces the browser bar on desktop (see CometScroll) */
-html.comet-scroll { scrollbar-width: none; }
-html.comet-scroll::-webkit-scrollbar { width: 0; height: 0; display: none; }
 
 /* back to top: progress ring, floating arrow */
 .btt { filter: drop-shadow(0 8px 18px rgb(0 0 0 / .25)); }
@@ -410,3 +393,43 @@ html.comet-scroll::-webkit-scrollbar { width: 0; height: 0; display: none; }
 .ruler-handle:active .ruler-pill { transform: scale(.97); transition-duration: .12s; }
 .ruler-handle:hover .ruler-grip { opacity: 1; }
 .ruler-grip { opacity: .55; transition: opacity .3s; }
+
+/* =========================================================
+   Scrollbar styles (Admin > Themes > Experience settings > Scrollbar style). html[data-scroll] holds the choice.
+   ruler = the ruler on the public site; here it falls back to the capsule (admin pages). default = the browser's own scrollbar.
+   ========================================================= */
+html[data-scroll="capsule"]::-webkit-scrollbar, html[data-scroll="capsule"] ::-webkit-scrollbar, .scroll-demo[data-scroll="capsule"]::-webkit-scrollbar, html[data-scroll="ruler"]::-webkit-scrollbar, html[data-scroll="ruler"] ::-webkit-scrollbar, .scroll-demo[data-scroll="ruler"]::-webkit-scrollbar { width: 14px; height: 14px; }
+html[data-scroll="capsule"]::-webkit-scrollbar-track, html[data-scroll="capsule"] ::-webkit-scrollbar-track, .scroll-demo[data-scroll="capsule"]::-webkit-scrollbar-track, html[data-scroll="ruler"]::-webkit-scrollbar-track, html[data-scroll="ruler"] ::-webkit-scrollbar-track, .scroll-demo[data-scroll="ruler"]::-webkit-scrollbar-track { background: rgb(var(--c-bg)); box-shadow: inset 1px 0 0 rgb(var(--c-line) / .6); }
+html[data-scroll="capsule"]::-webkit-scrollbar-thumb, html[data-scroll="capsule"] ::-webkit-scrollbar-thumb, .scroll-demo[data-scroll="capsule"]::-webkit-scrollbar-thumb, html[data-scroll="ruler"]::-webkit-scrollbar-thumb, html[data-scroll="ruler"] ::-webkit-scrollbar-thumb, .scroll-demo[data-scroll="ruler"]::-webkit-scrollbar-thumb { min-height: 56px; border: 3px solid transparent; background-clip: padding-box; border-radius: 999px;
+  background-image: linear-gradient(180deg, rgb(var(--c-accent)), rgb(var(--c-accent2)));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .55), inset 0 -2px 3px rgb(0 0 0 / .22), inset 1px 0 0 rgb(255 255 255 / .18); }
+html[data-scroll="capsule"]::-webkit-scrollbar-thumb:hover, html[data-scroll="capsule"] ::-webkit-scrollbar-thumb:hover, .scroll-demo[data-scroll="capsule"]::-webkit-scrollbar-thumb:hover, html[data-scroll="ruler"]::-webkit-scrollbar-thumb:hover, html[data-scroll="ruler"] ::-webkit-scrollbar-thumb:hover, .scroll-demo[data-scroll="ruler"]::-webkit-scrollbar-thumb:hover { background-image: linear-gradient(180deg, rgb(var(--c-accent2)), rgb(var(--c-accent))); box-shadow: inset 0 1px 0 rgb(255 255 255 / .7), inset 0 -2px 3px rgb(0 0 0 / .26), 0 0 6px rgb(var(--c-accent) / .45); }
+html[data-scroll="capsule"]::-webkit-scrollbar-corner, html[data-scroll="capsule"] ::-webkit-scrollbar-corner, .scroll-demo[data-scroll="capsule"]::-webkit-scrollbar-corner, html[data-scroll="ruler"]::-webkit-scrollbar-corner, html[data-scroll="ruler"] ::-webkit-scrollbar-corner, .scroll-demo[data-scroll="ruler"]::-webkit-scrollbar-corner { background: transparent; }
+
+/* comet: a tail that is hair-thin at the top and swells into a round head */
+html[data-scroll="comet"]::-webkit-scrollbar, html[data-scroll="comet"] ::-webkit-scrollbar, .scroll-demo[data-scroll="comet"]::-webkit-scrollbar { width: 16px; height: 12px; }
+html[data-scroll="comet"]::-webkit-scrollbar-track, html[data-scroll="comet"] ::-webkit-scrollbar-track, .scroll-demo[data-scroll="comet"]::-webkit-scrollbar-track { background: linear-gradient(90deg, transparent 47%, rgb(var(--c-line) / .55) 49.5%, rgb(var(--c-line) / .55) 50.5%, transparent 53%), rgb(var(--c-bg)); }
+html[data-scroll="comet"]::-webkit-scrollbar-thumb, html[data-scroll="comet"] ::-webkit-scrollbar-thumb, .scroll-demo[data-scroll="comet"]::-webkit-scrollbar-thumb { border: 3px solid transparent; background-clip: padding-box; border-radius: 0 0 999px 999px; min-height: 110px;
+  background-image: linear-gradient(to top left, transparent 49.5%, rgb(var(--c-bg)) 50.5%), linear-gradient(to top right, transparent 49.5%, rgb(var(--c-bg)) 50.5%), linear-gradient(180deg, rgb(var(--c-accent2) / .25) 0%, rgb(var(--c-accent2)) 38%, rgb(var(--c-accent)) 100%);
+  background-size: 50% 100%, 50% 100%, 100% 100%; background-position: left top, right top, 0 0; background-repeat: no-repeat; }
+html[data-scroll="comet"]::-webkit-scrollbar-corner, html[data-scroll="comet"] ::-webkit-scrollbar-corner, .scroll-demo[data-scroll="comet"]::-webkit-scrollbar-corner { background: transparent; }
+
+/* slim: a thin, flat gradient line */
+html[data-scroll="slim"]::-webkit-scrollbar, html[data-scroll="slim"] ::-webkit-scrollbar, .scroll-demo[data-scroll="slim"]::-webkit-scrollbar { width: 8px; height: 8px; }
+html[data-scroll="slim"]::-webkit-scrollbar-track, html[data-scroll="slim"] ::-webkit-scrollbar-track, .scroll-demo[data-scroll="slim"]::-webkit-scrollbar-track { background: transparent; }
+html[data-scroll="slim"]::-webkit-scrollbar-thumb, html[data-scroll="slim"] ::-webkit-scrollbar-thumb, .scroll-demo[data-scroll="slim"]::-webkit-scrollbar-thumb { min-height: 48px; border: 2px solid transparent; background-clip: padding-box; border-radius: 999px; background-image: linear-gradient(180deg, rgb(var(--c-accent)), rgb(var(--c-accent2))); }
+html[data-scroll="slim"]::-webkit-scrollbar-thumb:hover, html[data-scroll="slim"] ::-webkit-scrollbar-thumb:hover, .scroll-demo[data-scroll="slim"]::-webkit-scrollbar-thumb:hover { background-image: linear-gradient(180deg, rgb(var(--c-accent2)), rgb(var(--c-accent))); }
+html[data-scroll="slim"]::-webkit-scrollbar-corner, html[data-scroll="slim"] ::-webkit-scrollbar-corner, .scroll-demo[data-scroll="slim"]::-webkit-scrollbar-corner { background: transparent; }
+
+/* neon: a thin glowing gradient bar on a dark rail */
+html[data-scroll="neon"]::-webkit-scrollbar, html[data-scroll="neon"] ::-webkit-scrollbar, .scroll-demo[data-scroll="neon"]::-webkit-scrollbar { width: 10px; height: 10px; }
+html[data-scroll="neon"]::-webkit-scrollbar-track, html[data-scroll="neon"] ::-webkit-scrollbar-track, .scroll-demo[data-scroll="neon"]::-webkit-scrollbar-track { background: rgb(var(--c-bg)); box-shadow: inset 1px 0 0 rgb(var(--c-line) / .5); }
+html[data-scroll="neon"]::-webkit-scrollbar-thumb, html[data-scroll="neon"] ::-webkit-scrollbar-thumb, .scroll-demo[data-scroll="neon"]::-webkit-scrollbar-thumb { min-height: 56px; border: 2px solid transparent; background-clip: padding-box; border-radius: 999px; background-image: linear-gradient(180deg, rgb(var(--c-accent)), rgb(var(--c-accent2))); box-shadow: 0 0 6px rgb(var(--c-accent)), 0 0 14px rgb(var(--c-accent2) / .7); }
+html[data-scroll="neon"]::-webkit-scrollbar-corner, html[data-scroll="neon"] ::-webkit-scrollbar-corner, .scroll-demo[data-scroll="neon"]::-webkit-scrollbar-corner { background: transparent; }
+
+/* Firefox cannot shape scrollbars, so every style except "default" gets the accent colour */
+@supports not selector(::-webkit-scrollbar) { html[data-scroll]:not([data-scroll="default"]), .scroll-demo:not([data-scroll="default"]) { scrollbar-width: thin; scrollbar-color: rgb(var(--c-accent)) rgb(var(--c-bg)); } }
+
+/* the ruler replaces the browser bar on the public site (see RulerScroll). This must stay after the rules above. */
+html.comet-scroll { scrollbar-width: none; }
+html.comet-scroll::-webkit-scrollbar { width: 0 !important; height: 0 !important; display: none; }
