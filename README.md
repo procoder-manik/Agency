@@ -101,3 +101,6 @@ npm run dev                 # http://localhost:3000  |  অ্যাডমিন
 - **রেডি সেকশন:** পেজ বিল্ডারে "Add section" > "Ready-made sections"। নতুন ব্লক: Bento grid, Platforms, Comparison table, Location links।
 - **Custom HTML সেকশন:** নিজের HTML/CSS বসানো যায় (শুধু admin)। কয়েকটা স্টার্টার টেমপ্লেট আছে, থিমের রঙ ব্যবহার করে। `<script>` মুছে ফেলা হয় আর CSS শুধু ওই সেকশনেই কাজ করে।
 - **নিজের মডিউল বানানো:** Admin > Design > Custom modules। ফিল্ড ঠিক করুন, HTML টেমপ্লেটে `{{field}}`, `{{#each items}}...{{/each}}`, `{{#if field}}` ব্যবহার করুন, লাইভ প্রিভিউ দেখুন। তারপর পেজ বিল্ডারে "Custom module" সেকশন থেকে যেকোনো পেজে বসান। দুটো নমুনা মডিউল দেওয়া আছে।
+
+
+## website link - https://nextgenagency.co/
