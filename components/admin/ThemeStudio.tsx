@@ -200,6 +200,7 @@ export function ThemeStudio({ themes, active }: { themes: Theme[]; active: strin
           { name: "accentPicker", label: "Let visitors pick an accent colour", type: "toggle", ai: false },
           { name: "ambient", label: "Pointer spotlight and grid across the page", type: "toggle", ai: false },
           { name: "smoothScroll", label: "Smooth, inertial scrolling", type: "toggle", ai: false },
+          { name: "rulerScroll", label: "Ruler-style scroll indicator instead of the browser scrollbar (desktop only)", type: "toggle", ai: false },
           { name: "cursor", label: "Custom cursor (desktop only)", type: "toggle", ai: false },
           { name: "intro", label: "Intro curtain on first visit", type: "toggle", ai: false },
         ]} />

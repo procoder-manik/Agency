@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Settings } from "@/lib/settings";
 import { waLink } from "@/lib/whatsapp";
+import { LinkText } from "./LinkText";
 import { Logo } from "./Logo";
 import { Clock, Magnetic } from "./fx";
 
@@ -19,6 +20,7 @@ export function Footer({ s, columns }: { s: Settings; columns: { title: string; 
   const id = s.identity; const ft = s.footer;
   const email = ft.email || id.email, phone = ft.phone || id.phone, whatsapp = ft.whatsapp || id.whatsapp, address = ft.address || id.address, hours = ft.hours || id.hours;
   const waUrl = waLink(id as any, whatsapp);
+  const on = (k: string) => (ft as any)[k] !== false;
   const socials = Object.entries(id.socials || {}).filter(([, v]) => v);
   const year = new Date().getFullYear();
   const bigText = ft.bigText || id.name;
@@ -27,15 +29,15 @@ export function Footer({ s, columns }: { s: Settings; columns: { title: string; 
       <div className="container-x pt-20">
         <div className="grid gap-14 lg:grid-cols-[1.2fr_2fr]">
           <div>
-            <p className="font-display text-3xl font-bold leading-tight tracking-tight sm:text-4xl">{ft.heading || id.tagline}</p>
-            {email && <Magnetic strength={0.2}><a href={`mailto:${email}`} className="mt-8 inline-block border-b border-fg/30 pb-1 font-display text-2xl transition-colors hover:border-accent hover:text-accent sm:text-3xl" data-cursor="Email">{email}</a></Magnetic>}
+            <p className="font-display text-3xl font-bold leading-tight tracking-tight sm:text-4xl"><LinkText text={ft.heading || id.tagline} name={id.name} /></p>
+            {on("showEmail") && email && <Magnetic strength={0.2}><a href={`mailto:${email}`} className="mt-8 inline-block border-b border-fg/30 pb-1 font-display text-2xl transition-colors hover:border-accent hover:text-accent sm:text-3xl" data-cursor="Email">{email}</a></Magnetic>}
             <div className="mt-8 space-y-1.5 text-[0.95rem] text-fg2">
-              {phone && <p><a className="hover:text-accent" href={`tel:${phone.replace(/\s/g, "")}`}>{phone}</a></p>}
-              {waUrl && <p><a className="hover:text-accent" href={waUrl} rel="noopener noreferrer" target="_blank">WhatsApp</a></p>}
-              {address && <p>{address}</p>}
-              {hours && <p className="text-muted">{hours}</p>}
+              {on("showPhone") && phone && <p><a className="hover:text-accent" href={`tel:${phone.replace(/\s/g, "")}`}>{phone}</a></p>}
+              {on("showWhatsapp") && waUrl && <p><a className="hover:text-accent" href={waUrl} rel="noopener noreferrer" target="_blank">WhatsApp</a></p>}
+              {on("showAddress") && address && <p><LinkText text={address} name={id.name} /></p>}
+              {on("showHours") && hours && <p className="text-muted"><LinkText text={hours} name={id.name} /></p>}
             </div>
-            {socials.length > 0 && (
+            {on("showSocials") && socials.length > 0 && (
               <div className="mt-8 flex flex-wrap gap-2">
                 {socials.map(([k, url]) => (
                   <Magnetic key={k} strength={0.4}><a href={url as string} target="_blank" rel="noopener" aria-label={NAMES[k] || k} className="grid h-11 w-11 place-items-center rounded-full border border-line text-fg2 transition-all hover:border-accent hover:bg-accent hover:text-onaccent">
@@ -46,7 +48,7 @@ export function Footer({ s, columns }: { s: Settings; columns: { title: string; 
             )}
           </div>
           <div className="grid gap-x-8 gap-y-10" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))" }}>
-            {columns.map((c) => (
+            {(on("showColumns") ? columns : []).map((c) => (
               <div key={c.title}>
                 <p className="text-sm text-muted">{c.title}</p>
                 <ul className="mt-4 space-y-3">
@@ -64,8 +66,16 @@ export function Footer({ s, columns }: { s: Settings; columns: { title: string; 
       )}
       <div className="border-t border-line/70">
         <div className="container-x flex flex-col gap-3 py-6 text-sm text-muted sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3"><Logo name={id.name} shortName={id.shortName} logo={id.logo} logoDark={(id as any).logoDark} alt={id.logoAlt} compact /><span>© {year} {ft.copyright || id.legalName || id.name}</span></div>
-          <p className="flex flex-wrap gap-x-4">{id.registration && <span>{id.registration}</span>}{ft.showLocalTime !== false && <span>Local time <Clock /></span>}{ft.note && <span>{ft.note}</span>}</p>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            {on("showBottomLogo") && <Logo name={id.name} shortName={id.shortName} logo={id.logo} logoDark={(id as any).logoDark} alt={id.logoAlt} compact />}
+            <span><LinkText text={(ft as any).copyrightText || `© {year} ${ft.copyright || id.legalName || id.name}`} name={id.name} /></span>
+          </div>
+          <p className="flex flex-wrap gap-x-4 gap-y-1">
+            {id.registration && <span><LinkText text={id.registration} name={id.name} /></span>}
+            {((ft as any).bottomLinks || []).filter((l: any) => l?.label && l?.href).map((l: any) => <LinkText key={l.href + l.label} text={`[${l.label}](${l.href})`} />)}
+            {ft.showLocalTime !== false && <span>Local time <Clock /></span>}
+            {ft.note && <span><LinkText text={ft.note} name={id.name} /></span>}
+          </p>
         </div>
       </div>
     </footer>

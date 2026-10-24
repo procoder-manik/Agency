@@ -398,3 +398,10 @@ html:not([data-btn-anim="none"]) .btn:hover .arrow, .btn-scope:not([data-btn-ani
 /* the comet scrollbar replaces the browser bar on desktop (see CometScroll) */
 html.comet-scroll { scrollbar-width: none; }
 html.comet-scroll::-webkit-scrollbar { width: 0; height: 0; display: none; }
+
+/* back to top: progress ring, floating arrow */
+.btt { filter: drop-shadow(0 8px 18px rgb(0 0 0 / .25)); }
+.btt:hover { transform: translateY(-3px) scale(1.06); }
+.btt:hover .btt-arrow { animation: bttUp 0.9s ease-in-out infinite; }
+@keyframes bttUp { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@media (prefers-reduced-motion: reduce) { .btt:hover .btt-arrow { animation: none; } }

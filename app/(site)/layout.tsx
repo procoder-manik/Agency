@@ -9,7 +9,7 @@ import { Ambient, Cursor, Intro, SmoothScroll } from "@/components/site/fx";
 import { getEffectiveTheme } from "@/lib/theme-server";
 import { uiOf } from "@/lib/themes";
 import { Tracking } from "@/components/site/Tracking";
-import { CometScroll } from "@/components/site/CometScroll";
+import { RulerScroll } from "@/components/site/RulerScroll";
 import { mediaUrl } from "@/lib/media";
 import { waLink } from "@/lib/whatsapp";
 
@@ -27,7 +27,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       {ap.cursor && <Cursor />}
       {ap.ambient && <Ambient />}
       <div className="grain" aria-hidden />
-      <CometScroll />
+      {(ap as any).rulerScroll !== false && <RulerScroll />}
       {firstBar && !firstBar.data.paths && <><style>{":root{--bar-h:44px}"}</style><script dangerouslySetInnerHTML={{ __html: `try{var d=JSON.parse(localStorage.getItem("dismissed")||"[]");if(d.indexOf(${firstBar.id})>-1){var r=document.documentElement;r.setAttribute("data-bar-closed","");r.style.setProperty("--bar-h","0px")}}catch(e){}` }} /></>}
       {popups.length > 0 && <Announcements items={popups.map((p) => ({ id: p.id, kind: p.data.kind || "bar", content: p.data.content || "", linkLabel: p.data.linkLabel, linkHref: p.data.linkHref, trigger: p.data.trigger, delay: p.data.delay, paths: p.data.paths }))} />}
       <HeaderShell logo={<Logo name={id.name} shortName={id.shortName} logo={id.logo} logoDark={(id as any).logoDark} alt={id.logoAlt} />} links={nav.header} cta={id.ctaLabel ? { label: id.ctaLabel, href: id.ctaHref || "/contact" } : undefined} themeUi={{ showMode: !!ap.modeToggle, showAccent: !!ap.accentPicker, themeAccent: { a: theme.tokens.colors.accent, b: theme.tokens.colors.accent2 } }} />

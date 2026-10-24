@@ -282,13 +282,17 @@ export function FooterContent() {
         <h2 className="mb-1 text-lg font-semibold">Footer content</h2>
         <p className="mb-5 text-sm text-fg2">Everything shown in the footer. Leave a field empty to use the matching value from Site settings (tagline, contact details).</p>
         <SettingsSection k="footer" fields={[
-          t("heading", "Footer headline", "text", { help: "The large line at the top left. Empty = your tagline." }),
+          t("heading", "Footer headline", "text", { help: "The large line at the top left. Empty = your tagline. You can add links: [text](https://...)." }),
           t("email", "Footer email", "text", { help: "The big email link. Empty = the contact email in Site settings." }),
-          t("phone", "Footer phone"), t("whatsapp", "Footer WhatsApp number"), t("address", "Footer address"), t("hours", "Footer business hours"),
+          t("phone", "Footer phone"), t("whatsapp", "Footer WhatsApp number", "text", { help: "Empty = the WhatsApp number in Site settings. The WhatsApp link is created automatically." }), t("address", "Footer address", "text", { help: "Links allowed: [Our office](https://maps.google.com/...)." }), t("hours", "Footer business hours"),
+          t("copyrightText", "Copyright line", "textarea", { ai: false, rows: 2, placeholder: "© {year} {name}. Designed by [NextGen Agency](https://nextgenagency.co)", help: "The whole copyright text in the bottom bar. {year} is the current year and {name} your agency name. Write a link as [text](address). Empty = © year and your agency name." }),
+          t("bottomLinks", "Bottom bar links", "list", { help: "Small links next to the copyright line, such as Privacy policy or Terms.", fields: [{ name: "label", label: "Text", type: "text" }, { name: "href", label: "Address", type: "text", ai: false, placeholder: "/privacy or https://..." }] }),
+          t("note", "Extra line in the bottom bar (optional)", "text", { help: "Links allowed: [text](address)." }),
           t("bigText", "Large outlined word at the bottom", "text", { help: "Empty = your agency name." }),
           t("showBigName", "Show the large outlined word", "toggle"), t("showLocalTime", "Show the local time", "toggle"),
-          t("copyright", "Copyright name", "text", { help: "Shown after the © year. Empty = legal name or agency name." }),
-          t("note", "Extra line in the bottom bar (optional)"),
+          t("showEmail", "Show the email", "toggle"), t("showPhone", "Show the phone number", "toggle"), t("showWhatsapp", "Show the WhatsApp link", "toggle"),
+          t("showAddress", "Show the address", "toggle"), t("showHours", "Show the business hours", "toggle"), t("showSocials", "Show the social icons", "toggle"),
+          t("showColumns", "Show the link columns", "toggle"), t("showBottomLogo", "Show the small logo in the bottom bar", "toggle"),
         ]} />
       </div>
     </div>

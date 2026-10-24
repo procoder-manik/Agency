@@ -18,13 +18,25 @@ export function FloatingWidgets({ chat, wa, backToTop }: { chat: null | { side: 
 }
 
 function BackToTop({ side, raised }: { side: Side; raised: boolean }) {
-  const [show, setShow] = useState(false);
-  useEffect(() => { const f = () => setShow(window.scrollY > 700); f(); window.addEventListener("scroll", f, { passive: true }); return () => window.removeEventListener("scroll", f); }, []);
+  const [show, setShow] = useState(false); const [p, setP] = useState(0);
+  useEffect(() => {
+    let raf = 0;
+    const f = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight); setP(Math.min(1, window.scrollY / max)); setShow(window.scrollY > 280); }); };
+    f(); window.addEventListener("scroll", f, { passive: true }); window.addEventListener("resize", f);
+    return () => { cancelAnimationFrame(raf); window.removeEventListener("scroll", f); window.removeEventListener("resize", f); };
+  }, []);
+  const R = 21, C = 2 * Math.PI * R;
   return (
-    <button aria-label="Back to top" onClick={() => window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" })}
-      className={`glass fixed z-40 grid h-11 w-11 place-items-center text-fg transition-all duration-300 hover:border-accent ${show ? "opacity-100" : "pointer-events-none translate-y-3 opacity-0"}`}
-      style={{ [side]: 20, bottom: raised ? 92 : 20, borderRadius: 999 } as any}>
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="M12 19V5M5 12l7-7 7 7" /></svg>
+    <button aria-label={`Back to top (${Math.round(p * 100)}% scrolled)`} onClick={() => window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" })}
+      className={`btt group fixed z-40 grid h-12 w-12 place-items-center rounded-full text-fg transition-all duration-500 ease-out ${show ? "scale-100 opacity-100" : "pointer-events-none translate-y-4 scale-75 opacity-0"}`}
+      style={{ [side]: 20, bottom: raised ? 92 : 20 } as any}>
+      <svg className="absolute inset-0 -rotate-90" width="48" height="48" viewBox="0 0 48 48" aria-hidden>
+        <defs><linearGradient id="btt-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style={{ stopColor: "rgb(var(--c-accent))" }} /><stop offset="1" style={{ stopColor: "rgb(var(--c-accent2))" }} /></linearGradient></defs>
+        <circle cx="24" cy="24" r={R} fill="none" stroke="rgb(var(--c-line))" strokeWidth="2.5" />
+        <circle cx="24" cy="24" r={R} fill="none" stroke="url(#btt-g)" strokeWidth="2.5" strokeLinecap="round" strokeDasharray={C} strokeDashoffset={C * (1 - p)} style={{ transition: "stroke-dashoffset .15s linear", filter: "drop-shadow(0 0 3px rgb(var(--c-accent) / .6))" }} />
+      </svg>
+      <span className="btt-fill absolute inset-[5px] rounded-full bg-surface/90 backdrop-blur transition-colors duration-300 group-hover:bg-accent" />
+      <svg className="btt-arrow relative transition-colors group-hover:text-onaccent" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V5M5 12l7-7 7 7" /></svg>
     </button>
   );
 }
