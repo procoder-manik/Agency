@@ -54,7 +54,7 @@ export function HeaderShell({ logo, links, cta, themeUi }: { logo: ReactNode; li
                 <span aria-hidden className="absolute top-0 h-full rounded-full bg-raised transition-all duration-500 ease-out" style={{ left: pill.left, width: pill.width, opacity: pill.on ? 1 : 0 }} />
                 {links.map((l, i) => {
                   const cls = `relative inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[0.95rem] transition-colors ${active(l) ? "text-fg" : "text-fg2 hover:text-fg"}`;
-                  if (!hasMenu(l)) return <Link key={l.href + l.label} href={l.href} data-active={active(l)} onMouseEnter={(e) => { toEl(e.currentTarget); closeSoon(); }} className={cls}>{l.label}</Link>;
+                  if (!hasMenu(l)) return <Link key={l.href + l.label} href={l.href} prefetch data-active={active(l)} onMouseEnter={(e) => { toEl(e.currentTarget); closeSoon(); }} className={cls}>{l.label}</Link>;
                   const on = menu?.i === i;
                   return (
                     <button key={l.label + i} type="button" data-active={active(l)} aria-expanded={on} aria-haspopup="true" onMouseEnter={(e) => { toEl(e.currentTarget); openMenu(i, e.currentTarget); }} onClick={(e) => (on ? setMenu(null) : openMenu(i, e.currentTarget))} className={cls}>
@@ -66,7 +66,7 @@ export function HeaderShell({ logo, links, cta, themeUi }: { logo: ReactNode; li
             </nav>
             <div className="relative z-10 flex items-center gap-2">
               <ThemePanel {...themeUi} />
-              {cta && <Link href={cta.href} className="btn btn-primary hidden !py-2.5 !text-[0.92rem] sm:inline-flex">{cta.label}<span className="arrow" aria-hidden>→</span></Link>}
+              {cta && <Link href={cta.href} prefetch className="btn btn-primary hidden !py-2.5 !text-[0.92rem] sm:inline-flex">{cta.label}<span className="arrow" aria-hidden>→</span></Link>}
               <button className="grid h-11 w-11 place-items-center rounded-full border border-line bg-surface/40 lg:hidden" aria-expanded={open} aria-controls="mobile-nav" onClick={() => setOpen(!open)}>
                 <span className="sr-only">Menu</span>
                 <span aria-hidden className="relative block h-3 w-5">
@@ -86,7 +86,7 @@ export function HeaderShell({ logo, links, cta, themeUi }: { logo: ReactNode; li
                       <div key={ci} className="p-3">
                         {c.title && <p className="mono-tag mb-3 text-muted">{c.title}</p>}
                         <ul className="space-y-0.5">{c.links.map((x) => (
-                          <li key={x.href + x.label}><Link href={x.href} onClick={() => setMenu(null)} className="group block rounded-[var(--r-md)] px-3 py-2.5 transition-colors hover:bg-raised">
+                          <li key={x.href + x.label}><Link href={x.href} prefetch onClick={() => setMenu(null)} className="group block rounded-[var(--r-md)] px-3 py-2.5 transition-colors hover:bg-raised">
                             <span className="block font-medium text-fg transition-colors group-hover:text-accent">{x.label}</span>
                             {x.description && <span className="mt-0.5 block text-[0.84rem] leading-snug text-fg2">{x.description}</span>}
                           </Link></li>))}
@@ -103,7 +103,7 @@ export function HeaderShell({ logo, links, cta, themeUi }: { logo: ReactNode; li
                   </div>
                 ) : (
                   <ul className="space-y-0.5">{cur.columns!.flatMap((c) => c.links).map((x) => (
-                    <li key={x.href + x.label}><Link href={x.href} onClick={() => setMenu(null)} className="group block rounded-[var(--r-md)] px-3 py-2.5 transition-colors hover:bg-raised">
+                    <li key={x.href + x.label}><Link href={x.href} prefetch onClick={() => setMenu(null)} className="group block rounded-[var(--r-md)] px-3 py-2.5 transition-colors hover:bg-raised">
                       <span className="block font-medium text-fg transition-colors group-hover:text-accent">{x.label}</span>
                       {x.description && <span className="mt-0.5 block text-[0.84rem] leading-snug text-fg2">{x.description}</span>}
                     </Link></li>))}

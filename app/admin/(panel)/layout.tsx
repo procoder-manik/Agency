@@ -3,6 +3,7 @@ import { requirePage } from "@/lib/auth";
 import { getAllSettings } from "@/lib/settings";
 import { getActiveTheme } from "@/lib/theme-server";
 import { aiAvailable } from "@/lib/ai/providers";
+import { memo } from "@/lib/memo";
 import { db, schema } from "@/lib/db";
 import { COLLECTIONS } from "@/lib/collections";
 import { Sidebar, type NavGroup, type NavItem } from "@/components/admin/Sidebar";
@@ -14,8 +15,11 @@ export const metadata = { robots: { index: false, follow: false }, title: "Admin
 export default async function PanelLayout({ children }: { children: React.ReactNode }) {
   const user = await requirePage();
   const [s, theme, aiOn] = await Promise.all([getAllSettings(), getActiveTheme(), aiAvailable()]);
-  const [{ n: unread }] = await db().select({ n: dsql<number>`count(*)::int` }).from(schema.submissions).where(and(eq(schema.submissions.read, false), isNull(schema.submissions.deletedAt)));
-  const [{ n: newLeads }] = await db().select({ n: dsql<number>`count(*)::int` }).from(schema.leads).where(and(eq(schema.leads.status, "new"), isNull(schema.leads.deletedAt), dsql`${schema.leads.createdAt} > now() - interval '7 days'`));
+  // the two sidebar badges are cached for a few seconds so every admin click does not repeat these queries
+  const [[{ n: unread }], [{ n: newLeads }]] = await Promise.all([
+    memo("admin:unread", 8_000, () => db().select({ n: dsql<number>`count(*)::int` }).from(schema.submissions).where(and(eq(schema.submissions.read, false), isNull(schema.submissions.deletedAt)))),
+    memo("admin:newLeads", 8_000, () => db().select({ n: dsql<number>`count(*)::int` }).from(schema.leads).where(and(eq(schema.leads.status, "new"), isNull(schema.leads.deletedAt), dsql`${schema.leads.createdAt} > now() - interval '7 days'`))),
+  ]);
   const admin = user.role === "admin";
   /** One WordPress-style section: the list, Add New, and (when the type has them) its own Categories and Tags. */
   const type = (key: string, label: string, o: { cats?: string; tags?: boolean } = {}): NavItem => {

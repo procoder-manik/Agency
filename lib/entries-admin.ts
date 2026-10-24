@@ -1,5 +1,6 @@
 import { and, eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { clearMemo } from "./memo";
 import { db, schema } from "./db";
 import { getCollection } from "./collections";
 import { audit, getEntry, uniqueSlug } from "./content";
@@ -10,7 +11,7 @@ import { setMenu } from "./menu";
 import type { Session } from "./jwt";
 
 const E = schema.entries;
-export const bust = () => revalidatePath("/", "layout");
+export const bust = () => { clearMemo(); revalidatePath("/", "layout"); };
 
 function assertRole(user: Session, collection: string) {
   const col = getCollection(collection);

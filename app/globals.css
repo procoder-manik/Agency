@@ -322,12 +322,27 @@ html .btn:hover .arrow { transform: translateX(4px) rotate(-45deg); }
 [data-mode="dark"] .logo-light, [data-mode="light"] .logo-dark { display: none; }
 
 /* =========================================================
-   Scrollbar: follows the active theme (accent to accent 2 gradient)
+   Scrollbar: a comet. A hair-thin tail at the top that swells into a round, glowing head,
+   coloured from the active theme (accent to accent 2). Nothing here is an image.
    ========================================================= */
-::-webkit-scrollbar { width: 12px; height: 12px; }
-::-webkit-scrollbar-track { background: rgb(var(--c-bg)); }
-::-webkit-scrollbar-thumb { background: linear-gradient(180deg, rgb(var(--c-accent)), rgb(var(--c-accent2))); border-radius: 999px; border: 3px solid rgb(var(--c-bg)); min-height: 48px; }
-::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, rgb(var(--c-accent2)), rgb(var(--c-accent))); }
+::-webkit-scrollbar { width: 16px; height: 12px; }
+/* a faint rail the comet travels along */
+::-webkit-scrollbar-track { background: linear-gradient(90deg, transparent 47%, rgb(var(--c-line) / .55) 49.5%, rgb(var(--c-line) / .55) 50.5%, transparent 53%), rgb(var(--c-bg)); }
+::-webkit-scrollbar-thumb {
+  border: 3px solid transparent; background-clip: padding-box; border-radius: 0 0 999px 999px; min-height: 110px;
+  /* top two layers hide the corners to cut the taper, the bottom layer is the colour */
+  background-image:
+    linear-gradient(to top left, transparent 49.5%, rgb(var(--c-bg)) 50.5%),
+    linear-gradient(to top right, transparent 49.5%, rgb(var(--c-bg)) 50.5%),
+    linear-gradient(180deg, rgb(var(--c-accent2) / .25) 0%, rgb(var(--c-accent2)) 38%, rgb(var(--c-accent)) 100%);
+  background-size: 50% 100%, 50% 100%, 100% 100%; background-position: left top, right top, 0 0; background-repeat: no-repeat;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-image:
+    linear-gradient(to top left, transparent 49.5%, rgb(var(--c-bg)) 50.5%),
+    linear-gradient(to top right, transparent 49.5%, rgb(var(--c-bg)) 50.5%),
+    linear-gradient(180deg, rgb(var(--c-accent) / .3) 0%, rgb(var(--c-accent)) 38%, rgb(var(--c-accent2)) 100%);
+}
 ::-webkit-scrollbar-corner { background: transparent; }
 /* Firefox has no gradient scrollbars, so it gets the accent colour */
 @supports not selector(::-webkit-scrollbar) { * { scrollbar-width: thin; scrollbar-color: rgb(var(--c-accent)) rgb(var(--c-bg)); } }

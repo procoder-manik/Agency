@@ -4,6 +4,7 @@ import { getPublished } from "./content";
 import { normPath } from "./menu";
 import { BUILTIN_SLUGS } from "./blocks";
 import { db, schema } from "./db";
+import { memo } from "./memo";
 import { and, eq, isNull } from "drizzle-orm";
 
 export const FEATURE_PATHS: Record<string, string> = { pricing: "/pricing", blog: "/blog", caseStudies: "/case-studies", helpCenter: "/help" };
@@ -14,8 +15,8 @@ export const hiddenPaths = cache(async () => {
   const hidden = new Set<string>();
   for (const [f, p] of Object.entries(FEATURE_PATHS)) if (!(s.features as any)[f]) hidden.add(p);
   try {
-    const rows = await db().select({ slug: schema.entries.slug, status: schema.entries.status }).from(schema.entries)
-      .where(and(eq(schema.entries.collection, "pages"), isNull(schema.entries.deletedAt)));
+    const rows = await memo("pageStatus", 15_000, () => db().select({ slug: schema.entries.slug, status: schema.entries.status }).from(schema.entries)
+      .where(and(eq(schema.entries.collection, "pages"), isNull(schema.entries.deletedAt))));
     for (const r of rows) if (r.status !== "published") hidden.add(r.slug === "home" ? "/" : "/" + r.slug);
   } catch {}
   return hidden;

@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { PORTFOLIO } from "./portfolio";
+import { memo, clearMemo } from "./memo";
 import { headers } from "next/headers";
 import { eq } from "drizzle-orm";
 import { db, schema } from "./db";
@@ -20,7 +21,7 @@ function merge(def: any, val: any): any {
 export const getAllSettings = cache(async (): Promise<Settings> => {
   const out: any = {};
   let rows: { key: string; value: any }[] = [];
-  try { rows = await db().select().from(schema.settings); } catch (e) { console.error("[settings] database unavailable:", (e as Error).message); }
+  try { rows = await memo("settings", 10_000, () => db().select().from(schema.settings)); } catch (e) { console.error("[settings] database unavailable:", (e as Error).message); }
   for (const k of Object.keys(SETTING_DEFAULTS) as SettingKey[]) out[k] = merge(SETTING_DEFAULTS[k], rows.find((r) => r.key === k)?.value);
   PORTFOLIO.base = out.portfolio?.base || "work";
   return out;
@@ -35,6 +36,7 @@ export async function saveSetting(key: SettingKey, value: any) {
   const merged = merge(merge(SETTING_DEFAULTS[key], row?.value), value);
   await db().insert(schema.settings).values({ key, value: merged })
     .onConflictDoUpdate({ target: schema.settings.key, set: { value: merged, updatedAt: new Date() } });
+  clearMemo();
   return merged;
 }
 

@@ -12,10 +12,8 @@ import { Tracking } from "@/components/site/Tracking";
 import { mediaUrl } from "@/lib/media";
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
-  const s = await getAllSettings();
-  const nav = await visibleNav();
-  const theme = await getEffectiveTheme();
-  const popups = s.features.announcement ? await getPublished("popups") : [];
+  const [s, nav, theme, allPopups] = await Promise.all([getAllSettings(), visibleNav(), getEffectiveTheme(), getPublished("popups")]);
+  const popups = s.features.announcement ? allPopups : [];
   const id = s.identity, i = s.integrations, ap = s.appearance as any;
   const firstBar = popups.find((p) => (p.data.kind || "bar") !== "popup");
   const chatOn = s.features.chat && i.chatMode !== "off";

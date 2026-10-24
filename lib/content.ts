@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { and, asc, desc, eq, ilike, inArray, isNotNull, isNull, lt, or, sql as dsql } from "drizzle-orm";
 import { db, schema } from "./db";
+import { memo } from "./memo";
 
 export type Entry = typeof schema.entries.$inferSelect;
 const E = schema.entries;
@@ -35,8 +36,9 @@ export async function getEntry(id: number) {
 /** Public: all published, non-trashed items of a collection, cached for the request. */
 export const getPublished = cache(async (collection: string): Promise<Entry[]> => {
   try {
-    return await db().select().from(E).where(and(eq(E.collection, collection), eq(E.status, "published"), isNull(E.deletedAt)))
-      .orderBy(asc(E.sortOrder), desc(E.publishedAt), desc(E.createdAt));
+    const rows = await memo(`pub:${collection}`, 20_000, () => db().select().from(E).where(and(eq(E.collection, collection), eq(E.status, "published"), isNull(E.deletedAt)))
+      .orderBy(asc(E.sortOrder), desc(E.publishedAt), desc(E.createdAt)));
+    return [...rows];
   } catch (e) { console.error("[content]", (e as Error).message); return []; }
 });
 

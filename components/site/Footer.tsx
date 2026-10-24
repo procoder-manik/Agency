@@ -48,7 +48,7 @@ export function Footer({ s, columns }: { s: Settings; columns: { title: string; 
               <div key={c.title}>
                 <p className="text-sm text-muted">{c.title}</p>
                 <ul className="mt-4 space-y-3">
-                  {c.links.map((l) => <li key={l.href + l.label}><Link href={l.href} className="group relative inline-block text-fg transition-colors hover:text-accent">{l.label}<span className="absolute -bottom-0.5 left-0 h-px w-full origin-right scale-x-0 bg-accent transition-transform duration-500 group-hover:origin-left group-hover:scale-x-100" /></Link></li>)}
+                  {c.links.map((l) => <li key={l.href + l.label}><Link href={l.href} prefetch className="group relative inline-block text-fg transition-colors hover:text-accent">{l.label}<span className="absolute -bottom-0.5 left-0 h-px w-full origin-right scale-x-0 bg-accent transition-transform duration-500 group-hover:origin-left group-hover:scale-x-100" /></Link></li>)}
                 </ul>
               </div>
             ))}

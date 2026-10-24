@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next";
 import { getActiveTheme, getEffectiveTheme } from "@/lib/theme-server";
 import { getAllSettings, siteUrl } from "@/lib/settings";
 import { mediaUrl } from "@/lib/media";
+import { NavProgress } from "@/components/site/NavProgress";
 import { paletteFor, themeCssBoth, themeFontHrefs, uiOf } from "@/lib/themes";
 
 export const dynamic = "force-dynamic";
@@ -55,7 +56,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <style id="theme-tokens" dangerouslySetInnerHTML={{ __html: themeCssBoth(t) }} />
         <noscript><style>{".reveal,.fade-in,.word>span,.split .word>span{opacity:1!important;transform:none!important;animation:none!important;filter:none!important}.clip{clip-path:none!important}.clip>.clip-inner{transform:none!important}.intro{display:none!important}"}</style></noscript>
       </head>
-      <body>{children}</body>
+      <body><NavProgress />{children}</body>
     </html>
   );
 }
