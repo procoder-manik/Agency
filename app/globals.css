@@ -10,7 +10,7 @@
   html.lenis, html.lenis body { height: auto; }
   .lenis.lenis-smooth { scroll-behavior: auto !important; }
   body { @apply bg-bg text-fg font-body antialiased; font-size: 1.0625rem; line-height: 1.6; transition: background-color .5s ease, color .5s ease; }
-  h1, h2, h3, h4 { @apply font-display text-fg; line-height: 1.04; letter-spacing: -0.025em; text-wrap: balance; }
+  h1, h2, h3, h4 { @apply font-display text-fg; line-height: 1.14; padding-bottom: .04em; letter-spacing: -0.025em; text-wrap: balance; }
   p { text-wrap: pretty; }
   ::selection { background: rgb(var(--c-accent)); color: rgb(var(--c-onaccent)); }
   :focus-visible { outline: 2px solid rgb(var(--c-accent)); outline-offset: 3px; border-radius: 6px; }
@@ -24,25 +24,22 @@
 @layer components {
   .container-x { @apply mx-auto w-full max-w-[1320px] px-5 sm:px-8 lg:px-10; }
   .section { @apply py-24 sm:py-32; }
-  .h-display { font-size: clamp(3rem, 9.2vw, 9.5rem); font-weight: 700; letter-spacing: -0.045em; line-height: .9; }
-  .h-section { font-size: clamp(2.2rem, 5.2vw, 4.6rem); font-weight: 700; letter-spacing: -0.035em; line-height: .98; }
-  .h-card { font-size: clamp(1.4rem, 2.2vw, 2rem); font-weight: 650; letter-spacing: -0.02em; }
+  .h-display { font-size: clamp(3rem, 9.2vw, 9.5rem); font-weight: 700; letter-spacing: -0.045em; line-height: 1.02; }
+  .h-section { font-size: clamp(2.2rem, 5.2vw, 4.6rem); font-weight: 700; letter-spacing: -0.035em; line-height: 1.08; }
+  .h-card { font-size: clamp(1.4rem, 2.2vw, 2rem); font-weight: 650; letter-spacing: -0.02em; line-height: 1.2; }
   .lead { @apply text-fg2; font-size: clamp(1.1rem, 1.5vw, 1.35rem); line-height: 1.55; max-width: 58ch; }
   .kicker { @apply inline-flex items-center gap-2.5 text-sm font-medium text-fg2; }
   .kicker::before { content: ""; width: 28px; height: 1px; background: rgb(var(--c-accent)); }
 
-  .btn { @apply relative inline-flex items-center justify-center gap-2 overflow-hidden px-6 py-3.5 font-semibold text-[0.98rem] select-none;
+  .btn { @apply relative inline-flex items-center justify-center gap-2 overflow-hidden font-semibold text-[0.98rem] select-none; padding: var(--btn-py, .875rem) var(--btn-px, 1.5rem); line-height: 1.3;
     border-radius: var(--r-btn); transition: transform .45s cubic-bezier(.16,1,.3,1), box-shadow .45s, background-color .3s, color .3s, border-color .3s; isolation: isolate; }
   .btn-primary { @apply text-onaccent; background: rgb(var(--c-accent)); }
   .btn-primary::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(110deg, rgb(var(--c-accent)), rgb(var(--c-accent2)), rgb(var(--c-accent)));
     background-size: 200% 100%; transition: background-position .8s cubic-bezier(.16,1,.3,1); }
-  .btn-primary:hover::before { background-position: 100% 0; }
-  .btn-primary:hover { box-shadow: 0 18px 50px -18px rgb(var(--c-accent) / .9); }
-  .btn-primary:active, .btn-ghost:active { transform: scale(.97); }
+    .btn-primary:active, .btn-ghost:active { transform: scale(.97); }
   .btn-ghost { @apply text-fg border border-line bg-surface/30 backdrop-blur-md; }
   .btn-ghost:hover { @apply border-fg/40; }
   .btn .arrow { transition: transform .45s cubic-bezier(.16,1,.3,1); }
-  .btn:hover .arrow { transform: translateX(4px) rotate(-45deg); }
 
   .glass { @apply border border-line/80 bg-surface/60 backdrop-blur-xl; border-radius: var(--r-lg);
     box-shadow: inset 0 1px 0 rgb(255 255 255 / .05), 0 1px 2px rgb(0 0 0 / .04); }
@@ -50,6 +47,13 @@
   .chip { @apply inline-flex items-center gap-1.5 border border-line bg-raised/50 px-3 py-1 text-[0.8rem] text-fg2 backdrop-blur; border-radius: 999px; }
   .input { @apply w-full border border-line bg-bg/60 px-4 py-3 text-fg placeholder:text-muted transition-all duration-300; border-radius: var(--r-md); }
   .input:focus { @apply border-accent outline-none; box-shadow: 0 0 0 4px rgb(var(--c-accent) / .15); }
+  /* dropdowns: readable text in both modes, long options wrap in the open list, custom arrow */
+  select.input { appearance: none; -webkit-appearance: none; cursor: pointer; text-overflow: ellipsis; white-space: nowrap; line-height: 1.4; padding-right: 2.75rem; color-scheme: light dark;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 1rem center; background-size: 16px; }
+  select.input option, select.input optgroup { background-color: rgb(var(--c-surface)); color: rgb(var(--c-fg)); white-space: normal; padding: .5rem .75rem; }
+  select.input option:disabled { color: rgb(var(--c-muted)); }
+  textarea.input { line-height: 1.55; }
   .label { @apply mb-1.5 block text-sm font-medium text-fg2; }
 
   .prose-site { @apply text-fg2; max-width: 68ch; }
@@ -66,7 +70,7 @@
   .prose-site pre { @apply my-6 overflow-x-auto bg-raised p-4 font-mono text-sm; border-radius: var(--r-md); }
 
   .text-gradient { background: linear-gradient(100deg, rgb(var(--c-fg)) 20%, rgb(var(--c-accent)) 55%, rgb(var(--c-accent2)) 80%);
-    -webkit-background-clip: text; background-clip: text; color: transparent; background-size: 200% 100%; animation: sheen calc(9s / max(var(--motion), .3)) ease-in-out infinite alternate; }
+    -webkit-background-clip: text; background-clip: text; color: transparent; background-size: 200% 100%; animation: sheen calc(9s / max(var(--motion), .3)) ease-in-out infinite alternate; padding-bottom: .14em; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
   .text-outline { color: transparent; -webkit-text-stroke: 1.5px rgb(var(--c-fg) / .55); }
   @keyframes sheen { to { background-position: 100% 0; } }
 
@@ -113,7 +117,7 @@
 /* =========================================================
    Text reveals
    ========================================================= */
-.word { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .1em; margin-bottom: -.1em; }
+.word { display: inline-block; overflow: hidden; vertical-align: top; padding: .06em .04em .24em; margin: -.06em -.04em -.24em; }
 .word > span { display: inline-block; transform: translateY(110%) rotate(4deg); transform-origin: 0 100%; animation: rise calc(var(--dur) * 1.4) cubic-bezier(.16,1,.3,1) forwards; }
 @keyframes rise { to { transform: translateY(0) rotate(0); } }
 .split .word > span { animation: none; transition: transform calc(var(--dur) * 1.3) cubic-bezier(.16,1,.3,1); transition-delay: calc(var(--i) * 40ms); }
@@ -242,9 +246,22 @@ main#main { padding-top: calc(84px + var(--bar-h)); transition: padding-top .4s 
 .orbit::after { content: ""; position: absolute; top: -5px; left: 50%; width: 10px; height: 10px; margin-left: -5px; border-radius: 999px; background: rgb(var(--c-accent)); box-shadow: 0 0 18px rgb(var(--c-accent)); }
 .orbit.rev { animation-direction: reverse; }
 
-/* shine sweep on primary buttons */
+/* ---- button animations: chosen in Admin > Themes (html[data-btn-anim]). The button itself never moves sideways; the arrow may. ---- */
 .btn-primary::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(110deg, transparent 30%, rgb(255 255 255 / .35) 50%, transparent 70%); transform: translateX(-120%); transition: transform .9s cubic-bezier(.16,1,.3,1); }
-.btn-primary:hover::after { transform: translateX(120%); }
+html .btn:hover .arrow { transform: translateX(4px) rotate(-45deg); }
+:is(html, .btn-scope)[data-btn-anim="shine"] .btn-primary:hover::after { transform: translateX(120%); }
+:is(html, .btn-scope)[data-btn-anim="shine"] .btn-primary:hover { box-shadow: 0 14px 40px -18px rgb(var(--c-accent) / .9); }
+:is(html, .btn-scope)[data-btn-anim="slide"] .btn-primary:hover::before { background-position: 100% 0; }
+:is(html, .btn-scope)[data-btn-anim="slide"] .btn-ghost:hover { background: rgb(var(--c-accent) / .12); border-color: rgb(var(--c-accent)); }
+:is(html, .btn-scope)[data-btn-anim="lift"] .btn:hover { transform: translateY(-3px); box-shadow: 0 16px 34px -14px rgb(var(--c-accent) / .75); }
+:is(html, .btn-scope)[data-btn-anim="glow"] .btn:hover { box-shadow: 0 0 0 4px rgb(var(--c-accent) / .22), 0 10px 36px -8px rgb(var(--c-accent) / .8); }
+:is(html, .btn-scope)[data-btn-anim="bounce"] .btn { transition-timing-function: cubic-bezier(.34,1.56,.64,1); }
+:is(html, .btn-scope)[data-btn-anim="bounce"] .btn:hover { transform: scale(1.05); }
+:is(html, .btn-scope)[data-btn-anim="bounce"] .btn:active { transform: scale(.93); }
+:is(html, .btn-scope)[data-btn-anim="outline"] .btn:hover { box-shadow: 0 0 0 3px rgb(var(--c-bg)), 0 0 0 5px rgb(var(--c-accent)); }
+:is(html, .btn-scope)[data-btn-anim="pulse"] .btn:hover { animation: btnPulse 1.2s ease-out infinite; }
+@keyframes btnPulse { 0% { box-shadow: 0 0 0 0 rgb(var(--c-accent) / .55); } 100% { box-shadow: 0 0 0 14px rgb(var(--c-accent) / 0); } }
+@media (prefers-reduced-motion: reduce) { :is(html, .btn-scope)[data-btn-anim] .btn:hover { animation: none; transform: none; } }
 
 .hr-glow { height: 1px; border: 0; background: linear-gradient(90deg, transparent, rgb(var(--c-accent) / .6), transparent); }
 .neon { text-shadow: 0 0 28px rgb(var(--c-accent) / .55); }
@@ -283,3 +300,18 @@ main#main { padding-top: calc(84px + var(--bar-h)); transition: padding-top .4s 
 
 .no-scrollbar { scrollbar-width: none; } .no-scrollbar::-webkit-scrollbar { display: none; }
 .prose-site :is(h2, h3) { scroll-margin-top: 112px; }
+
+/* =========================================================
+   Form looks (Admin > Themes > Buttons and forms, or per form)
+   Attribute sits on <main> and on each .form-wrap; the form's own value wins.
+   ========================================================= */
+#main[data-form-style="underline"] .input, #main .form-wrap[data-form-style="underline"] .input { background: transparent; border-color: transparent; border-bottom-color: rgb(var(--c-line)); border-radius: 0; padding-left: .1rem; padding-right: .1rem; }
+#main[data-form-style="underline"] .input:focus, #main .form-wrap[data-form-style="underline"] .input:focus { border-bottom-color: rgb(var(--c-accent)); box-shadow: 0 1px 0 0 rgb(var(--c-accent)); }
+#main[data-form-style="underline"] select.input, #main .form-wrap[data-form-style="underline"] select.input { padding-right: 2rem; background-position: right .1rem center; }
+#main[data-form-style="filled"] .input, #main .form-wrap[data-form-style="filled"] .input { background: rgb(var(--c-raised)); border-color: transparent; border-radius: var(--r-md); padding-left: 1rem; padding-right: 1rem; }
+#main[data-form-style="filled"] .input:focus, #main .form-wrap[data-form-style="filled"] .input:focus { background: rgb(var(--c-surface)); border-color: rgb(var(--c-accent)); }
+#main[data-form-style="rounded"] .input:not(textarea), #main .form-wrap[data-form-style="rounded"] .input:not(textarea) { border-radius: 999px; padding-left: 1.4rem; padding-right: 1.4rem; }
+#main[data-form-style="rounded"] textarea.input, #main .form-wrap[data-form-style="rounded"] textarea.input { border-radius: 1.5rem; padding-left: 1.4rem; }
+#main[data-form-style="rounded"] select.input, #main .form-wrap[data-form-style="rounded"] select.input { padding-right: 3rem; background-position: right 1.3rem center; }
+#main .form-wrap[data-form-style="boxed"] .input { background: rgb(var(--c-bg) / .6); border: 1px solid rgb(var(--c-line)); border-radius: var(--r-md); padding-left: 1rem; padding-right: 1rem; }
+#main .form-wrap[data-form-style="boxed"] select.input { padding-right: 2.75rem; }

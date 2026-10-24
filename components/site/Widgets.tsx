@@ -6,11 +6,11 @@ import { ChatWidget } from "./Chat";
 
 type Side = "left" | "right";
 
-export function FloatingWidgets({ chat, backToTop }: { chat: null | { side: Side; greeting: string; mode: string; name: string; botName: string; suggestions: string[]; leadCapture: boolean }; backToTop: null | { side: Side } }) {
+export function FloatingWidgets({ chat, backToTop }: { chat: null | { side: Side; greeting: string; mode: string; name: string; botName: string; suggestions: string[]; leadCapture: boolean; sound?: boolean }; backToTop: null | { side: Side } }) {
   const stacked = chat && backToTop && chat.side === backToTop.side;
   return (
     <>
-      {chat?.mode === "builtin" && <ChatWidget side={chat.side} greeting={chat.greeting} name={chat.botName || chat.name} suggestions={chat.suggestions} leadCapture={chat.leadCapture} />}
+      {chat?.mode === "builtin" && <ChatWidget side={chat.side} greeting={chat.greeting} name={chat.botName || chat.name} suggestions={chat.suggestions} leadCapture={chat.leadCapture} sound={chat.sound !== false} />}
       {backToTop && <BackToTop side={backToTop.side} raised={!!stacked} />}
     </>
   );

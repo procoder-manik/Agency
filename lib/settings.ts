@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { headers } from "next/headers";
 import { eq } from "drizzle-orm";
 import { db, schema } from "./db";
 
@@ -38,10 +39,31 @@ export async function saveSetting(key: SettingKey, value: any) {
 /** Fill {name} and %s in a title template. */
 export function brandTemplate(tpl: string, name: string) { return (tpl || "%s | {name}").replace(/\{name\}/g, name); }
 
+const isLocalHost = (d: string) => !d || /(^|\/\/)(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\])(:\d+)?(\/|$)/i.test(d);
+const cleanUrl = (d: string) => { let x = d.trim().replace(/\/+$/, ""); if (!/^https?:\/\//.test(x)) x = "https://" + x; return x; };
+
+/** The origin the visitor is actually on (works on Vercel, custom domains, VPS and localhost). */
+function requestOrigin(): string | null {
+  try {
+    const h = headers();
+    const host = (h.get("x-forwarded-host") || h.get("host") || "").split(",")[0].trim();
+    if (!host) return null;
+    const proto = (h.get("x-forwarded-proto") || "").split(",")[0].trim() || (/^(localhost|127\.|0\.0\.0\.0|\[::1\])/.test(host) ? "http" : "https");
+    return `${proto}://${host}`;
+  } catch { return null; }
+}
+
+/** Canonical base URL. Order: a real domain saved in Site identity, then the domain the request came in on
+ *  (so the canonical is never localhost in production), then env settings. */
 export function siteUrl(identity: { domain?: string }) {
-  let d = (identity.domain || process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").trim().replace(/\/+$/, "");
-  if (!/^https?:\/\//.test(d)) d = "https://" + d;
-  return d;
+  const configured = (identity.domain || "").trim();
+  if (configured && !isLocalHost(configured)) return cleanUrl(configured);
+  const live = requestOrigin();
+  if (live) return live;
+  const env = (process.env.NEXT_PUBLIC_SITE_URL || "").trim();
+  if (env && !isLocalHost(env)) return cleanUrl(env);
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) return cleanUrl(process.env.VERCEL_PROJECT_PRODUCTION_URL);
+  return cleanUrl(configured || env || "http://localhost:3000");
 }
 
 export async function getSettingRow(key: string) {

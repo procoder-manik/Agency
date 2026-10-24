@@ -123,7 +123,7 @@ const Highlights = ({ d }: { d: D }) => (
     <div className="grid grid-cols-2 gap-y-10 border-y border-line py-10 lg:grid-cols-4">
       {arr(d.items).map((h, i) => (
         <Reveal key={i} delay={i * 80} className="px-4 lg:border-l lg:border-line lg:px-8 lg:first:border-0 lg:first:pl-0">
-          <p className="text-gradient font-display text-[clamp(2.4rem,5vw,4rem)] font-bold leading-none tracking-tight">{h.value}</p>
+          <p className="text-gradient font-display text-[clamp(2.4rem,5vw,4rem)] font-bold leading-[1.12] tracking-tight">{h.value}</p>
           <p className="mt-3 font-semibold text-fg">{h.title}</p>
           {h.text && <p className="mt-1.5 text-sm text-fg2">{h.text}</p>}
         </Reveal>
@@ -164,7 +164,7 @@ const Stats = ({ d }: { d: D }) => (
     <div className="grid grid-cols-2 gap-y-14 border-t border-line pt-14 lg:grid-cols-4">
       {arr(d.items).map((s, i) => (
         <Reveal key={i} delay={i * 90} className="pr-6 lg:border-l lg:border-line lg:pl-8 lg:first:border-0 lg:first:pl-0">
-          <p className="font-display text-[clamp(3.2rem,7.5vw,7rem)] font-bold leading-none tracking-tighter"><Counter value={Number(s.value) || 0} suffix={s.suffix || ""} /></p>
+          <p className="font-display text-[clamp(3.2rem,7.5vw,7rem)] font-bold leading-[1.08] tracking-tighter"><Counter value={Number(s.value) || 0} suffix={s.suffix || ""} /></p>
           <p className="mt-4 text-fg2">{s.label}</p>
         </Reveal>
       ))}
@@ -208,7 +208,7 @@ const Cta = ({ d }: { d: D }) => (
     <div className="relative overflow-hidden px-6 py-20 text-onaccent sm:px-16 sm:py-32" style={{ borderRadius: "var(--r-xl)", background: "linear-gradient(125deg, rgb(var(--c-accent)), rgb(var(--c-accent2)))" }}>
       <div aria-hidden className="float absolute -right-24 -top-24 h-96 w-96 rounded-full bg-white/15 blur-3xl" />
       <div aria-hidden className="absolute -bottom-32 left-1/4 h-80 w-80 rounded-full bg-black/10 blur-3xl" />
-      <SplitText text={d.heading || ""} as="h2" className="relative max-w-5xl !text-onaccent [font-size:clamp(2.6rem,7.4vw,7rem)] font-bold leading-[.92] tracking-[-0.04em]" />
+      <SplitText text={d.heading || ""} as="h2" className="relative max-w-5xl !text-onaccent [font-size:clamp(2.6rem,7.4vw,7rem)] font-bold leading-[1.02] tracking-[-0.04em]" />
       {d.text && <p className="relative mt-8 max-w-xl text-xl opacity-90">{d.text}</p>}
       <div className="relative mt-12 flex flex-wrap gap-3">
         {d.primaryLabel && d.primaryHref && <Magnetic strength={0.25}><Link href={d.primaryHref} className="btn !bg-bg !text-fg hover:!shadow-2xl">{d.primaryLabel}<span className="arrow" aria-hidden>→</span></Link></Magnetic>}
@@ -229,7 +229,7 @@ function Marquee({ d }: { d: D }) {
           {row.map((l, i) => (
             <li key={i} aria-hidden={i >= items.length} className="flex shrink-0 items-center gap-14">
               {mediaUrl(l.logo) ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={mediaUrl(l.logo)} alt={mediaAlt(l.logo, l.label)} className="h-10 w-auto opacity-70 grayscale transition hover:opacity-100 hover:grayscale-0" loading="lazy" />
-                : <span className={`font-display text-[clamp(2.2rem,5vw,4.4rem)] font-bold leading-none tracking-tight ${i % 2 ? "text-outline" : "text-fg"}`}>{l.label}</span>}
+                : <span className={`font-display text-[clamp(2.2rem,5vw,4.4rem)] font-bold leading-[1.12] tracking-tight ${i % 2 ? "text-outline" : "text-fg"}`}>{l.label}</span>}
               <span aria-hidden className="text-2xl text-accent">✦</span>
             </li>
           ))}
@@ -432,7 +432,7 @@ async function Contact({ d }: { d: D }) {
           </dl>
         )}
       </div>
-      <div className="glass p-6 sm:p-8"><ContactForm formId={form?.id ?? null} fields={fields} success={form?.data.successMessage || "Thanks! We'll be in touch soon."} /></div>
+      <div className="glass p-6 sm:p-8"><ContactForm formId={form?.id ?? null} fields={fields} success={form?.data.successMessage || "Thanks! We'll be in touch soon."} style={form?.data.style} layout={form?.data.layout} submitLabel={form?.data.submitLabel} /></div>
     </div></section>
   );
 }

@@ -3,6 +3,9 @@ import { db, schema } from "@/lib/db";
 import { getAllSettings } from "@/lib/settings";
 import { clientIp, rateLimit } from "@/lib/ratelimit";
 import { esc, sendMail } from "@/lib/email";
+import { captureLead } from "@/lib/leads";
+import { sendAutoReply } from "@/lib/autoreply";
+import { buildNotification } from "@/lib/email-templates";
 
 export const dynamic = "force-dynamic";
 
@@ -15,9 +18,10 @@ export async function POST(req: Request) {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return NextResponse.json({ error: "Please enter a valid email address." }, { status: 400 });
   const transcript = (Array.isArray(b.transcript) ? b.transcript : []).slice(-16).map((m: any) => `${m?.role === "assistant" ? "Bot" : "Visitor"}: ${String(m?.content || "").slice(0, 500)}`).join("\n");
   const [sub] = await db().insert(schema.submissions).values({ formName: "Chat", values: { name, email, message, transcript } }).returning();
-  await db().insert(schema.leads).values({ name, email, source: "Chat", notes: `${message}${transcript ? `\n\nChat transcript:\n${transcript}` : ""}`, submissionId: sub.id });
+  const { lead } = await captureLead({ name, email, source: "Chat", notes: `${message}${transcript ? `\n\nChat transcript:\n${transcript}` : ""}`, submissionId: sub.id });
   const s = await getAllSettings();
-  await sendMail(s.general.notifyEmail || s.identity.email, `New chat lead on ${s.identity.name}`, `${name} <${email}>\n\n${message}\n\n${transcript}`,
-    `<h2>New chat lead</h2><p><b>${esc(name)}</b> &lt;${esc(email)}&gt;</p><p>${esc(message).replace(/\n/g, "<br>")}</p><pre style="white-space:pre-wrap">${esc(transcript)}</pre>`);
+  const note = await buildNotification({ title: "New chat lead", rows: [["name", name], ["email", email], ["message", message]], replyTo: email, extraHtml: transcript ? `<pre style="white-space:pre-wrap;margin:20px 0 0;padding:14px;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;font-family:Arial,sans-serif;font-size:13px;color:#334155">${esc(transcript)}</pre>` : "" });
+  await sendMail(s.general.notifyEmail || s.identity.email, `New chat lead on ${s.identity.name}`, `${note.text}\n\n${transcript}`, note.html, { replyTo: email });
+  await sendAutoReply({ lead, name, formTitle: "Chat", kind: "chat", summary: message ? [["Message", message]] : [] });
   return NextResponse.json({ ok: true });
 }

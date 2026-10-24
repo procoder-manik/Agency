@@ -41,7 +41,7 @@ const t = (name: string, label: string, type: Field["type"] = "text", extra: Par
 
 export function SiteSettings() {
   const [tab, setTab] = useState("Site identity");
-  const tabs = ["Site identity", "Contact & social", "Payments", "Integrations", "Features", "General", "Starter content"];
+  const tabs = ["Site identity", "Contact & social", "Payments", "Integrations", "Email", "Features", "General", "Starter content"];
   return (
     <>
       <PageHead title="Site settings" sub="Everything here is read by every page, email and schema block. Nothing is hard-coded." />
@@ -66,7 +66,18 @@ export function SiteSettings() {
           t("chatMode", "Chat widget", "select", { options: [{ value: "builtin", label: "Built-in assistant (answers from FAQ)" }, { value: "thirdparty", label: "Third-party chat script" }, { value: "off", label: "Off" }] }),
           t("chatPosition", "Chat position", "select", { options: [{ value: "right", label: "Right" }, { value: "left", label: "Left" }] }),
           t("backToTopPosition", "Back-to-top button position", "select", { options: [{ value: "right", label: "Right" }, { value: "left", label: "Left" }], help: "If it shares a side with the chat button, it moves up automatically." }),
-          t("chatBotName", "Assistant name (blank = your agency name)"), t("chatGreeting", "Chat greeting", "textarea"), t("chatSuggestions", "Quick-reply buttons (blank = automatic)", "tags", { help: "Short questions visitors can tap. Example: How much does it cost?" }), t("chatLeadCapture", "Let the chat collect name and email for a human follow-up", "toggle"), t("chatScript", "Third-party chat embed code", "textarea", { help: "Paste the snippet from Crisp, Tawk.to, Intercom, etc." }),
+          t("chatBotName", "Assistant name (blank = your agency name)"), t("chatGreeting", "Chat greeting", "textarea"), t("chatSuggestions", "Quick-reply buttons (blank = automatic)", "tags", { help: "Short questions visitors can tap. Example: How much does it cost?" }), t("chatLeadCapture", "Let the chat collect name and email for a human follow-up", "toggle"), t("chatSound", "Chat sounds (typing tick, send and reply chime)", "toggle"), t("chatScript", "Third-party chat embed code", "textarea", { help: "Paste the snippet from Crisp, Tawk.to, Intercom, etc." }),
+        ]} />}
+        {tab === "Email" && <SettingsSection k="email" fields={[
+          t("autoReply", "Send an automatic thank-you email to everyone who submits a form", "toggle"),
+          t("chatAutoReply", "Also send it to people who leave their details in the chat", "toggle"),
+          t("verifyEmail", "Include a “Confirm my email” button (confirmed emails can receive campaigns)", "toggle"),
+          t("showSummary", "Show a copy of their message in the email", "toggle"),
+          t("fromName", "Sender name (blank = your agency name)"), t("replyTo", "Reply-to address (blank = contact email)", "text"),
+          t("subject", "Subject"), t("heading", "Heading", "text", { help: "Variables: {{firstName}}, {{name}}, {{siteName}}, {{replyTime}}" }),
+          t("intro", "Main message", "textarea"), t("body", "Second paragraph", "textarea"), t("signature", "Sign-off"),
+          t("unsubscribeNote", "Footer line above the unsubscribe link", "textarea"), t("footerNote", "Extra footer note (optional)", "textarea"),
+          t("brandColor", "Button and accent colour (blank = from your theme)", "text", { placeholder: "#1E5CF2", help: "A hex colour. Emails always use a white background for the best inbox display." }),
         ]} />}
         {tab === "Features" && <SettingsSection k="features" fields={[
           t("pricing", "Public pricing pages and tables", "toggle", { help: "Turn off to work by custom quote only." }), t("blog", "Blog", "toggle"), t("caseStudies", "Case studies", "toggle"),
@@ -76,6 +87,71 @@ export function SiteSettings() {
         {tab === "General" && <SettingsSection k="general" fields={[t("trashDays", "Days to keep items in the trash", "number"), t("notifyEmail", "Send form notifications to (blank = contact email)")]} />}
       </div>
     </>
+  );
+}
+
+
+/* ---------------- Header menu editor: links, dropdowns and mega menus ---------------- */
+function HeaderMenuEditor({ list, onChange }: { list: any[]; onChange: (l: any[]) => void }) {
+  const [openIdx, setOpenIdx] = useState<number | null>(null);
+  const upd = (i: number, patch: any) => onChange(list.map((x, j) => (j === i ? { ...x, ...patch } : x)));
+  const move = (i: number, d: number) => { const n = [...list]; [n[i + d], n[i]] = [n[i], n[i + d]]; onChange(n); };
+  const setType = (i: number, type: string) => { const cur = list[i]; upd(i, { type, columns: type === "link" ? undefined : cur.columns?.length ? cur.columns : [{ title: "", links: [{ label: "", href: "/", description: "" }] }], ...(type === "link" ? { promo: undefined } : {}) }); if (type !== "link") setOpenIdx(i); };
+  return (
+    <div className="space-y-3">
+      {list.map((l, i) => {
+        const type = l.type === "dropdown" || l.type === "mega" ? l.type : "link"; const cols: any[] = l.columns || [];
+        const setCols = (c: any[]) => upd(i, { columns: c });
+        return (
+          <div key={i} className="rounded-[var(--r-md)] border border-line p-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <input className="input !w-40 flex-1" value={l.label} placeholder="Label" aria-label="Label" onChange={(e) => upd(i, { label: e.target.value })} />
+              <input className="input flex-[2] font-mono text-sm" value={l.href} placeholder={type === "link" ? "/page or https://" : "Optional link for the label"} aria-label="Link" onChange={(e) => upd(i, { href: e.target.value })} />
+              <select className="input !w-auto" value={type} aria-label="Menu type" onChange={(e) => setType(i, e.target.value)}><option value="link">Simple link</option><option value="dropdown">Dropdown</option><option value="mega">Mega menu</option></select>
+              {type !== "link" && <button className="text-sm text-accent hover:underline" onClick={() => setOpenIdx(openIdx === i ? null : i)}>{openIdx === i ? "Hide items" : "Edit items"}</button>}
+              <button className="px-1 text-fg2 disabled:opacity-30" disabled={i === 0} onClick={() => move(i, -1)} aria-label="Move up">↑</button>
+              <button className="px-1 text-fg2 disabled:opacity-30" disabled={i === list.length - 1} onClick={() => move(i, 1)} aria-label="Move down">↓</button>
+              <button className="px-1 text-danger" onClick={() => onChange(list.filter((_, j) => j !== i))} aria-label="Remove">✕</button>
+            </div>
+            {type !== "link" && openIdx === i && (
+              <div className="mt-4 space-y-4 border-t border-line pt-4">
+                <p className="text-xs text-muted">{type === "mega" ? "A mega menu shows up to 4 columns of links with short descriptions, and an optional highlight card. Use it for service areas or service groups." : "A dropdown shows one simple list of links under this item."}</p>
+                <div className={`grid gap-4 ${type === "mega" ? "md:grid-cols-2" : ""}`}>
+                  {(type === "mega" ? cols : cols.slice(0, 1)).map((c, ci) => (
+                    <div key={ci} className="rounded-[var(--r-md)] bg-raised/40 p-3">
+                      {type === "mega" && <div className="mb-3 flex gap-2"><input className="input font-semibold" value={c.title || ""} placeholder="Column title (e.g. Houston services)" aria-label="Column title" onChange={(e) => setCols(cols.map((x, j) => (j === ci ? { ...x, title: e.target.value } : x)))} /><button className="text-sm text-danger" onClick={() => setCols(cols.filter((_, j) => j !== ci))}>Remove</button></div>}
+                      <div className="space-y-2">{(c.links || []).map((x: any, xi: number) => {
+                        const setLinks = (nl: any[]) => setCols(cols.map((y, j) => (j === ci ? { ...y, links: nl } : y)));
+                        return (
+                          <div key={xi} className="flex flex-wrap items-center gap-2">
+                            <input className="input !w-36 flex-1 !py-2" value={x.label} placeholder="Label" aria-label="Item label" onChange={(e) => setLinks(c.links.map((y: any, j: number) => (j === xi ? { ...y, label: e.target.value } : y)))} />
+                            <input className="input flex-[2] !py-2 font-mono text-sm" value={x.href} placeholder="/page" aria-label="Item link" onChange={(e) => setLinks(c.links.map((y: any, j: number) => (j === xi ? { ...y, href: e.target.value } : y)))} />
+                            <input className="input basis-full !py-2 text-sm" value={x.description || ""} placeholder="Short description (optional)" aria-label="Item description" onChange={(e) => setLinks(c.links.map((y: any, j: number) => (j === xi ? { ...y, description: e.target.value } : y)))} />
+                            <button className="px-1 text-xs text-fg2 disabled:opacity-30" disabled={xi === 0} onClick={() => { const n = [...c.links]; [n[xi - 1], n[xi]] = [n[xi], n[xi - 1]]; setLinks(n); }}>↑</button>
+                            <button className="px-1 text-xs text-fg2 disabled:opacity-30" disabled={xi === c.links.length - 1} onClick={() => { const n = [...c.links]; [n[xi + 1], n[xi]] = [n[xi], n[xi + 1]]; setLinks(n); }}>↓</button>
+                            <button className="px-1 text-xs text-danger" onClick={() => setLinks(c.links.filter((_: any, j: number) => j !== xi))}>✕</button>
+                          </div>);
+                      })}</div>
+                      <button className="mt-2 text-sm text-accent hover:underline" onClick={() => setCols(cols.map((y, j) => (j === ci ? { ...y, links: [...(y.links || []), { label: "", href: "/", description: "" }] } : y)))}>Add link</button>
+                    </div>
+                  ))}
+                </div>
+                {type === "mega" && cols.length < 4 && <button className="text-sm text-accent hover:underline" onClick={() => setCols([...cols, { title: "", links: [{ label: "", href: "/", description: "" }] }])}>Add column</button>}
+                {type === "mega" && (
+                  <div className="rounded-[var(--r-md)] border border-dashed border-line p-3">
+                    <p className="mb-2 text-sm font-medium">Highlight card (optional)</p>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      {([["title", "Title"], ["text", "Short text"], ["href", "Link"], ["label", "Button text"]] as const).map(([k, ph]) => <input key={k} className="input !py-2 text-sm" placeholder={ph} aria-label={ph} value={l.promo?.[k] || ""} onChange={(e) => upd(i, { promo: { title: "", text: "", href: "", label: "", ...(l.promo || {}), [k]: e.target.value } })} />)}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      })}
+      <button className="text-sm text-accent hover:underline" onClick={() => onChange([...list, { label: "", href: "/" }])}>Add menu item</button>
+    </div>
   );
 }
 
@@ -100,7 +176,7 @@ export function NavigationEditor() {
   return (
     <>
       <PageHead title="Navigation" sub="The one source of truth for menus. Page editors' “show in menu” switches edit these same lists." />
-      <div className="glass p-5"><h2 className="mb-4 font-semibold">Header menu</h2>{links(value.header, (h) => setValue({ ...value, header: h }))}</div>
+      <div className="glass p-5"><h2 className="mb-1 font-semibold">Header menu</h2><p className="mb-4 text-xs text-muted">Each item can be a simple link, a dropdown, or a mega menu. Add as many items as you need.</p><HeaderMenuEditor list={value.header} onChange={(h) => setValue({ ...value, header: h })} /></div>
       <div className="mt-5 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         {value.footer.map((c: any, ci: number) => (
           <div key={ci} className="glass p-5">
@@ -112,7 +188,7 @@ export function NavigationEditor() {
         <button className="glass grid min-h-[120px] place-items-center p-5 text-fg2 hover:text-accent" onClick={() => setValue({ ...value, footer: [...value.footer, { title: "New column", links: [] }] })}>Add footer column</button>
       </div>
       <button className="btn btn-primary mt-6" disabled={saving} onClick={() => save()}>{saving ? <Spinner /> : "Save menus"}</button>
-      <p className="mt-2 text-xs text-muted">Links to unpublished pages or switched-off features are hidden on the site automatically.</p>
+      <p className="mt-2 text-xs text-muted">Footer columns: add, remove and rename them freely; the footer adapts to the number of columns. Links to unpublished pages or switched-off features are hidden on the site automatically.</p>
     </>
   );
 }

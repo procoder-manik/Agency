@@ -22,7 +22,12 @@ export const samePage = (a: string, b: string, domain = "") => normPath(a, domai
 
 export interface NavLink { label: string; href: string }
 export interface NavColumn { title: string; links: NavLink[] }
-export interface Navigation { header: NavLink[]; footer: NavColumn[] }
+/** Header items can open a simple dropdown or a mega menu (several columns plus an optional promo card). */
+export interface NavSub { label: string; href: string; description?: string }
+export interface NavMegaCol { title: string; links: NavSub[] }
+export interface NavPromo { title: string; text: string; href: string; label: string }
+export interface HeaderLink extends NavLink { type?: "link" | "dropdown" | "mega"; columns?: NavMegaCol[]; promo?: NavPromo }
+export interface Navigation { header: HeaderLink[]; footer: NavColumn[] }
 
 /** Read/write a page's presence in the central menus (single source of truth). */
 export function menuState(nav: Navigation, path: string, domain = "") {

@@ -5,6 +5,7 @@ import { Media } from "./motion";
 import { ClipReveal } from "./fx";
 import { CardLayout } from "./CardLayout";
 import { categoryTheme } from "@/lib/themes";
+import { parseOptions } from "@/lib/util";
 
 /* ---------------- Work grid with filters ---------------- */
 export interface WorkCard { id: number; title: string; href: string; img: string; alt: string; industry: string; services: string[]; status: string; summary: string; accent?: string; client?: string }
@@ -109,8 +110,8 @@ export function BlogList({ items, filters, layout = "grid", auto = true }: { ite
                 {p.category && <CategoryBadge cat={p.category} />}
                 <span className="text-sm text-muted">{p.date}</span>
               </div>
-              <h3 className="mt-2.5 text-lg font-semibold leading-snug">{p.title}</h3>
-              {p.excerpt && <p className="mt-2 line-clamp-3 text-[0.95rem] text-fg2">{p.excerpt}</p>}
+              <h3 className="mt-2.5 text-lg font-semibold leading-[1.35]">{p.title}</h3>
+              {p.excerpt && <p className="mt-2 line-clamp-3 pb-0.5 text-[0.95rem] leading-relaxed text-fg2">{p.excerpt}</p>}
               {p.author && <p className="mt-auto pt-4 text-sm text-fg2">By {p.author}</p>}
             </div>
           </Link>
@@ -187,8 +188,8 @@ export function PricingTabs({ groups, note, ctaHref }: { groups: { service: stri
 }
 
 /* ---------------- Contact form ---------------- */
-export interface FormField { name: string; label: string; type: string; options?: string; required?: boolean }
-export function ContactForm({ formId, fields, success }: { formId: number | null; fields: FormField[]; success: string }) {
+export interface FormField { name: string; label: string; type: string; options?: string; required?: boolean; placeholder?: string; width?: string }
+export function ContactForm({ formId, fields, success, style, layout, submitLabel }: { formId: number | null; fields: FormField[]; success: string; style?: string; layout?: string; submitLabel?: string }) {
   const [state, setState] = useState<"idle" | "sending" | "done" | "error">("idle");
   const [err, setErr] = useState("");
   async function submit(e: React.FormEvent<HTMLFormElement>) {
@@ -207,25 +208,25 @@ export function ContactForm({ formId, fields, success }: { formId: number | null
     </div>
   );
   return (
-    <form onSubmit={submit} className="grid gap-5 sm:grid-cols-2" noValidate={false}>
+    <form onSubmit={submit} className={`form-wrap grid gap-5 ${layout === "single" ? "" : "sm:grid-cols-2"}`} data-form-style={style && style !== "inherit" ? style : undefined} noValidate={false}>
       <input type="text" name="_hp" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden />
       {fields.map((f) => {
-        const id = `f-${f.name}`; const wide = f.type === "textarea";
+        const id = `f-${f.name}`; const wide = layout === "single" ? false : f.width === "full" || (f.type === "textarea" && f.width !== "half");
         return (
           <div key={f.name} className={wide ? "sm:col-span-2" : ""}>
             <label htmlFor={id} className="label">{f.label}{f.required && <span className="text-accent"> *</span>}</label>
-            {f.type === "textarea" ? <textarea id={id} name={f.name} required={f.required} rows={5} maxLength={5000} className="input" />
+            {f.type === "textarea" ? <textarea id={id} name={f.name} required={f.required} rows={5} maxLength={5000} placeholder={f.placeholder || undefined} className="input" />
               : f.type === "select" ? (
                 <select id={id} name={f.name} required={f.required} className="input" defaultValue="">
-                  <option value="" disabled>Choose one</option>
-                  {(f.options || "").split(",").map((o) => o.trim()).filter(Boolean).map((o) => <option key={o}>{o}</option>)}
+                  <option value="" disabled>{f.placeholder || "Choose one"}</option>
+                  {parseOptions(f.options).map((o) => <option key={o} value={o}>{o}</option>)}
                 </select>
-              ) : <input id={id} name={f.name} type={["email", "tel", "number"].includes(f.type) ? f.type : "text"} required={f.required} maxLength={300} className="input" autoComplete={f.type === "email" ? "email" : f.type === "tel" ? "tel" : f.name === "name" ? "name" : undefined} />}
+              ) : <input id={id} name={f.name} type={["email", "tel", "number"].includes(f.type) ? f.type : "text"} required={f.required} maxLength={300} placeholder={f.placeholder || undefined} className="input" autoComplete={f.type === "email" ? "email" : f.type === "tel" ? "tel" : f.name === "name" ? "name" : undefined} />}
           </div>
         );
       })}
-      <div className="flex flex-wrap items-center gap-4 sm:col-span-2">
-        <button className="btn btn-primary" disabled={state === "sending"}>{state === "sending" ? "Sending…" : "Send message"}</button>
+      <div className={`flex flex-wrap items-center gap-4 ${layout === "single" ? "" : "sm:col-span-2"}`}>
+        <button className="btn btn-primary" disabled={state === "sending"}>{state === "sending" ? "Sending…" : submitLabel || "Send message"}</button>
         {state === "error" && <p className="text-sm text-danger" role="alert">{err}</p>}
       </div>
     </form>

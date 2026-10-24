@@ -64,7 +64,7 @@ export default async function PostPage({ params }: P) {
               {cat && <CategoryBadge cat={{ id: cat.id, slug: cat.slug, title: cat.title, color: cat.data?.color }} size="md" />}
               <span className="mono-tag text-muted">{fmtDate(p.publishedAt || p.createdAt)}<span aria-hidden> · </span>{minutes} min read</span>
             </div>
-            <h1 className="fade-in mx-auto mt-6 max-w-4xl font-display text-[clamp(2.2rem,5.2vw,4.4rem)] font-bold leading-[1.04] tracking-tight" style={{ animationDelay: "80ms" }}>{p.title}</h1>
+            <h1 className="fade-in mx-auto mt-6 max-w-4xl font-display text-[clamp(2.2rem,5.2vw,4.4rem)] font-bold leading-[1.14] tracking-tight" style={{ animationDelay: "80ms" }}>{p.title}</h1>
             {d.excerpt && <p className="lead fade-in mx-auto mt-6 !max-w-2xl" style={{ animationDelay: "160ms" }}>{d.excerpt}</p>}
             <div className="fade-in mt-8 flex flex-wrap items-center justify-center gap-4" style={{ animationDelay: "240ms" }}>
               {authors.length > 0 ? authors.map((a) => (
@@ -106,8 +106,8 @@ export default async function PostPage({ params }: P) {
 
             {(older || newer) && (
               <nav aria-label="More posts" className="mt-10 flex items-start justify-between gap-6 border-t border-line pt-6">
-                {older ? <Link href={`/blog/${older.slug}`} className="group min-w-0 flex-1"><p className="mono-tag text-muted">← Previous</p><p className="mt-1 truncate text-sm font-semibold text-fg transition-colors group-hover:text-accent">{older.title}</p></Link> : <span aria-hidden />}
-                {newer ? <Link href={`/blog/${newer.slug}`} className="group min-w-0 flex-1 text-right"><p className="mono-tag text-muted">Next →</p><p className="mt-1 truncate text-sm font-semibold text-fg transition-colors group-hover:text-accent">{newer.title}</p></Link> : <span aria-hidden />}
+                {older ? <Link href={`/blog/${older.slug}`} className="group min-w-0 flex-1"><p className="mono-tag text-muted">← Previous</p><p className="mt-1 truncate pb-1 leading-normal text-sm font-semibold text-fg transition-colors group-hover:text-accent">{older.title}</p></Link> : <span aria-hidden />}
+                {newer ? <Link href={`/blog/${newer.slug}`} className="group min-w-0 flex-1 text-right"><p className="mono-tag text-muted">Next →</p><p className="mt-1 truncate pb-1 leading-normal text-sm font-semibold text-fg transition-colors group-hover:text-accent">{newer.title}</p></Link> : <span aria-hidden />}
               </nav>
             )}
           </div>

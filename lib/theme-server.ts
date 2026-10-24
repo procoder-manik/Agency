@@ -19,6 +19,14 @@ export const getActiveTheme = cache(async (): Promise<Theme> => {
   return all.find((t) => t.slug === activeTheme) || all[0] || DEFAULT_THEME;
 });
 
+/** The active theme with any sitewide Buttons and forms override (Admin > Themes) applied on top. */
+export const getEffectiveTheme = cache(async (): Promise<Theme> => {
+  const [theme, ap] = await Promise.all([getActiveTheme(), getSetting("appearance")]);
+  const ov = (ap as any).ui;
+  if (!ov || typeof ov !== "object") return theme;
+  return { ...theme, tokens: normalizeTokens({ ...theme.tokens, ui: { ...(theme.tokens.ui || {}), ...ov } }) };
+});
+
 export async function themeBySlug(slug: string) {
   const r = await db().select().from(schema.themes).where(eq(schema.themes.slug, slug)).limit(1);
   return r[0];

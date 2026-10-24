@@ -4,7 +4,11 @@ import { db, schema } from "@/lib/db";
 import { getEntry } from "@/lib/content";
 import { getAllSettings } from "@/lib/settings";
 import { clientIp, rateLimit } from "@/lib/ratelimit";
-import { esc, sendMail } from "@/lib/email";
+import { sendMail } from "@/lib/email";
+import { captureLead } from "@/lib/leads";
+import { sendAutoReply } from "@/lib/autoreply";
+import { buildNotification } from "@/lib/email-templates";
+import { parseOptions } from "@/lib/util";
 
 export async function POST(req: Request) {
   if (!rateLimit("form:" + clientIp(req), 5, 10 * 60_000)) return NextResponse.json({ error: "Too many submissions. Please try again in a few minutes." }, { status: 429 });
@@ -19,17 +23,23 @@ export async function POST(req: Request) {
     const v = String(raw[f.name] ?? "").trim().slice(0, f.type === "textarea" ? 5000 : 300);
     if (f.required && !v) return NextResponse.json({ error: `Please fill in “${f.label || f.name}”.` }, { status: 400 });
     if (f.type === "email" && v && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return NextResponse.json({ error: "Please enter a valid email address." }, { status: 400 });
-    if (f.type === "select" && v && f.options && !String(f.options).split(",").map((o: string) => o.trim()).includes(v)) return NextResponse.json({ error: `Please choose a valid option for “${f.label}”.` }, { status: 400 });
+    if (f.type === "select" && v && f.options && !parseOptions(f.options).includes(v)) return NextResponse.json({ error: `Please choose a valid option for “${f.label}”.` }, { status: 400 });
     if (v) values[f.name] = v;
   }
   const [sub] = await db().insert(schema.submissions).values({ formId: form?.id ?? null, formName: form?.title || "Contact", values }).returning();
-  if (!form || form.data.createLead !== false) {
-    await db().insert(schema.leads).values({ name: values.name || "", email: values.email || "", phone: values.phone || "", company: values.company || "", source: `Form: ${form?.title || "Contact"}`, notes: values.message || "", submissionId: sub.id });
-  }
   const s = await getAllSettings();
+  const label = (n: string) => String(defs.find((d: any) => d.name === n)?.label || n);
+  let lead: Awaited<ReturnType<typeof captureLead>>["lead"] | null = null;
+  if (!form || form.data.createLead !== false) {
+    const r = await captureLead({ name: values.name, email: values.email, phone: values.phone, company: values.company, source: `Form: ${form?.title || "Contact"}`, notes: values.message, submissionId: sub.id });
+    lead = r.lead;
+  }
   const to = form?.data.notifyEmail || s.general.notifyEmail || s.identity.email;
-  const rows = Object.entries(values).map(([k, v]) => `${k}: ${v}`).join("\n");
-  await sendMail(to, `New ${form?.title || "contact"} submission on ${s.identity.name}`, rows,
-    `<h2>New submission on ${esc(s.identity.name)}</h2><table>${Object.entries(values).map(([k, v]) => `<tr><td style="padding:4px 12px 4px 0;color:#666">${esc(k)}</td><td>${esc(v).replace(/\n/g, "<br>")}</td></tr>`).join("")}</table>`);
+  const rows: [string, string][] = Object.entries(values).map(([k, v]) => [label(k), v]);
+  const note = await buildNotification({ title: `New ${form?.title || "contact"} submission`, rows, replyTo: values.email });
+  await sendMail(to, `New ${form?.title || "contact"} submission on ${s.identity.name}`, note.text, note.html, { replyTo: values.email });
+  if (lead && lead.email) {
+    await sendAutoReply({ lead, name: values.name || "", formTitle: form?.title || "Contact", kind: "form", customMessage: form?.data.autoReplyMessage || undefined, summary: Object.entries(values).filter(([k]) => k !== "name" && k !== "email").slice(0, 8).map(([k, v]) => [label(k), v] as [string, string]) });
+  }
   return NextResponse.json({ ok: true, message: form?.data.successMessage || "Thanks! We'll be in touch soon." });
 }

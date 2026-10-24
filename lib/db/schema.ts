@@ -85,6 +85,41 @@ export const leads = pgTable("leads", {
   status: text("status").notNull().default("new"),
   notes: text("notes").notNull().default(""),
   submissionId: integer("submission_id"),
+  verified: boolean("verified").notNull().default(false),
+  verifiedAt: ts("verified_at"),
+  unsubscribed: boolean("unsubscribed").notNull().default(false),
+  token: text("token").notNull().default(""),
+  contactCount: integer("contact_count").notNull().default(1),
+  lastContactAt: ts("last_contact_at"),
+  deletedAt: ts("deleted_at"),
+  ...stamps,
+});
+
+export const emailTemplates = pgTable("email_templates", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  subject: text("subject").notNull().default(""),
+  preheader: text("preheader").notNull().default(""),
+  html: text("html").notNull().default(""),
+  deletedAt: ts("deleted_at"),
+  ...stamps,
+});
+
+export const campaigns = pgTable("campaigns", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  subject: text("subject").notNull().default(""),
+  preheader: text("preheader").notNull().default(""),
+  html: text("html").notNull().default(""),
+  templateId: integer("template_id"),
+  audience: jsonb("audience").$type<Record<string, any>>().notNull().default({}),
+  status: text("status").notNull().default("draft"),
+  total: integer("total").notNull().default(0),
+  sent: integer("sent").notNull().default(0),
+  failed: integer("failed").notNull().default(0),
+  cursorId: integer("cursor_id").notNull().default(0),
+  startedAt: ts("started_at"),
+  finishedAt: ts("finished_at"),
   deletedAt: ts("deleted_at"),
   ...stamps,
 });

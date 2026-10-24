@@ -41,7 +41,7 @@ export function Footer({ s, columns }: { s: Settings; columns: { title: string; 
               </div>
             )}
           </div>
-          <div className="grid grid-cols-2 gap-10 sm:grid-cols-3">
+          <div className="grid gap-x-8 gap-y-10" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))" }}>
             {columns.map((c) => (
               <div key={c.title}>
                 <p className="text-sm text-muted">{c.title}</p>

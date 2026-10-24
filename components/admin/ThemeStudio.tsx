@@ -1,7 +1,7 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { COLOR_TOKENS, CURATED_FONTS, contrastReport, fontHref, normalizeTokens, paletteFor, themeCss, type Theme, type ThemeTokens } from "@/lib/themes";
+import { BTN_ANIMS, COLOR_TOKENS, CURATED_FONTS, FORM_STYLES, contrastReport, fontHref, normalizeTokens, normalizeUi, paletteFor, themeCss, uiOf, type Theme, type ThemeTokens, type UiTokens } from "@/lib/themes";
 import { apiFetch, PageHead, Spinner, toast } from "./ui";
 import { SettingsSection } from "./SettingsForms";
 
@@ -34,6 +34,62 @@ export function ThemePreview({ t, id, compact = false, mode }: { t: ThemeTokens;
         )}
       </div>
     </div>
+  );
+}
+
+
+/** Button shape, size, animation and form look. One set of values drives every button and field on the site. */
+function UiControls({ ui, onChange }: { ui: UiTokens; onChange: (u: UiTokens) => void }) {
+  const set = (p: Partial<UiTokens>) => onChange(normalizeUi({ ...ui, ...p }));
+  const previewVars = { "--r-btn": ui.btnRadius === "theme" ? undefined : ui.btnRadius === "sharp" ? "4px" : ui.btnRadius === "soft" ? "12px" : ui.btnRadius === "pill" ? "999px" : `${ui.btnRadiusPx}px`,
+    "--btn-py": ui.btnSize === "custom" ? `${ui.btnPadY / 16}rem` : ui.btnSize === "sm" ? "0.6rem" : ui.btnSize === "lg" ? "1.05rem" : "0.875rem",
+    "--btn-px": ui.btnSize === "custom" ? `${ui.btnPadX / 16}rem` : ui.btnSize === "sm" ? "1.1rem" : ui.btnSize === "lg" ? "1.9rem" : "1.5rem" } as React.CSSProperties;
+  return (
+    <div className="grid gap-6 lg:grid-cols-[1.1fr_1fr]">
+      <div className="space-y-5">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div><label className="label" htmlFor="ui-rad">Button corners</label>
+            <select id="ui-rad" className="input" value={ui.btnRadius} onChange={(e) => set({ btnRadius: e.target.value as any })}>
+              <option value="theme">Follow the theme</option><option value="sharp">Square (4px)</option><option value="soft">Soft (12px)</option><option value="pill">Fully round</option><option value="custom">Custom radius</option></select></div>
+          {ui.btnRadius === "custom" && <div><label className="label" htmlFor="ui-radpx">Border radius (px)</label><input id="ui-radpx" type="number" min={0} max={60} className="input" value={ui.btnRadiusPx} onChange={(e) => set({ btnRadiusPx: Number(e.target.value) })} /></div>}
+          <div><label className="label" htmlFor="ui-size">Button padding</label>
+            <select id="ui-size" className="input" value={ui.btnSize} onChange={(e) => set({ btnSize: e.target.value as any })}><option value="sm">Compact</option><option value="md">Standard</option><option value="lg">Roomy</option><option value="custom">Custom padding</option></select></div>
+          {ui.btnSize === "custom" && <><div><label className="label" htmlFor="ui-py">Vertical padding (px)</label><input id="ui-py" type="number" min={4} max={32} className="input" value={ui.btnPadY} onChange={(e) => set({ btnPadY: Number(e.target.value) })} /></div>
+            <div><label className="label" htmlFor="ui-px">Horizontal padding (px)</label><input id="ui-px" type="number" min={8} max={64} className="input" value={ui.btnPadX} onChange={(e) => set({ btnPadX: Number(e.target.value) })} /></div></>}
+          <div><label className="label" htmlFor="ui-anim">Button animation</label>
+            <select id="ui-anim" className="input" value={ui.btnAnim} onChange={(e) => set({ btnAnim: e.target.value as any })}>{BTN_ANIMS.map((a) => <option key={a.id} value={a.id}>{a.label}</option>)}</select></div>
+          <div><label className="label" htmlFor="ui-form">Form field style</label>
+            <select id="ui-form" className="input" value={ui.formStyle} onChange={(e) => set({ formStyle: e.target.value as any })}>{FORM_STYLES.map((a) => <option key={a.id} value={a.id}>{a.label}</option>)}</select></div>
+        </div>
+        <p className="text-xs text-muted">These apply to every button (header, footer, sections, forms, chat) so the whole site stays consistent. A single form can still choose its own field style in Forms.</p>
+      </div>
+      <div id="main" className="btn-scope rounded-[var(--r-lg)] border border-line bg-bg/60 p-5" data-btn-anim={ui.btnAnim} style={previewVars}>
+        <p className="mb-3 text-sm text-fg2">Live preview (hover the buttons)</p>
+        <div className="flex flex-wrap gap-3"><span className="btn btn-primary" role="presentation">Free consultation<span className="arrow" aria-hidden>→</span></span><span className="btn btn-ghost" role="presentation">See our work</span></div>
+        <div className="form-wrap mt-5 space-y-3" data-form-style={ui.formStyle}>
+          <div><label className="label">Budget</label><select className="input" defaultValue="" aria-label="Preview dropdown"><option value="" disabled>Choose one</option><option>Under $1,000</option><option>$1,000 to $3,000</option></select></div>
+          <div><label className="label">Email</label><input className="input" placeholder="you@company.com" readOnly aria-label="Preview field" /></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Sitewide override panel: applies on top of whichever theme is active. */
+function SitewideUi({ active }: { active: Theme | undefined }) {
+  const router = useRouter();
+  const [ui, setUi] = useState<UiTokens | null>(null); const [custom, setCustom] = useState(false); const [saving, setSaving] = useState(false);
+  useEffect(() => { apiFetch("/api/admin/settings/appearance").then((r) => { const o = r.value?.ui; setCustom(!!o); setUi(normalizeUi({ ...(active ? uiOf(active.tokens) : {}), ...(o || {}) })); }).catch(() => {}); }, [active?.slug]); // eslint-disable-line
+  if (!ui) return <p className="flex items-center gap-2 text-fg2"><Spinner /> Loading…</p>;
+  async function save(value: UiTokens | null) { setSaving(true); try { await apiFetch("/api/admin/settings/appearance", { method: "PUT", json: { value: { ui: value } } }); toast(value ? "Button and form style saved." : "Back to the theme's own style."); router.refresh(); } catch (e: any) { toast(e.message, "error"); } finally { setSaving(false); } }
+  return (
+    <>
+      <UiControls ui={ui} onChange={(u) => { setUi(u); setCustom(true); }} />
+      <div className="mt-5 flex flex-wrap items-center gap-3">
+        <button className="btn btn-primary !py-2 text-sm" disabled={saving} onClick={() => save(ui)}>{saving ? <Spinner /> : "Save for the whole site"}</button>
+        {custom && <button className="btn btn-ghost !py-2 text-sm" disabled={saving} onClick={async () => { await save(null); setCustom(false); if (active) setUi(normalizeUi(uiOf(active.tokens))); }}>Reset to the theme's style</button>}
+      </div>
+    </>
   );
 }
 
@@ -100,6 +156,7 @@ export function ThemeStudio({ themes, active }: { themes: Theme[]; active: strin
               <div key={k}><label className="label" htmlFor={`t-${k}`}>{l}</label><select id={`t-${k}`} className="input capitalize" value={(editing.tokens as any)[k]} onChange={(e) => setTok({ [k]: e.target.value } as any)}>{o.map((x) => <option key={x}>{x}</option>)}</select></div>
             ))}
           </div>
+          <div><p className="mb-2 font-medium">Buttons and forms (saved with this theme)</p><UiControls ui={uiOf(editing.tokens)} onChange={(u) => setTok({ ui: u })} /></div>
         </div>
         <div className="space-y-4 xl:sticky xl:top-6 xl:self-start"><p className="text-sm text-fg2">Live preview, both modes</p><ThemePreview t={normalizeTokens(editing.tokens)} id="live" mode="dark" /><ThemePreview t={normalizeTokens(editing.tokens)} id="live" mode="light" /></div>
       </div>
@@ -126,6 +183,11 @@ export function ThemeStudio({ themes, active }: { themes: Theme[]; active: strin
             </div>
           </div>
         ))}
+      </div>
+      <div className="glass mt-8 p-5 sm:p-6">
+        <h2 className="mb-1 text-lg font-semibold">Buttons and forms</h2>
+        <p className="mb-5 text-sm text-fg2">Corner radius, padding, hover animation and field style for every button and form on the site, whichever theme is active.</p>
+        <SitewideUi active={themes.find((t) => t.slug === active)} />
       </div>
       <div className="glass mt-8 p-5 sm:p-6">
         <h2 className="mb-1 text-lg font-semibold">Experience settings</h2>

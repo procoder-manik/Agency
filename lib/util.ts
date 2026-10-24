@@ -7,3 +7,11 @@ export function formatPrice(n: number | string | undefined, currency = "USD") {
 export const fmtDate = (d?: string | Date | null) => (d ? new Date(d).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }) : "");
 export const truncate = (s: string, n: number) => (s && s.length > n ? s.slice(0, n - 1).trimEnd() + "…" : s || "");
 export const stripMd = (s: string) => (s || "").replace(/```[\s\S]*?```/g, "").replace(/[#>*_`~\[\]()!-]/g, "").replace(/\s+/g, " ").trim();
+
+/** Options for a select field. Separate with | or new lines (best). Old comma lists still work,
+ *  and a comma inside a number such as $1,000 is not treated as a separator. */
+export function parseOptions(raw: any): string[] {
+  const t = String(raw ?? "");
+  const parts = /[|\n;]/.test(t) ? t.split(/[|\n;]/) : t.split(/,(?!\d{3}(?!\d))/);
+  return parts.map((x) => x.trim()).filter(Boolean);
+}

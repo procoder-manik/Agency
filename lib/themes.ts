@@ -15,6 +15,22 @@ export type Radius = "sharp" | "soft" | "pill";
 export type Texture = "none" | "grid" | "dots" | "noise" | "aurora";
 export type Motion = "minimal" | "standard" | "playful";
 
+export type BtnAnim = "none" | "shine" | "lift" | "glow" | "slide" | "pulse" | "bounce" | "outline" | "arrow";
+export type FormStyle = "boxed" | "underline" | "filled" | "rounded";
+export const BTN_ANIMS: { id: BtnAnim; label: string }[] = [
+  { id: "shine", label: "Shine sweep" }, { id: "lift", label: "Lift and shadow" }, { id: "glow", label: "Soft glow" }, { id: "slide", label: "Colour slide" },
+  { id: "pulse", label: "Gentle pulse" }, { id: "bounce", label: "Press bounce" }, { id: "outline", label: "Ring outline" }, { id: "arrow", label: "Arrow only" }, { id: "none", label: "None" },
+];
+export const FORM_STYLES: { id: FormStyle; label: string }[] = [{ id: "boxed", label: "Boxed" }, { id: "underline", label: "Underline only" }, { id: "filled", label: "Filled" }, { id: "rounded", label: "Rounded pill" }];
+export const BTN_SIZES = { sm: ["0.6rem", "1.1rem"], md: ["0.875rem", "1.5rem"], lg: ["1.05rem", "1.9rem"] } as const;
+/** Sitewide button and form look. Every .btn on the site (header, footer, sections, forms, chat) reads these. */
+export interface UiTokens {
+  btnRadius: "theme" | "sharp" | "soft" | "pill" | "custom"; btnRadiusPx: number;
+  btnSize: "sm" | "md" | "lg" | "custom"; btnPadY: number; btnPadX: number;
+  btnAnim: BtnAnim; formStyle: FormStyle;
+}
+export const DEFAULT_UI: UiTokens = { btnRadius: "theme", btnRadiusPx: 12, btnSize: "md", btnPadY: 14, btnPadX: 24, btnAnim: "shine", formStyle: "boxed" };
+
 export interface ThemeTokens {
   mode: "dark" | "light"; // the theme's default mode
   colors: Record<ColorToken, string>; // palette for the default mode
@@ -23,7 +39,9 @@ export interface ThemeTokens {
   radius: Radius;
   texture: Texture;
   motion: Motion;
+  ui?: Partial<UiTokens>;
 }
+export function uiOf(t: ThemeTokens): UiTokens { return { ...DEFAULT_UI, ...(t.ui || {}) }; }
 export interface Theme { slug: string; name: string; builtin: boolean; tokens: ThemeTokens; id?: number }
 
 export const FONT_WEIGHTS: Record<string, string> = {
@@ -182,6 +200,11 @@ export function themeCss(t: ThemeTokens, selector = ":root", mode?: "dark" | "li
   vars.push(`--font-display:${stack(t.fonts.display, "sans")}`, `--font-body:${stack(t.fonts.body, "sans")}`, `--font-mono:${stack(t.fonts.mono, "mono")}`,
     `--r-sm:${r[0]}`, `--r-md:${r[1]}`, `--r-lg:${r[2]}`, `--r-xl:${r[3]}`, `--r-btn:${r[4]}`,
     `--motion:${m[0]}`, `--dur:${m[1]}`, `color-scheme:${mode || t.mode}`);
+  const u = uiOf(t);
+  if (u.btnRadius === "sharp") vars.push("--r-btn:4px"); else if (u.btnRadius === "soft") vars.push("--r-btn:12px"); else if (u.btnRadius === "pill") vars.push("--r-btn:999px");
+  else if (u.btnRadius === "custom") vars.push(`--r-btn:${Math.min(60, Math.max(0, Math.round(u.btnRadiusPx)))}px`);
+  const [py, px] = u.btnSize === "custom" ? [`${Math.min(32, Math.max(4, u.btnPadY)) / 16}rem`, `${Math.min(64, Math.max(8, u.btnPadX)) / 16}rem`] : BTN_SIZES[u.btnSize] || BTN_SIZES.md;
+  vars.push(`--btn-py:${py}`, `--btn-px:${px}`);
   return `${selector}{${vars.join(";")}}`;
 }
 
@@ -209,6 +232,18 @@ export function normalizeTokens(input: any): ThemeTokens {
     radius: ["sharp", "soft", "pill"].includes(t.radius) ? t.radius : base.radius,
     texture: ["none", "grid", "dots", "noise", "aurora"].includes(t.texture) ? t.texture : base.texture,
     motion: ["minimal", "standard", "playful"].includes(t.motion) ? t.motion : base.motion,
+    ui: normalizeUi(t.ui),
+  };
+}
+export function normalizeUi(input: any): UiTokens {
+  const u = input || {}; const num = (v: any, d: number, lo: number, hi: number) => { const n = Number(v); return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : d; };
+  return {
+    btnRadius: ["theme", "sharp", "soft", "pill", "custom"].includes(u.btnRadius) ? u.btnRadius : DEFAULT_UI.btnRadius,
+    btnRadiusPx: num(u.btnRadiusPx, DEFAULT_UI.btnRadiusPx, 0, 60),
+    btnSize: ["sm", "md", "lg", "custom"].includes(u.btnSize) ? u.btnSize : DEFAULT_UI.btnSize,
+    btnPadY: num(u.btnPadY, DEFAULT_UI.btnPadY, 4, 32), btnPadX: num(u.btnPadX, DEFAULT_UI.btnPadX, 8, 64),
+    btnAnim: BTN_ANIMS.some((a) => a.id === u.btnAnim) ? u.btnAnim : DEFAULT_UI.btnAnim,
+    formStyle: FORM_STYLES.some((f) => f.id === u.formStyle) ? u.formStyle : DEFAULT_UI.formStyle,
   };
 }
 

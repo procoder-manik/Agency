@@ -47,7 +47,8 @@ export function Leads() {
   const list = items.filter((i) => !q || [i.name, i.email, i.company, i.notes].join(" ").toLowerCase().includes(q.toLowerCase()));
   return (
     <>
-      <PageHead title="Leads" sub="A simple pipeline. Drag a card or use its menu to change status."><input className="input max-w-xs" placeholder="Search leads" value={q} onChange={(e) => setQ(e.target.value)} /><button className="btn btn-primary !py-2 text-sm" onClick={() => setEdit({ status: "new", source: "manual" })}>Add lead</button></PageHead>
+      <PageHead title="Leads" sub="A simple pipeline. Drag a card or use its menu to change status."><input className="input max-w-xs" placeholder="Search leads" value={q} onChange={(e) => setQ(e.target.value)} /><a href="/api/admin/leads?format=csv" className="btn btn-ghost !py-2 text-sm">Export CSV</a><button className="btn btn-primary !py-2 text-sm" onClick={() => setEdit({ status: "new", source: "manual" })}>Add lead</button></PageHead>
+      <p className="mb-4 text-sm text-fg2">Each email address is one lead. Repeat enquiries from the same email are added to the same lead. Only <strong className="text-fg">verified</strong> leads who have not unsubscribed receive campaigns.</p>
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {COLS.map(([k, label]) => (
           <div key={k} className="rounded border border-line bg-surface/40 p-3" onDragOver={(e) => e.preventDefault()} onDrop={(e) => { const id = Number(e.dataTransfer.getData("id")); const l = items.find((x) => x.id === id); if (l && l.status !== k) move(l, k); }}>
@@ -56,6 +57,7 @@ export function Leads() {
               {list.filter((l) => l.status === k).map((l) => (
                 <div key={l.id} draggable onDragStart={(e) => e.dataTransfer.setData("id", String(l.id))} className="glass cursor-grab p-3 text-sm">
                   <button className="block w-full text-left" onClick={() => setEdit({ ...l })}><p className="font-medium text-fg">{l.name || l.email || "Unnamed"}</p><p className="text-fg2">{[l.company, l.email].filter(Boolean).join(" · ")}</p>{l.notes && <p className="mt-1 line-clamp-2 text-xs text-muted">{l.notes}</p>}</button>
+                  <div className="mt-2 flex flex-wrap items-center gap-1.5">{l.verified ? <span className="chip !px-2 !py-0.5 !text-[0.7rem] !text-success">Verified</span> : l.email ? <span className="chip !px-2 !py-0.5 !text-[0.7rem]">Unverified</span> : null}{l.unsubscribed && <span className="chip !px-2 !py-0.5 !text-[0.7rem] !text-danger">Unsubscribed</span>}{l.contactCount > 1 && <span className="chip !px-2 !py-0.5 !text-[0.7rem]">{l.contactCount} messages</span>}</div>
                   <div className="mt-2 flex items-center justify-between"><span className="text-xs text-muted">{l.source}</span>
                     <select aria-label="Status" className="rounded border border-line bg-bg px-1 text-xs" value={l.status} onChange={(e) => move(l, e.target.value)}>{COLS.map(([v, t]) => <option key={v} value={v}>{t}</option>)}</select></div>
                 </div>
@@ -68,6 +70,8 @@ export function Leads() {
         {edit && <div className="grid gap-3 sm:grid-cols-2">
           {["name", "email", "phone", "company", "source"].map((k) => <div key={k}><label className="label capitalize">{k}</label><input className="input" value={edit[k] || ""} onChange={(e) => setEdit({ ...edit, [k]: e.target.value })} /></div>)}
           <div><label className="label">Status</label><select className="input" value={edit.status} onChange={(e) => setEdit({ ...edit, status: e.target.value })}>{COLS.map(([v, t]) => <option key={v} value={v}>{t}</option>)}</select></div>
+          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={!!edit.verified} onChange={(e) => setEdit({ ...edit, verified: e.target.checked })} /> Email is verified</label>
+          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={!!edit.unsubscribed} onChange={(e) => setEdit({ ...edit, unsubscribed: e.target.checked })} /> Unsubscribed from emails</label>
           <div className="sm:col-span-2"><label className="label">Notes</label><textarea className="input" rows={5} value={edit.notes || ""} onChange={(e) => setEdit({ ...edit, notes: e.target.value })} /></div>
           <div className="flex gap-2 sm:col-span-2"><button className="btn btn-primary" onClick={() => save(edit)}>Save lead</button>
             {edit.id && <button className="btn btn-ghost text-danger" onClick={async () => { if (!confirm("Delete this lead?")) return; await apiFetch(`/api/admin/leads?id=${edit.id}`, { method: "DELETE" }); setItems((x) => x.filter((i) => i.id !== edit.id)); setEdit(null); }}>Delete</button>}</div>

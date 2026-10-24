@@ -286,8 +286,8 @@ export const FORM = {
   data: { fields: [
     { name: "name", label: "Your name", type: "text", required: true }, { name: "email", label: "Email", type: "email", required: true },
     { name: "phone", label: "Phone or WhatsApp", type: "tel" }, { name: "website", label: "Website (if you have one)", type: "text" },
-    { name: "service", label: "What do you need?", type: "select", options: "Web development, SEO, Digital marketing, Video editing, AI automation, Website care, Not sure yet" },
-    { name: "budget", label: "Budget", type: "select", options: "Under $1,000, $1,000 to $3,000, $3,000 to $10,000, $10,000+, Not sure yet" },
+    { name: "service", label: "What do you need?", type: "select", options: "Web development | SEO | Digital marketing | Video editing | AI automation | Website care | Not sure yet" },
+    { name: "budget", label: "Budget", type: "select", options: "Under $1,000 | $1,000 to $3,000 | $3,000 to $10,000 | $10,000+ | Not sure yet" },
     { name: "message", label: "Tell us about your project", type: "textarea", required: true }],
     successMessage: "Thanks! We got your message and will reply within one business day.", createLead: true },
 };

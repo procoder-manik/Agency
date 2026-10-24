@@ -49,7 +49,7 @@ export function Poster({ title, className = "" }: { title?: string; className?: 
   return (
     <div role="img" aria-label={t || "Image placeholder"} className={`poster relative grid place-items-center overflow-hidden ${className}`}>
       <span aria-hidden className="poster-grid" /><span aria-hidden className="poster-orb" />
-      {t && <span className="relative px-6 text-center font-display text-[clamp(1.3rem,3.4vw,2.4rem)] font-bold leading-[1.05] tracking-tight text-fg">{t.length > 46 ? t.slice(0, 45) + "…" : t}</span>}
+      {t && <span className="relative px-6 text-center font-display text-[clamp(1.3rem,3.4vw,2.4rem)] font-bold leading-[1.15] tracking-tight text-fg">{t.length > 46 ? t.slice(0, 45) + "…" : t}</span>}
     </div>
   );
 }
