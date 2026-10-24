@@ -47,6 +47,14 @@ export function AiButton({ field, value, onChange }: { field: Field; value: any;
   );
 }
 
+/* ---------- select whose options come from a setting (e.g. portfolio categories) ---------- */
+function SettingSelect({ id, from, value, onChange }: { id: string; from: string; value: string; onChange: (v: string) => void }) {
+  const [list, setList] = useState<string[] | null>(null);
+  useEffect(() => { const [key, path] = from.split("."); apiFetch(`/api/admin/settings/${key}`).then((r) => setList(((r.value?.[path] as any[]) || []).map((x) => String(x?.name || x)).filter(Boolean))).catch(() => setList([])); }, [from]);
+  const opts = list ?? [];
+  return <select id={id} className="input" value={value} onChange={(e) => onChange(e.target.value)}><option value="">{list === null ? "Loading…" : "No category"}</option>{value && !opts.includes(value) && <option value={value}>{value}</option>}{opts.map((o) => <option key={o} value={o}>{o}</option>)}</select>;
+}
+
 /* ---------- AI alt text for an image field ---------- */
 export function AltAiButton({ label, url, alt, filename, onAlt }: { label: string; url: string; alt: string; filename?: string; onAlt: (v: string) => void }) {
   const { aiOn } = useAdmin(); const { collection, item } = useItem(); const [busy, setBusy] = useState(false);
@@ -121,7 +129,7 @@ function Control({ id, field: f, value, onChange }: { id: string; field: Field; 
     case "date": return <input id={id} type="date" className="input" value={value ? String(value).slice(0, 10) : ""} onChange={(e) => onChange(e.target.value)} />;
     case "color": return <div className="flex items-center gap-2"><input id={id} type="color" className="h-10 w-14 cursor-pointer rounded border border-line bg-transparent" value={value || "#3d8bff"} onChange={(e) => onChange(e.target.value)} /><input className="input max-w-[140px] font-mono" value={value || ""} placeholder="#RRGGBB" onChange={(e) => onChange(e.target.value)} />{value && <button type="button" className="text-xs text-fg2" onClick={() => onChange("")}>Clear</button>}</div>;
     case "toggle": return <button id={id} type="button" role="switch" aria-checked={!!value} onClick={() => onChange(!value)} className={`relative h-6 w-11 rounded-full border transition-colors ${value ? "border-accent bg-accent" : "border-line bg-raised"}`}><span className={`absolute top-0.5 h-[18px] w-[18px] rounded-full transition-all ${value ? "left-[22px] bg-onaccent" : "left-0.5 bg-fg"}`} /></button>;
-    case "select": return <select id={id} className="input" value={value || ""} onChange={(e) => onChange(e.target.value)}><option value="">Choose…</option>{f.options!.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}</select>;
+    case "select": return f.optionsFrom ? <SettingSelect id={id} from={f.optionsFrom} value={value || ""} onChange={onChange} /> : <select id={id} className="input" value={value || ""} onChange={(e) => onChange(e.target.value)}><option value="">Choose…</option>{f.options!.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}</select>;
     case "relation":
       if (f.multiple) {
         const sel: number[] = (Array.isArray(value) ? value : []).map(Number);

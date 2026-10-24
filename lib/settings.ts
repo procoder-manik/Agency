@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { PORTFOLIO } from "./portfolio";
 import { headers } from "next/headers";
 import { eq } from "drizzle-orm";
 import { db, schema } from "./db";
@@ -21,6 +22,7 @@ export const getAllSettings = cache(async (): Promise<Settings> => {
   let rows: { key: string; value: any }[] = [];
   try { rows = await db().select().from(schema.settings); } catch (e) { console.error("[settings] database unavailable:", (e as Error).message); }
   for (const k of Object.keys(SETTING_DEFAULTS) as SettingKey[]) out[k] = merge(SETTING_DEFAULTS[k], rows.find((r) => r.key === k)?.value);
+  PORTFOLIO.base = out.portfolio?.base || "work";
   return out;
 });
 

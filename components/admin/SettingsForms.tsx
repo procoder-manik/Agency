@@ -44,7 +44,7 @@ const t = (name: string, label: string, type: Field["type"] = "text", extra: Par
 
 export function SiteSettings() {
   const [tab, setTab] = useState("Site identity");
-  const tabs = ["Site identity", "Contact & social", "Payments", "Integrations", "Notifications", "Email", "Features", "General", "Starter content"];
+  const tabs = ["Site identity", "Contact & social", "Payments", "Integrations", "Notifications", "Email", "Portfolio", "Features", "General", "Starter content"];
   return (
     <>
       <PageHead title="Site settings" sub="Everything here is read by every page, email and schema block. Nothing is hard-coded." />
@@ -72,6 +72,11 @@ export function SiteSettings() {
           t("chatBotName", "Assistant name (blank = your agency name)"), t("chatGreeting", "Chat greeting", "textarea"), t("chatSuggestions", "Quick-reply buttons (blank = automatic)", "tags", { help: "Short questions visitors can tap. Example: How much does it cost?" }), t("chatLeadCapture", "Let the chat collect name and email for a human follow-up", "toggle"), t("chatSound", "Chat sounds (typing tick, send and reply chime)", "toggle"), t("chatIconImage", "Or use your own chat icon image", "image", { size: "128 × 128 (square, transparent PNG)", help: "If set, this image replaces the icon chosen below, on the chat button and in the chat header." }), t("chatScript", "Third-party chat embed code", "textarea", { help: "Paste the snippet from Crisp, Tawk.to, Intercom, etc." }),
         ]}>{(v, set) => <ChatIconPicker value={v.chatIcon || "bubble"} custom={!!v.chatIconImage} onChange={(id) => set({ ...v, chatIcon: id })} />}</SettingsSection>}
         {tab === "Notifications" && <NotificationsSettings />}
+        {tab === "Portfolio" && <SettingsSection k="portfolio" fields={[
+          t("label", "Name used on the site", "text", { ai: false, help: "Shown in breadcrumbs and headings, for example Work, Portfolio or Projects. Change the menu link in Menus, header and footer." }),
+          t("base", "Web address name", "text", { ai: false, placeholder: "work", help: "The part of the address after your domain: yourdomain.com/work/project-name. Lowercase letters, numbers and hyphens only. When you change it, the portfolio page is renamed to match and the old address redirects. Remember to update the menu link too." }),
+          t("categories", "Categories and colours", "list", { help: "Each project picks one category. Its colour is used on the card, the filter button and the project page.", fields: [{ name: "name", label: "Category name", type: "text", ai: false }, { name: "color", label: "Colour", type: "color" }] }),
+        ]} />}
         {tab === "Email" && <SettingsSection k="email" fields={[
           t("autoReply", "Send an automatic thank-you email to everyone who submits a form", "toggle"),
           t("chatAutoReply", "Also send it to people who leave their details in the chat", "toggle"),
@@ -403,6 +408,12 @@ export function UsersAdmin({ me, isAdmin, meEmail = "", meName = "" }: { me: num
 /* ---------------- Starter content pack ---------------- */
 export function StarterContent() {
   const [busy, setBusy] = useState(""); const [report, setReport] = useState<any>(null);
+  const [sec, setSec] = useState<any>(null);
+  async function addSections() {
+    setBusy("sections");
+    try { const r = await apiFetch("/api/admin/content-pack", { method: "POST", json: { mode: "sections" } }); setSec(r); toast(r.added.length || r.changed.length ? "Home page updated." : "The home page already has these sections."); } catch (e: any) { toast(e.message, "error"); }
+    setBusy("");
+  }
   async function run(mode: "missing" | "replace") {
     if (mode === "replace" && !confirm("Rewrite the built-in pages, platform pages, services, FAQs, posts and menus with the new starter pack? Pages you edited by hand are overwritten. Items you created yourself and your package prices are kept.")) return;
     setBusy(mode);
@@ -416,8 +427,11 @@ export function StarterContent() {
         <div className="rounded border border-line p-5"><h3 className="font-semibold">Add what is missing</h3><p className="mt-1 text-sm text-fg2">Safe. Creates anything that does not exist yet and never changes what you already have.</p><button className="btn btn-ghost mt-4" disabled={!!busy} onClick={() => run("missing")}>{busy === "missing" ? <Spinner /> : "Add missing content"}</button></div>
         <div className="rounded border border-warning/40 p-5"><h3 className="font-semibold">Replace with the new pack</h3><p className="mt-1 text-sm text-fg2">Rewrites the built-in pages, platform and topic pages, services, FAQs, posts and menus. Old example items go to the trash. Your own items and package prices are kept.</p><button className="btn btn-primary mt-4" disabled={!!busy} onClick={() => run("replace")}>{busy === "replace" ? <Spinner /> : "Replace with new pack"}</button></div>
       </div>
+      <div className="rounded border border-accent/40 p-5"><h3 className="font-semibold">Add the new home page sections</h3><p className="mt-1 max-w-3xl text-sm text-fg2">Adds stat counters and a Meet the team carousel to your existing home page and turns the Work section into a carousel. Nothing you wrote is changed or removed. Run "Add missing content" first to create the example team cards and example projects.</p>
+        <button className="btn btn-ghost mt-4" disabled={!!busy} onClick={addSections}>{busy === "sections" ? <Spinner /> : "Add sections to the home page"}</button>
+        {sec && <p className="mt-3 text-sm text-success">{[...sec.added.map((x: string) => `Added: ${x}`), ...sec.changed].join(". ") || "Already up to date."}</p>}</div>
       {report && <p className="text-sm text-success">Done: {report.created} created, {report.updated} updated, {report.skipped} left as they were, {report.trashed} moved to the trash.</p>}
-      <p className="text-xs text-muted">Prices in the packages are examples. Change them in Packages to match your real prices. Testimonials, projects and case studies are not included, because those must be real.</p>
+      <p className="text-xs text-muted">Prices in the packages are examples. Change them in Packages to match your real prices. Testimonials and case studies are not included, because those must be real. The example team cards and example projects are placeholders: edit or delete them in Admin.</p>
     </div>
   );
 }

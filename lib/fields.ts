@@ -9,6 +9,7 @@ export interface Field {
   type: FieldType;
   help?: string;
   options?: { value: string; label: string }[];
+  optionsFrom?: string; // select options read from a setting, e.g. "portfolio.categories" (list of { name })
   fields?: Field[]; // for list
   collection?: string; // for relation
   multiple?: boolean; // relation

@@ -9,58 +9,73 @@ import { categoryTheme } from "@/lib/themes";
 import { parseOptions } from "@/lib/util";
 
 /* ---------------- Work grid with filters ---------------- */
-export interface WorkCard { id: number; title: string; href: string; img: string; alt: string; industry: string; services: string[]; status: string; summary: string; accent?: string; client?: string; direction?: string; platform?: string; technologies?: string[]; liveUrl?: string; tall?: boolean }
+export interface WorkCard { id: number; title: string; href: string; img: string; alt: string; industry: string; services: string[]; status: string; summary: string; accent?: string; client?: string; direction?: string; platform?: string; technologies?: string[]; liveUrl?: string; tall?: boolean; category?: string }
 const STATUS: Record<string, string> = { completed: "Live", ongoing: "Still building", care: "Ongoing care" };
+const tint = (hex: string | undefined, a: string) => (hex && /^#[0-9a-f]{6}$/i.test(hex) ? `${hex}${a}` : undefined);
 
 function workCard(p: WorkCard, priority = false) {
-  const tech = (p.technologies || []).slice(0, 3);
+  const tech = (p.technologies || []).slice(0, 3); const c = p.accent || undefined;
   return (
-    <article className="group relative flex h-full flex-col">
-      <Link href={p.href} data-cursor="View" className="block" aria-label={`${p.title}: view project`}>
-        <ScrollShot src={p.img} alt={p.alt} url={p.liveUrl} direction={p.direction} accent={p.accent} eager={priority}
-          className="transition-[transform,box-shadow,border-color] duration-500 ease-out group-hover:-translate-y-1 group-hover:border-accent/50 group-hover:shadow-[0_40px_80px_-40px_rgb(var(--c-accent)/.55)]" />
+    <article className="group relative flex h-full flex-col" style={c ? ({ "--a": c } as React.CSSProperties) : undefined}>
+      <Link href={p.href} data-cursor="View" className="relative block" aria-label={`${p.title}: view project`}>
+        <ScrollShot src={p.img} alt={p.alt} url={p.liveUrl} direction={p.direction} accent={c} eager={priority}
+          className="transition-[transform,box-shadow,border-color] duration-500 ease-out group-hover:-translate-y-1.5"
+          />
+        <span aria-hidden className="pointer-events-none absolute inset-0 rounded-[var(--r-lg)] opacity-0 transition-opacity duration-500 group-hover:opacity-100" style={{ boxShadow: `0 40px 80px -40px ${c || "rgb(var(--c-accent))"}, inset 0 0 0 1.5px ${c || "rgb(var(--c-accent))"}` }} />
+        <span className="pointer-events-none absolute bottom-4 left-4 translate-y-2 rounded-full px-4 py-1.5 text-xs font-semibold opacity-0 shadow-lg transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100" style={{ background: c || "rgb(var(--c-accent))", color: "#fff" }}>View project →</span>
       </Link>
-      <div className="mt-5 flex items-start justify-between gap-4">
+      <div className="mt-5 flex items-center justify-between gap-3 text-xs font-semibold uppercase tracking-[0.12em]">
+        {p.category ? <span className="inline-flex items-center gap-2" style={{ color: c }}><span aria-hidden className="h-2 w-2 rounded-full" style={{ background: c || "rgb(var(--c-accent))" }} />{p.category}</span> : <span />}
+        {p.status !== "completed" && <span className="text-muted">{STATUS[p.status] || ""}</span>}
+      </div>
+      <div className="mt-2 flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <h3 className="h-card"><Link href={p.href} className="transition-colors hover:text-accent">{p.title}</Link></h3>
+          <h3 className="h-card"><Link href={p.href} className="transition-colors group-hover:text-[var(--a,rgb(var(--c-accent)))]">{p.title}</Link></h3>
           <p className="mt-1 text-fg2">{[p.client, p.industry].filter(Boolean).join(", ")}</p>
         </div>
-        {p.liveUrl && <a href={p.liveUrl} target="_blank" rel="noopener noreferrer" aria-label={`Visit ${p.title} live site`} className="relative z-10 grid h-10 w-10 shrink-0 place-items-center rounded-full border border-line text-fg transition-colors hover:border-accent hover:bg-accent hover:text-onaccent">↗</a>}
+        {p.liveUrl && <a href={p.liveUrl} target="_blank" rel="noopener noreferrer" aria-label={`Visit ${p.title} live site`} className="relative z-10 grid h-10 w-10 shrink-0 place-items-center rounded-full border border-line text-fg transition-colors hover:text-white" onMouseEnter={(e) => { e.currentTarget.style.background = c || "rgb(var(--c-accent))"; e.currentTarget.style.borderColor = "transparent"; }} onMouseLeave={(e) => { e.currentTarget.style.background = ""; e.currentTarget.style.borderColor = ""; }}>↗</a>}
       </div>
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        {p.platform && <span className="chip !border-transparent font-semibold text-onaccent" style={{ background: p.accent || "rgb(var(--c-accent))" }}>{p.platform}</span>}
+        {p.platform && <span className="chip font-semibold" style={{ background: tint(c, "1F"), color: c, borderColor: tint(c, "55") }}>{p.platform}</span>}
         {tech.map((t) => <span key={t} className="chip">{t}</span>)}
-        {p.status !== "completed" && <span className="chip !text-accent">{STATUS[p.status] || ""}</span>}
       </div>
     </article>
   );
 }
 
 export function WorkGrid({ items, filters, layout = "grid", auto = true }: { items: WorkCard[]; filters?: boolean; layout?: string; auto?: boolean }) {
-  const [platform, setPlatform] = useState("All"); const [tech, setTech] = useState(""); const [industry, setIndustry] = useState(""); const [q, setQ] = useState("");
-  const plat = (p: WorkCard) => p.platform || "Other";
-  const pills = useMemo(() => { const c: Record<string, number> = {}; items.forEach((i) => { c[plat(i)] = (c[plat(i)] || 0) + 1; }); return [["All", items.length] as [string, number], ...Object.entries(c).sort((a, b) => b[1] - a[1])]; }, [items]);
+  const [group, setGroup] = useState("All"); const [tech, setTech] = useState(""); const [industry, setIndustry] = useState(""); const [q, setQ] = useState("");
+  const byCat = items.some((i) => i.category);
+  const key = (p: WorkCard) => (byCat ? p.category || "Other" : p.platform || "Other");
+  const pills = useMemo(() => {
+    const c: Record<string, { n: number; color?: string }> = {};
+    items.forEach((i) => { const k = key(i); c[k] = { n: (c[k]?.n || 0) + 1, color: c[k]?.color || i.accent }; });
+    return [["All", items.length, undefined] as [string, number, string | undefined], ...Object.entries(c).sort((a, b) => b[1].n - a[1].n).map(([k, v]) => [k, v.n, v.color] as [string, number, string | undefined])];
+  }, [items, byCat]); // eslint-disable-line
   const techs = useMemo(() => Array.from(new Set(items.flatMap((i) => i.technologies || []))).sort(), [items]);
   const inds = useMemo(() => Array.from(new Set(items.map((i) => i.industry).filter(Boolean))).sort(), [items]);
-  const list = items.filter((i) => (platform === "All" || plat(i) === platform) && (!tech || (i.technologies || []).includes(tech)) && (!industry || i.industry === industry) &&
-    (!q || `${i.title} ${i.client || ""} ${i.industry} ${i.summary} ${(i.technologies || []).join(" ")} ${i.services.join(" ")}`.toLowerCase().includes(q.toLowerCase())));
-  const active = platform !== "All" || tech || industry || q;
+  const list = items.filter((i) => (group === "All" || key(i) === group) && (!tech || (i.technologies || []).includes(tech)) && (!industry || i.industry === industry) &&
+    (!q || `${i.title} ${i.client || ""} ${i.industry} ${i.summary} ${i.category || ""} ${(i.technologies || []).join(" ")} ${i.services.join(" ")}`.toLowerCase().includes(q.toLowerCase())));
+  const active = group !== "All" || tech || industry || q;
   return (
     <div>
       {filters && (
         <div className="mb-12 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between" role="group" aria-label="Filter work">
-          {pills.length > 2 && <div className="flex flex-wrap gap-2">{pills.map(([name, n]) => (
-            <button key={name} type="button" aria-pressed={platform === name} onClick={() => setPlatform(name)} className={`rounded-full border px-4 py-2 text-[0.92rem] font-medium transition-colors ${platform === name ? "border-transparent bg-accent text-onaccent" : "border-line text-fg2 hover:text-fg"}`}>{name} <span className={platform === name ? "opacity-70" : "text-muted"}>{n}</span></button>))}</div>}
+          {pills.length > 2 && <div className="flex flex-wrap gap-2">{pills.map(([name, n, color]) => {
+            const on = group === name;
+            return <button key={name} type="button" aria-pressed={on} onClick={() => setGroup(name)} className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[0.92rem] font-medium transition-colors ${on ? "border-transparent text-white" : "border-line text-fg2 hover:text-fg"}`} style={on ? { background: color || "rgb(var(--c-accent))" } : undefined}>
+              {name !== "All" && <span aria-hidden className="h-2 w-2 rounded-full" style={{ background: on ? "#fff" : color || "rgb(var(--c-accent))" }} />}{name} <span className={on ? "opacity-75" : "text-muted"}>{n}</span></button>;
+          })}</div>}
           <div className="flex flex-wrap gap-2 lg:ml-auto">
             <Select label="Technology" value={tech} onChange={setTech} options={techs} />
             <Select label="Industry" value={industry} onChange={setIndustry} options={inds} />
             <label className="relative block"><span className="sr-only">Search projects</span><input className="input !rounded-full !py-2 !pl-4 text-sm sm:w-56" placeholder="Search projects" value={q} onChange={(e) => setQ(e.target.value)} /></label>
-            {active && <button type="button" className="btn btn-ghost !py-2 text-sm" onClick={() => { setPlatform("All"); setTech(""); setIndustry(""); setQ(""); }}>Clear</button>}
+            {active && <button type="button" className="btn btn-ghost !py-2 text-sm" onClick={() => { setGroup("All"); setTech(""); setIndustry(""); setQ(""); }}>Clear</button>}
           </div>
         </div>
       )}
       {list.length === 0 && <p className="py-16 text-center text-fg2">No projects match. Clear the filters or try another search.</p>}
-      {layout === "carousel" ? <CardLayout layout="carousel" auto={auto} perView={3} items={list.map((p) => workCard(p))} />
+      {layout === "carousel" ? <CardLayout layout="carousel" auto={auto} perView={3} items={list.map((p, i) => workCard(p, i < 3))} />
         : <div className="grid gap-x-8 gap-y-16 md:grid-cols-2 xl:grid-cols-3">{list.map((p, i) => <div key={p.id}>{workCard(p, i < 3)}</div>)}</div>}
     </div>
   );

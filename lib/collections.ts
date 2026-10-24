@@ -1,3 +1,4 @@
+import { PORTFOLIO } from "./portfolio";
 import { Field, opts } from "./fields";
 
 export interface CollectionDef {
@@ -74,7 +75,7 @@ export const COLLECTIONS: CollectionDef[] = [
   },
   {
     key: "projects", label: "Portfolio", singular: "Project", titleLabel: "Project title", hasSlug: true, seo: true, group: "Content",
-    publicPath: (s) => `/work/${s}`, defaultSchema: "CreativeWork", ogLabel: "Work",
+    publicPath: (s) => `/${PORTFOLIO.base}/${s}`, defaultSchema: "CreativeWork", ogLabel: "Work",
     fields: [
       { name: "client", label: "Client", type: "text" },
       { name: "industry", label: "Industry", type: "text" },
@@ -88,6 +89,7 @@ export const COLLECTIONS: CollectionDef[] = [
       { name: "gallery", label: "Gallery", type: "list", fields: [{ name: "image", label: "Image", type: "media", size: "1600 × 1000" }, { name: "caption", label: "Caption", type: "text" }] },
       { name: "services", label: "Services used", type: "relation", collection: "services", multiple: true },
       { name: "technologies", label: "Technologies", type: "tags" },
+      { name: "category", label: "Category (sets the colour)", type: "select", optionsFrom: "portfolio.categories", options: [], help: "Categories and their colours are managed in Site settings > Portfolio. A category colour is used on the card, the filter and the project page, unless you pick an accent colour below." },
       { name: "platform", label: "Platform / CMS", type: "text" },
       { name: "workStatus", label: "Work status", type: "select", options: opts("completed|Completed", "ongoing|Still building", "care|Ongoing care") },
       { name: "startDate", label: "Start date", type: "date" },
@@ -97,7 +99,7 @@ export const COLLECTIONS: CollectionDef[] = [
       { name: "metrics", label: "Results and numbers (real ones only)", type: "list", fields: [{ name: "value", label: "Number or short result", type: "text", ai: false, placeholder: "3 weeks" }, { name: "label", label: "What it measures", type: "text", placeholder: "From brief to launch" }] },
       { name: "video", label: "Video walkthrough (YouTube link or video file)", type: "media" },
     ],
-    tabs: { Content: ["client", "summary", "body", "deliverables", "metrics"], Images: ["scrollImage", "scrollDirection", "cover", "screenshot", "gallery", "video"], Details: ["industry", "liveUrl", "services", "technologies", "platform", "workStatus", "startDate", "endDate", "accent"] },
+    tabs: { Content: ["client", "summary", "body", "deliverables", "metrics"], Images: ["scrollImage", "scrollDirection", "cover", "screenshot", "gallery", "video"], Details: ["category", "industry", "liveUrl", "services", "technologies", "platform", "workStatus", "startDate", "endDate", "accent"] },
   },
   {
     key: "caseStudies", label: "Case studies", singular: "Case study", titleLabel: "Headline", hasSlug: true, seo: true, group: "Content",

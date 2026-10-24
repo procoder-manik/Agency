@@ -4,6 +4,7 @@ import { slugify } from "./util";
 import { buildLocationPage, DEFAULT_PATTERNS } from "./templating";
 import { IDENTITY, NAVIGATION, SERVICES, PACKAGES, CATEGORIES, FAQS, PACK_VERSION } from "./content-pack/services";
 import { POSTS } from "./content-pack/posts";
+import { SAMPLE_TEAM, SAMPLE_PROJECTS } from "./content-pack/samples";
 import { CORE_PAGES, PLATFORM_PAGES, TOPIC_PAGES, LOCATION_TEMPLATES, SAMPLE_LOCATIONS, MODULES, FORM } from "./content-pack/pages";
 
 type Sql = postgres.Sql<any>;
@@ -75,6 +76,15 @@ export async function installPack(sql: Sql, mode: "missing" | "replace"): Promis
   // FAQs
   for (const [i, [q, a, group, help]] of FAQS.entries()) await upsert("faqs", slugify(q), q, { answer: a, category: group, showOnFaq: true, showInHelp: help }, { order: i });
 
+  // example team cards and example projects: created once, never overwritten
+  async function once(collection: string, slug: string, title: string, data: any, o: { order?: number; featured?: boolean } = {}) {
+    const [ex] = await sql`SELECT id FROM entries WHERE collection = ${collection} AND slug = ${slug} LIMIT 1`; // includes trashed, so deleted examples do not come back
+    if (ex) { r.skipped++; return; }
+    await sql`INSERT INTO entries (collection, slug, title, status, builtin, featured, sort_order, data, seo, published_at) VALUES (${collection}, ${slug}, ${title}, 'published', false, ${!!o.featured}, ${o.order ?? 0}, ${j(data)}::text::jsonb, '{}'::text::jsonb, now())`; r.created++;
+  }
+  for (const [i, m] of SAMPLE_TEAM.entries()) await once("team", m.slug, m.title, { role: m.role, bio: m.bio, skills: m.skills }, { order: i });
+  for (const [i, p] of SAMPLE_PROJECTS.entries()) await once("projects", p.slug, p.title, { client: "Example client", industry: p.industry, summary: p.summary, body: `This is an example project that shows how a project page looks. Open it in Admin > Portfolio and replace the text, screenshot and details with one of your real projects.\n\n${p.summary}`, category: p.category, platform: p.platform, technologies: p.technologies, deliverables: p.deliverables, workStatus: "completed", accent: p.color }, { order: i, featured: true });
+
   // blog posts, spread over recent weeks so they sort naturally
   for (const [i, p] of POSTS.entries()) {
     const when = new Date(Date.now() - (i * 9 + 2) * 86400000);
@@ -115,4 +125,30 @@ export async function installPack(sql: Sql, mode: "missing" | "replace"): Promis
     await sql`INSERT INTO settings (key, value) VALUES ('navigation', ${j(NAVIGATION)}::text::jsonb) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()`;
   }
   return r;
+}
+
+
+/** Adds the newer home page sections (stat counters, team carousel) to an existing home page, and turns the Work section into a carousel.
+ *  Nothing you wrote is changed or removed; each section is added once. */
+export async function addHomeSections(sql: Sql): Promise<{ added: string[]; changed: string[] }> {
+  const [home] = await sql`SELECT id, data FROM entries WHERE collection = 'pages' AND slug = 'home' AND deleted_at IS NULL LIMIT 1`;
+  if (!home) throw new Error("The home page was not found. Install the starter content first.");
+  const data: any = home.data || {}; const blocks: any[] = Array.isArray(data.blocks) ? [...data.blocks] : [];
+  const out = { added: [] as string[], changed: [] as string[] };
+  const has = (tag: string) => blocks.some((b) => b?.data?.packTag === tag);
+  const at = (pred: (b: any) => boolean, fallback: number) => { const i = blocks.findIndex(pred); return i === -1 ? fallback : i; };
+  if (!has("v26-stats") && !blocks.some((b) => b.type === "stats")) {
+    const i = at((b) => b.type === "marquee", 0) + 1;
+    blocks.splice(i, 0, newBlock("stats", { packTag: "v26-stats", heading: "Everything under one roof", eyebrow: "At a glance", items: [{ value: 6, suffix: "", label: "Services, one team" }, { value: 6, suffix: "", label: "Website platforms we build on" }, { value: 1, suffix: " day", label: "Typical first reply" }, { value: 0, suffix: "", label: "Lock-in contracts" }] }, false));
+    out.added.push("Stat counters");
+  }
+  if (!has("v26-team") && !blocks.some((b) => b.type === "team")) {
+    const i = at((b) => b.type === "faq", blocks.length - 1);
+    blocks.splice(Math.max(0, i), 0, newBlock("team", { packTag: "v26-team", heading: "Meet the team", eyebrow: "People", layout: "carousel" }, false));
+    out.added.push("Team carousel");
+  }
+  const work = blocks.find((b) => b.type === "work");
+  if (work && !work.data.layout) { work.data.layout = "carousel"; work.data.featuredOnly = false; work.data.limit = 6; out.changed.push("Work section is now a carousel"); }
+  if (out.added.length || out.changed.length) await sql`UPDATE entries SET data = ${JSON.stringify({ ...data, blocks })}::text::jsonb, updated_at = now() WHERE id = ${home.id}`;
+  return out;
 }

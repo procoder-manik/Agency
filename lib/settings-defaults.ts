@@ -30,6 +30,13 @@ export const SETTING_DEFAULTS = {
     heading: "", email: "", phone: "", whatsapp: "", address: "", hours: "", bigText: "", showBigName: true, showLocalTime: true,
     copyright: "", note: "",
   },
+  portfolio: {
+    label: "Work", base: "work",
+    categories: [
+      { name: "Web development", color: "#3B82F6" }, { name: "AI automation", color: "#8B5CF6" }, { name: "SEO", color: "#10B981" },
+      { name: "Digital marketing", color: "#F59E0B" }, { name: "Video production", color: "#EF4444" }, { name: "SaaS marketing", color: "#06B6D4" },
+    ] as { name: string; color: string }[],
+  },
   notify: {
     chatRequests: true, formSubmissions: false, emails: "", channel: "off", phone: "",
     callmebotKey: "", twilioSid: "", twilioToken: "", twilioFrom: "", twilioMode: "whatsapp",

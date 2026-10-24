@@ -7,6 +7,8 @@
    ========================================================= */
 @layer base {
   html { -webkit-text-size-adjust: 100%; }
+  /* Nothing may widen the page sideways (hover effects, parallax, big type). "clip" keeps sticky headers working. */
+  html, body { overflow-x: clip; max-width: 100%; }
   html.lenis, html.lenis body { height: auto; }
   .lenis.lenis-smooth { scroll-behavior: auto !important; }
   body { @apply bg-bg text-fg font-body antialiased; font-size: 1.0625rem; line-height: 1.6; transition: background-color .5s ease, color .5s ease; }
@@ -318,3 +320,14 @@ html .btn:hover .arrow { transform: translateX(4px) rotate(-45deg); }
 
 /* logo versions for dark and light mode */
 [data-mode="dark"] .logo-light, [data-mode="light"] .logo-dark { display: none; }
+
+/* =========================================================
+   Scrollbar: follows the active theme (accent to accent 2 gradient)
+   ========================================================= */
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track { background: rgb(var(--c-bg)); }
+::-webkit-scrollbar-thumb { background: linear-gradient(180deg, rgb(var(--c-accent)), rgb(var(--c-accent2))); border-radius: 999px; border: 3px solid rgb(var(--c-bg)); min-height: 48px; }
+::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, rgb(var(--c-accent2)), rgb(var(--c-accent))); }
+::-webkit-scrollbar-corner { background: transparent; }
+/* Firefox has no gradient scrollbars, so it gets the accent colour */
+@supports not selector(::-webkit-scrollbar) { * { scrollbar-width: thin; scrollbar-color: rgb(var(--c-accent)) rgb(var(--c-bg)); } }

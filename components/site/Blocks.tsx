@@ -5,6 +5,7 @@ import { getAllSettings } from "@/lib/settings";
 import { renderMarkdown } from "@/lib/markdown";
 import { renderMustache, scopeCss } from "@/lib/mustache";
 import { hash } from "@/lib/templating";
+import { catColor } from "@/lib/portfolio";
 import { mediaAlt, mediaUrl } from "@/lib/media";
 import { fmtDate, formatPrice } from "@/lib/util";
 import { Counter, Media, Reveal, Tilt } from "./motion";
@@ -269,9 +270,11 @@ async function Services({ d }: { d: D }) {
 }
 
 export async function workCards(list: Entry[]) {
-  const services = await getPublished("services");
+  const [services, st] = await Promise.all([getPublished("services"), getAllSettings()]);
+  const cats = st.portfolio.categories;
   return list.map((p) => ({
-    id: p.id, title: p.title, href: `/work/${p.slug}`, client: p.data.client || "",
+    id: p.id, title: p.title, href: `/${st.portfolio.base}/${p.slug}`, client: p.data.client || "",
+    category: p.data.category || "", accent: p.data.accent || catColor(cats, p.data.category) || "",
     img: mediaUrl(p.data.scrollImage) || mediaUrl(p.data.screenshot) || mediaUrl(p.data.cover),
     alt: mediaAlt(p.data.scrollImage || p.data.screenshot, `${p.title} website screenshot`), industry: p.data.industry || "",
     direction: p.data.scrollDirection === "up" ? "up" : "down", platform: p.data.platform || "", technologies: (Array.isArray(p.data.technologies) ? p.data.technologies : []) as string[],
