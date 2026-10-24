@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { ChatIcon } from "./chat-icons";
+import { trackLead } from "@/lib/track";
 import { playKey, playReceive, playSend, setSoundPref, soundPref } from "@/lib/chat-sound";
 
 type Link_ = { label: string; href: string };
@@ -35,7 +36,9 @@ function Rich({ text }: { text: string }) {
   return <>{blocks}</>;
 }
 
-export function ChatWidget({ side, greeting, name, suggestions, leadCapture, sound = true, icon = "bubble", iconImage = "" }: { side: "left" | "right"; greeting: string; name: string; suggestions: string[]; leadCapture: boolean; sound?: boolean; icon?: string; iconImage?: string }) {
+export function ChatWidget({ side, greeting, name, suggestions, leadCapture, sound = true, icon = "bubble", iconImage = "", whatsapp = "", whatsappText = "", whatsappMsg = "" }: { side: "left" | "right"; greeting: string; name: string; suggestions: string[]; leadCapture: boolean; sound?: boolean; icon?: string; iconImage?: string; whatsapp?: string; whatsappText?: string; whatsappMsg?: string }) {
+  const waDigits = whatsapp.replace(/\D/g, "");
+  const wa = waDigits.length >= 7 ? `https://wa.me/${waDigits}${whatsappMsg ? `?text=${encodeURIComponent(whatsappMsg)}` : ""}` : "";
   const [open, setOpen] = useState(false); const [msgs, setMsgs] = useState<Msg[]>([]); const [input, setInput] = useState(""); const [busy, setBusy] = useState(false);
   const [unread, setUnread] = useState(false); const [hint, setHint] = useState(false); const [muted, setMuted] = useState(false);
   const ping = useRef({ key: playKey, send: playSend, recv: playReceive });
@@ -82,8 +85,8 @@ export function ChatWidget({ side, greeting, name, suggestions, leadCapture, sou
   async function submitLead(id: number, v: { name: string; email: string; message: string; _hp: string }) {
     const r = await fetch("/api/chat/lead", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...v, transcript: msgs.filter((m) => !m.error).map((m) => ({ role: m.role, content: m.text })) }) });
     const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || "Couldn't send. Please try again.");
-    beep("send");
-    setMsgs((m) => [...m.map((x) => (x.id === id ? { ...x, leadDone: true } : x)), { id: ++uid, role: "assistant", text: `Thanks ${v.name.split(" ")[0]}! The team has your details and will reply to ${v.email} soon.`, suggestions: defaults.filter((d) => !/human/i.test(d)).slice(0, 3) }]);
+    beep("send"); trackLead("chat");
+    setMsgs((m) => [...m.map((x) => (x.id === id ? { ...x, leadDone: true } : x)), { id: ++uid, role: "assistant", text: `Thanks ${v.name.split(" ")[0]}! The team has your details and will reply to ${v.email} soon.${wa ? " Need an answer sooner?" : ""}`, links: wa ? [{ label: "Message us on WhatsApp", href: wa }] : undefined, suggestions: defaults.filter((d) => !/human/i.test(d)).slice(0, 3) }]);
   }
 
   const reset = () => { const f = fresh(); setMsgs(f); try { sessionStorage.setItem(KEY, JSON.stringify(f)); } catch {} };
@@ -112,7 +115,7 @@ export function ChatWidget({ side, greeting, name, suggestions, leadCapture, sou
                   <Rich text={m.text} />
                 </div>
                 {m.error && m.retry && <button type="button" onClick={() => { setMsgs((x) => x.filter((y) => y.id !== m.id)); send(m.retry!); }} className="mt-1.5 text-xs text-accent hover:underline">Try again</button>}
-                {m.links && m.links.length > 0 && <div className="mt-2 flex max-w-[92%] flex-wrap gap-1.5">{m.links.map((l) => <Link key={l.href} href={l.href} onClick={() => setOpen(false)} className="chip hover:!border-accent hover:!text-fg">{l.label} <span aria-hidden>↗</span></Link>)}</div>}
+                {m.links && m.links.length > 0 && <div className="mt-2 flex max-w-[92%] flex-wrap gap-1.5">{m.links.map((l) => /^https?:/i.test(l.href) ? <a key={l.href} href={l.href} target="_blank" rel="noopener noreferrer" className="chip hover:!border-accent hover:!text-fg">{l.label} <span aria-hidden>↗</span></a> : <Link key={l.href} href={l.href} onClick={() => setOpen(false)} className="chip hover:!border-accent hover:!text-fg">{l.label} <span aria-hidden>↗</span></Link>)}</div>}
                 {m.lead && !m.leadDone && <LeadCard defaultMessage={[...msgs].reverse().find((x) => x.role === "user")?.text || ""} onSubmit={(v) => submitLead(m.id, v)} />}
                 {m.id === lastBot?.id && !busy && m.suggestions && m.suggestions.length > 0 && (
                   <div className="mt-2.5 flex max-w-[95%] flex-wrap gap-1.5">{m.suggestions.map((sg) => <button key={sg} type="button" onClick={() => send(sg)} className="rounded-full border border-accent/40 px-3 py-1.5 text-[0.82rem] text-fg transition-all hover:bg-accent hover:text-onaccent">{sg}</button>)}</div>
@@ -130,6 +133,7 @@ export function ChatWidget({ side, greeting, name, suggestions, leadCapture, sou
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
               </button>
             </div>
+            {wa && <p className="mt-2 text-center text-xs text-fg2">{whatsappText || "Can't reach us here?"} <a href={wa} target="_blank" rel="noopener noreferrer" className="font-medium text-accent underline underline-offset-2">Message us on WhatsApp</a></p>}
             <p className="mt-2 text-center text-[0.7rem] text-muted">Answers come from this website. For anything important, <Link href="/contact" className="underline" onClick={() => setOpen(false)}>contact the team</Link>.</p>
           </form>
         </div>

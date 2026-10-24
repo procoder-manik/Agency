@@ -13,7 +13,7 @@ export interface CollectionDef {
   seo: boolean;
   defaultSchema?: string;
   ogLabel?: string;
-  group: "Content" | "Marketing" | "Design";
+  group: "Content" | "Marketing" | "Design" | "Taxonomy";
   roles?: ("admin" | "editor")[];
 }
 
@@ -27,8 +27,10 @@ export const COLLECTIONS: CollectionDef[] = [
     fields: [
       { name: "cover", label: "Social / cover image", type: "image", size: "1200 × 630 (1.91:1)" },
       { name: "blocks", label: "Sections", type: "list", fields: [] }, // rendered by the page-builder editor
+      { name: "category", label: "Page category (optional)", type: "relation", collection: "pageCategories" },
+      { name: "tags", label: "Tags (optional)", type: "tags" },
     ],
-    tabs: { Sections: ["blocks"], Images: ["cover"] },
+    tabs: { Sections: ["blocks"], Images: ["cover"], Details: ["category", "tags"] },
   },
   {
     key: "services", label: "Services", singular: "Service", titleLabel: "Service name", hasSlug: true, seo: true, group: "Content",
@@ -89,7 +91,8 @@ export const COLLECTIONS: CollectionDef[] = [
       { name: "gallery", label: "Gallery", type: "list", fields: [{ name: "image", label: "Image", type: "media", size: "1600 × 1000" }, { name: "caption", label: "Caption", type: "text" }] },
       { name: "services", label: "Services used", type: "relation", collection: "services", multiple: true },
       { name: "technologies", label: "Technologies", type: "tags" },
-      { name: "category", label: "Category (sets the colour)", type: "select", optionsFrom: "portfolio.categories", options: [], help: "Categories and their colours are managed in Site settings > Portfolio. A category colour is used on the card, the filter and the project page, unless you pick an accent colour below." },
+      { name: "category", label: "Category (sets the colour)", type: "relation", collection: "projectCategories", help: "Manage categories and their colours under Portfolio > Categories. The category colour is used on the card, the filter and the project page, unless you pick an accent colour below." },
+      { name: "tags", label: "Tags", type: "tags", help: "Free-form keywords. Manage them under Portfolio > Tags." },
       { name: "platform", label: "Platform / CMS", type: "text" },
       { name: "workStatus", label: "Work status", type: "select", options: opts("completed|Completed", "ongoing|Still building", "care|Ongoing care") },
       { name: "startDate", label: "Start date", type: "date" },
@@ -99,7 +102,7 @@ export const COLLECTIONS: CollectionDef[] = [
       { name: "metrics", label: "Results and numbers (real ones only)", type: "list", fields: [{ name: "value", label: "Number or short result", type: "text", ai: false, placeholder: "3 weeks" }, { name: "label", label: "What it measures", type: "text", placeholder: "From brief to launch" }] },
       { name: "video", label: "Video walkthrough (YouTube link or video file)", type: "media" },
     ],
-    tabs: { Content: ["client", "summary", "body", "deliverables", "metrics"], Images: ["scrollImage", "scrollDirection", "cover", "screenshot", "gallery", "video"], Details: ["category", "industry", "liveUrl", "services", "technologies", "platform", "workStatus", "startDate", "endDate", "accent"] },
+    tabs: { Content: ["client", "summary", "body", "deliverables", "metrics"], Images: ["scrollImage", "scrollDirection", "cover", "screenshot", "gallery", "video"], Details: ["category", "tags", "industry", "liveUrl", "services", "technologies", "platform", "workStatus", "startDate", "endDate", "accent"] },
   },
   {
     key: "caseStudies", label: "Case studies", singular: "Case study", titleLabel: "Headline", hasSlug: true, seo: true, group: "Content",
@@ -118,8 +121,10 @@ export const COLLECTIONS: CollectionDef[] = [
       { name: "project", label: "Linked work entry", type: "relation", collection: "projects" },
       { name: "services", label: "Services", type: "relation", collection: "services", multiple: true },
       { name: "technologies", label: "Technologies", type: "tags" },
+      { name: "category", label: "Category", type: "relation", collection: "caseStudyCategories" },
+      { name: "tags", label: "Tags", type: "tags" },
     ],
-    tabs: { Content: ["client", "summary", "overview", "challenges", "approach", "results", "resultsText"], Images: ["cover", "media"], Details: ["industry", "project", "services", "technologies"] },
+    tabs: { Content: ["client", "summary", "overview", "challenges", "approach", "results", "resultsText"], Images: ["cover", "media"], Details: ["category", "tags", "industry", "project", "services", "technologies"] },
   },
   {
     key: "testimonials", label: "Testimonials", singular: "Testimonial", titleLabel: "Client name", hasSlug: false, seo: false, group: "Content",
@@ -150,10 +155,34 @@ export const COLLECTIONS: CollectionDef[] = [
     tabs: { Content: ["excerpt", "body"], Images: ["cover"], Details: ["author", "category", "tags", "kind", "ctaTitle", "ctaText", "ctaLabel", "ctaHref"] },
   },
   {
-    key: "categories", label: "Categories", singular: "Category", titleLabel: "Name", hasSlug: true, seo: false, group: "Content",
+    key: "categories", label: "Post categories", singular: "Category", titleLabel: "Name", hasSlug: true, seo: false, group: "Taxonomy",
     fields: [
       { name: "description", label: "Description", type: "textarea" },
       { name: "color", label: "Category colour (optional)", type: "color", help: "Used for this category's badge and the colour theme of posts in it. Leave empty for an automatic colour." },
+    ],
+    tabs: { Content: ["description", "color"] },
+  },
+  {
+    key: "projectCategories", label: "Portfolio categories", singular: "Portfolio category", titleLabel: "Name", hasSlug: true, seo: false, group: "Taxonomy",
+    fields: [
+      { name: "description", label: "Description", type: "textarea" },
+      { name: "color", label: "Colour", type: "color", help: "Used for the badge, filter button and the colour of items in this category." },
+    ],
+    tabs: { Content: ["description", "color"] },
+  },
+  {
+    key: "caseStudyCategories", label: "Case study categories", singular: "Case study category", titleLabel: "Name", hasSlug: true, seo: false, group: "Taxonomy",
+    fields: [
+      { name: "description", label: "Description", type: "textarea" },
+      { name: "color", label: "Colour", type: "color", help: "Used for the badge, filter button and the colour of items in this category." },
+    ],
+    tabs: { Content: ["description", "color"] },
+  },
+  {
+    key: "pageCategories", label: "Page categories", singular: "Page category", titleLabel: "Name", hasSlug: true, seo: false, group: "Taxonomy",
+    fields: [
+      { name: "description", label: "Description", type: "textarea" },
+      { name: "color", label: "Colour", type: "color", help: "Used for the badge, filter button and the colour of items in this category." },
     ],
     tabs: { Content: ["description", "color"] },
   },

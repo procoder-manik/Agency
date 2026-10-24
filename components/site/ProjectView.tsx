@@ -5,7 +5,7 @@ import { renderMarkdown } from "@/lib/markdown";
 import { mediaAlt, mediaUrl } from "@/lib/media";
 import { fmtDate } from "@/lib/util";
 import { getAllSettings } from "@/lib/settings";
-import { catColor } from "@/lib/portfolio";
+import { resolveCategory } from "@/lib/portfolio";
 import { JsonLd, handleMissing } from "@/lib/page-render";
 import { Crumbs } from "@/components/site/Detail";
 import { Media, Reveal } from "@/components/site/motion";
@@ -51,7 +51,9 @@ export async function ProjectView({ slug }: { slug: string }) {
     ["Services", services.length ? services.map((sv, i) => <span key={sv.id}>{i > 0 && ", "}<Link className="text-accent hover:underline" href={`/services/${sv.slug}`}>{sv.title}</Link></span>) : null],
     ["Started", fmtDate(d.startDate)], ["Finished", d.workStatus === "completed" || !d.workStatus ? fmtDate(d.endDate) : ""], ["Duration", dur],
   ];
-  const accent = d.accent || catColor(s.portfolio.categories, d.category) || undefined;
+  const cat = resolveCategory(d.category, await getPublished("projectCategories"), s.portfolio.categories);
+  const accent = d.accent || cat.color || undefined;
+  const tags: string[] = Array.isArray(d.tags) ? d.tags : [];
   const base = s.portfolio.base, label = s.portfolio.label || "Work";
   return (
     <>
@@ -63,7 +65,7 @@ export async function ProjectView({ slug }: { slug: string }) {
           <div className="grid items-end gap-10 lg:grid-cols-[1.5fr_1fr]">
             <div>
               <div className="flex flex-wrap gap-2">
-                {d.category && <span className="chip font-semibold" style={{ borderColor: accent, color: accent }}><span aria-hidden className="mr-1.5 inline-block h-2 w-2 rounded-full" style={{ background: accent }} />{d.category}</span>}
+                {cat.name && <span className="chip font-semibold" style={{ borderColor: accent, color: accent }}><span aria-hidden className="mr-1.5 inline-block h-2 w-2 rounded-full" style={{ background: accent }} />{cat.name}</span>}
                 {d.platform && <span className="chip !border-transparent font-semibold text-onaccent" style={{ background: accent || "rgb(var(--c-accent))" }}>{d.platform}</span>}
                 {d.workStatus && d.workStatus !== "completed" && <span className="chip !text-accent">{STATUS[d.workStatus]}</span>}
                 {services.map((sv) => <span key={sv.id} className="chip">{sv.title}</span>)}
@@ -108,6 +110,7 @@ export async function ProjectView({ slug }: { slug: string }) {
           <div className="glass p-6">
             <h2 className="text-lg font-semibold">Project details</h2>
             <dl className="mt-5 divide-y divide-line text-[0.95rem]">{facts.filter(([, v]) => v).map(([k, v]) => <div key={k} className="flex justify-between gap-4 py-3"><dt className="text-muted">{k}</dt><dd className="text-right font-medium text-fg">{v}</dd></div>)}</dl>
+            {tags.length > 0 && <div className="mt-5 border-t border-line pt-5"><p className="text-sm text-muted">Tags</p><div className="mt-3 flex flex-wrap gap-2">{tags.map((t) => <span key={t} className="chip">#{t}</span>)}</div></div>}
             {tech.length > 0 && <div className="mt-5 border-t border-line pt-5"><p className="text-sm text-muted">Built with</p><div className="mt-3 flex flex-wrap gap-2">{tech.map((t) => <span key={t} className="chip">{t}</span>)}</div></div>}
             {d.liveUrl && <a href={d.liveUrl} target="_blank" rel="noopener noreferrer" className="btn btn-ghost mt-6 w-full">Open {(() => { try { return new URL(d.liveUrl).hostname.replace(/^www\./, ""); } catch { return "site"; } })()}<span aria-hidden>↗</span></a>}
           </div>

@@ -15,3 +15,9 @@ export const SAMPLE_PROJECTS = [
   { slug: "example-local-seo", title: "Local SEO growth campaign (example)", category: "SEO", color: "#10B981", industry: "Home services", platform: "WordPress", technologies: ["Google Business Profile", "Search Console", "Schema"], deliverables: ["Technical audit", "Location pages", "Citations and reviews", "Monthly reporting"], summary: "An example of a search campaign for a local business. Replace this with a real project." },
   { slug: "example-launch-video", title: "Product launch video series (example)", category: "Video production", color: "#EF4444", industry: "Technology", platform: "Premiere Pro", technologies: ["Premiere Pro", "After Effects", "DaVinci Resolve"], deliverables: ["Script and storyboard", "Editing and motion graphics", "Social cut-downs", "Captions"], summary: "An example of a launch video package with short edits for social channels. Replace this with a real project." },
 ];
+
+/** Portfolio categories (with colours) created as real, editable entries under Portfolio > Categories. */
+export const PROJECT_CATEGORIES = [
+  { name: "Web development", color: "#3B82F6" }, { name: "AI automation", color: "#8B5CF6" }, { name: "SEO", color: "#10B981" },
+  { name: "Digital marketing", color: "#F59E0B" }, { name: "Video production", color: "#EF4444" }, { name: "SaaS marketing", color: "#06B6D4" },
+];

@@ -19,6 +19,14 @@ export async function generateMetadata(): Promise<Metadata> {
       ? { icon: [{ url: fav }], shortcut: [{ url: fav }], apple: [{ url: fav }] }
       : { icon: [{ url: "/api/logo?v=" + encodeURIComponent(s.identity.shortName + s.identity.logo), type: "image/svg+xml" }] },
     applicationName: s.identity.name,
+    verification: (() => {
+      const ig: any = s.integrations; const clean = (v: any) => String(v || "").trim().replace(/[^\w\-.:]/g, "");
+      const other: Record<string, string> = {};
+      if (clean(ig.bingVerification)) other["msvalidate.01"] = clean(ig.bingVerification);
+      if (clean(ig.pinterestVerification)) other["p:domain_verify"] = clean(ig.pinterestVerification);
+      if (clean(ig.facebookVerification)) other["facebook-domain-verification"] = clean(ig.facebookVerification);
+      return { google: clean(ig.googleVerification) || undefined, other };
+    })(),
   };
 }
 

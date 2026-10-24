@@ -5,7 +5,7 @@ import { getActiveTheme } from "@/lib/theme-server";
 import { aiAvailable } from "@/lib/ai/providers";
 import { db, schema } from "@/lib/db";
 import { COLLECTIONS } from "@/lib/collections";
-import { Sidebar, type NavGroup } from "@/components/admin/Sidebar";
+import { Sidebar, type NavGroup, type NavItem } from "@/components/admin/Sidebar";
 import { AdminProvider } from "@/components/admin/context";
 import { Toaster } from "@/components/admin/ui";
 
@@ -17,21 +17,32 @@ export default async function PanelLayout({ children }: { children: React.ReactN
   const [{ n: unread }] = await db().select({ n: dsql<number>`count(*)::int` }).from(schema.submissions).where(and(eq(schema.submissions.read, false), isNull(schema.submissions.deletedAt)));
   const [{ n: newLeads }] = await db().select({ n: dsql<number>`count(*)::int` }).from(schema.leads).where(and(eq(schema.leads.status, "new"), isNull(schema.leads.deletedAt), dsql`${schema.leads.createdAt} > now() - interval '7 days'`));
   const admin = user.role === "admin";
-  const col = (g: string) => COLLECTIONS.filter((c) => c.group === g).map((c) => ({ label: c.label, href: `/admin/c/${c.key}` }));
+  /** One WordPress-style section: the list, Add New, and (when the type has them) its own Categories and Tags. */
+  const type = (key: string, label: string, o: { cats?: string; tags?: boolean } = {}): NavItem => {
+    const base = `/admin/c/${key}`;
+    const children = [{ label: `All ${label}`, href: base }, { label: "Add New", href: `${base}/new` }, ...(o.cats ? [{ label: "Categories", href: `/admin/c/${o.cats}` }] : []), ...(o.tags ? [{ label: "Tags", href: `/admin/tags/${key}` }] : [])];
+    return { label, href: base, children, match: [base, ...(o.cats ? [`/admin/c/${o.cats}`] : []), ...(o.tags ? [`/admin/tags/${key}`] : [])] };
+  };
   const groups: NavGroup[] = [
     { title: "Dashboard", items: [{ label: "Overview", href: "/admin" }] },
-    { title: "Content", items: [...col("Content"), { label: "Media library", href: "/admin/media" }] },
+    { title: "Content", items: [
+      type("pages", "Pages", { cats: "pageCategories", tags: true }), type("posts", "Posts", { cats: "categories", tags: true }),
+      type("projects", "Portfolio", { cats: "projectCategories", tags: true }), type("caseStudies", "Case studies", { cats: "caseStudyCategories", tags: true }),
+      type("services", "Services"), type("packages", "Packages"), type("team", "Team"), type("testimonials", "Testimonials"), type("faqs", "FAQ and help"),
+      { label: "Media library", href: "/admin/media" },
+    ] },
     { title: "CRM and marketing", items: [
       { label: "Leads", href: "/admin/leads", badge: newLeads },
       ...(admin ? [{ label: "Email campaigns", href: "/admin/email" }] : []),
       { label: "Form submissions", href: "/admin/submissions", badge: unread },
-      ...col("Marketing"),
+      type("forms", "Forms"), type("popups", "Popups and announcements"),
       { label: "Location pages", href: "/admin/locations" },
     ] },
     ...(admin ? [
-      { title: "Design", items: [{ label: "Themes", href: "/admin/appearance" }, { label: "Menus, header and footer", href: "/admin/navigation" }, ...col("Design")] },
+      { title: "Design", items: [{ label: "Themes", href: "/admin/appearance" }, { label: "Menus, header and footer", href: "/admin/navigation" }, type("modules", "Custom modules")] },
       { title: "SEO", items: [{ label: "SEO, redirects and 404s", href: "/admin/seo" }] },
-      { title: "AI", items: [{ label: "AI tools", href: "/admin/ai" }, { label: "Chat training", href: "/admin/chat" }] },
+      { title: "AI", items: [{ label: "AI tools", href: "/admin/ai" }] },
+      { title: "Chatbot", items: [{ label: "Training", href: "/admin/chat" }, { label: "Settings", href: "/admin/chat/settings" }, { label: "Notifications", href: "/admin/chat/notifications" }] },
       { title: "Settings", items: [{ label: "Site settings", href: "/admin/settings" }, { label: "Users and my account", href: "/admin/users" }, { label: "Audit log", href: "/admin/audit" }] },
     ] : [{ title: "Account", items: [{ label: "My account", href: "/admin/users" }] }]),
   ];

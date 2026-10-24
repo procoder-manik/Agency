@@ -1,15 +1,22 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ModeSegment } from "@/components/site/ThemePanel";
 
-export interface NavGroup { title: string; items: { label: string; href: string; badge?: number }[] }
+export interface NavChild { label: string; href: string }
+export interface NavItem { label: string; href: string; badge?: number; children?: NavChild[]; match?: string[] }
+export interface NavGroup { title: string; items: NavItem[] }
 
 export function Sidebar({ groups, user, siteName }: { groups: NavGroup[]; user: { email: string; role: string }; siteName: string }) {
   const path = usePathname(); const [open, setOpen] = useState(false);
-  useEffect(() => setOpen(false), [path]);
+  const [expanded, setExpanded] = useState<string[]>([]); const [fly, setFly] = useState<{ item: NavItem; top: number; left: number } | null>(null);
+  const flyTimer = useRef<ReturnType<typeof setTimeout>>();
   const active = (h: string) => (h === "/admin" ? path === "/admin" : path === h || path.startsWith(h + "/"));
+  const inSection = (i: NavItem) => (i.match || [i.href]).some((m) => active(m)) || (i.children || []).some((c) => path === c.href);
+  useEffect(() => { setOpen(false); setFly(null); const cur = groups.flatMap((g) => g.items).filter((i) => i.children?.length && inSection(i)).map((i) => i.href); setExpanded((e) => Array.from(new Set([...e, ...cur]))); }, [path]); // eslint-disable-line
+  const showFly = (item: NavItem, el: HTMLElement) => { clearTimeout(flyTimer.current); const r = el.getBoundingClientRect(); setFly({ item, top: r.top, left: r.right + 6 }); };
+  const hideFly = () => { clearTimeout(flyTimer.current); flyTimer.current = setTimeout(() => setFly(null), 160); };
   async function logout() { await fetch("/api/admin/logout", { method: "POST" }); window.location.href = "/admin/login"; }
   const nav = (
     <nav aria-label="Admin" className="flex h-full flex-col">
@@ -24,11 +31,21 @@ export function Sidebar({ groups, user, siteName }: { groups: NavGroup[]; user: 
               <span aria-hidden className="h-[18px] w-1 rounded-full" style={{ background: "linear-gradient(180deg, rgb(var(--c-accent)), rgb(var(--c-accent2)))" }} />{g.title}
             </p>
             <div className="ml-[18px] border-l border-line pl-2.5">
-              {g.items.map((i) => (
-                <Link key={i.href} href={i.href} className={`flex items-center justify-between rounded px-3 py-[7px] text-[0.88rem] font-normal transition-colors ${active(i.href) ? "bg-raised font-medium text-fg" : "text-fg2 hover:bg-raised/60 hover:text-fg"}`}>
-                  {i.label}{!!i.badge && <span className="rounded-full bg-accent px-1.5 text-xs font-semibold text-onaccent">{i.badge}</span>}
-                </Link>
-              ))}
+              {g.items.map((i) => {
+                const hasKids = !!i.children?.length; const here = inSection(i); const isOpen = hasKids && expanded.includes(i.href);
+                return (
+                  <div key={i.href}>
+                    <div className={`flex items-center rounded transition-colors ${here ? "bg-raised" : "hover:bg-raised/60"}`}
+                      onMouseEnter={hasKids && !isOpen ? (e) => showFly(i, e.currentTarget) : undefined} onMouseLeave={hasKids ? hideFly : undefined}>
+                      <Link href={i.href} className={`flex min-w-0 flex-1 items-center justify-between px-3 py-[7px] text-[0.88rem] transition-colors ${here ? "font-medium text-fg" : "text-fg2 hover:text-fg"}`}>
+                        <span className="truncate">{i.label}</span>{!!i.badge && <span className="rounded-full bg-accent px-1.5 text-xs font-semibold text-onaccent">{i.badge}</span>}
+                      </Link>
+                      {hasKids && <button type="button" aria-label={`${isOpen ? "Collapse" : "Expand"} ${i.label}`} aria-expanded={isOpen} onClick={() => { setFly(null); setExpanded(isOpen ? expanded.filter((x) => x !== i.href) : [...expanded, i.href]); }} className="grid h-8 w-8 shrink-0 place-items-center text-fg2 hover:text-fg"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform ${isOpen ? "rotate-90" : ""}`} aria-hidden><path d="m9 6 6 6-6 6" /></svg></button>}
+                    </div>
+                    {isOpen && <ul className="mb-1 ml-3 border-l border-line pl-2">{i.children!.map((c) => <li key={c.href}><Link href={c.href} className={`block rounded px-3 py-1.5 text-[0.83rem] transition-colors ${path === c.href ? "font-medium text-accent" : "text-fg2 hover:text-fg"}`}>{c.label}</Link></li>)}</ul>}
+                  </div>
+                );
+              })}
             </div>
           </div>
         ))}
@@ -42,6 +59,11 @@ export function Sidebar({ groups, user, siteName }: { groups: NavGroup[]; user: 
   );
   return (
     <>
+      {fly && (
+        <div className="fixed z-[70] hidden w-52 lg:block" style={{ top: fly.top, left: fly.left }} onMouseEnter={() => clearTimeout(flyTimer.current)} onMouseLeave={hideFly}>
+          <ul className="glass !bg-surface p-1.5 shadow-xl">{fly.item.children!.map((c) => <li key={c.href}><Link href={c.href} className="block rounded px-3 py-2 text-sm text-fg2 transition-colors hover:bg-raised hover:text-fg" onClick={() => setFly(null)}>{c.label}</Link></li>)}</ul>
+        </div>
+      )}
       <div className="sticky top-0 z-30 flex items-center justify-between border-b border-line bg-bg/90 px-4 py-3 backdrop-blur lg:hidden">
         <span className="font-display font-bold">{siteName}</span>
         <button className="btn btn-ghost !px-3 !py-1.5" aria-expanded={open} onClick={() => setOpen(!open)}>Menu</button>

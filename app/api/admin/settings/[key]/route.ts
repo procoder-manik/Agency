@@ -33,7 +33,7 @@ export const PUT = api(async (req: Request, { params }: C) => {
     const cur: any = await getSetting("portfolio");
     const base = String(value.base || "work").trim().toLowerCase().replace(/^\/+|\/+$/g, "");
     if (!isValidBase(base)) throw new Error("URL name: use lowercase letters, numbers and hyphens only, and not a name the site already uses (blog, services, contact, and so on).");
-    const cats = (Array.isArray(value.categories) ? value.categories : []).map((c: any) => ({ name: String(c?.name || "").trim().slice(0, 40), color: /^#[0-9a-f]{6}$/i.test(String(c?.color || "")) ? String(c.color) : "#3B82F6" })).filter((c: any) => c.name).slice(0, 20);
+    const cats = (Array.isArray(value.categories) ? value.categories : Array.isArray(cur.categories) ? cur.categories : []).map((c: any) => ({ name: String(c?.name || "").trim().slice(0, 40), color: /^#[0-9a-f]{6}$/i.test(String(c?.color || "")) ? String(c.color) : "#3B82F6" })).filter((c: any) => c.name).slice(0, 20);
     value = { label: String(value.label || "Work").trim().slice(0, 40) || "Work", base, categories: cats };
     if (base !== cur.base) { // the listing page (a normal page) moves to the new address; old links redirect
       const P = schema.entries;

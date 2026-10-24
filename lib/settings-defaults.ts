@@ -13,7 +13,9 @@ export const SETTING_DEFAULTS = {
   navigation: NAVIGATION,
   appearance: { ui: null as null | Record<string, any>, activeTheme: "signal", defaultMode: "system", modeToggle: true, accentPicker: true, intro: true, cursor: true, smoothScroll: true, ambient: true },
   integrations: {
-    gaId: "", chatMode: "builtin", chatPosition: "right", chatGreeting: "Hi! Ask us anything about our services.",
+    gaId: "", googleAdsId: "", gtmId: "", metaPixelId: "", tiktokPixelId: "", linkedinId: "", clarityId: "", hotjarId: "", googleVerification: "", bingVerification: "", pinterestVerification: "", facebookVerification: "", headCode: "",
+    chatWhatsapp: true, chatWhatsappText: "Can't reach us here?", chatWhatsappMessage: "Hi, I found you on your website and would like to talk.",
+    chatMode: "builtin", chatPosition: "right", chatGreeting: "Hi! Ask us anything about our services.",
     chatScript: "", backToTopPosition: "right", chatBotName: "", chatSuggestions: [] as string[], chatLeadCapture: true, chatSound: true, chatIcon: "bubble", chatIconImage: "",
   },
   payments: { currencies: ["USD", "BDT"], defaultCurrency: "USD", methods: ["Card (Stripe)", "bKash", "Bank transfer"], note: "We accept card payments and local methods. Custom quotes are always available." },

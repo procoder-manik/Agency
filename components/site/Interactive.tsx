@@ -7,9 +7,10 @@ import { CardLayout } from "./CardLayout";
 import { ScrollShot } from "./ScrollShot";
 import { categoryTheme } from "@/lib/themes";
 import { parseOptions } from "@/lib/util";
+import { trackLead } from "@/lib/track";
 
 /* ---------------- Work grid with filters ---------------- */
-export interface WorkCard { id: number; title: string; href: string; img: string; alt: string; industry: string; services: string[]; status: string; summary: string; accent?: string; client?: string; direction?: string; platform?: string; technologies?: string[]; liveUrl?: string; tall?: boolean; category?: string }
+export interface WorkCard { id: number; title: string; href: string; img: string; alt: string; industry: string; services: string[]; status: string; summary: string; accent?: string; client?: string; direction?: string; platform?: string; technologies?: string[]; liveUrl?: string; tall?: boolean; category?: string; tags?: string[] }
 const STATUS: Record<string, string> = { completed: "Live", ongoing: "Still building", care: "Ongoing care" };
 const tint = (hex: string | undefined, a: string) => (hex && /^#[0-9a-f]{6}$/i.test(hex) ? `${hex}${a}` : undefined);
 
@@ -55,7 +56,7 @@ export function WorkGrid({ items, filters, layout = "grid", auto = true }: { ite
   const techs = useMemo(() => Array.from(new Set(items.flatMap((i) => i.technologies || []))).sort(), [items]);
   const inds = useMemo(() => Array.from(new Set(items.map((i) => i.industry).filter(Boolean))).sort(), [items]);
   const list = items.filter((i) => (group === "All" || key(i) === group) && (!tech || (i.technologies || []).includes(tech)) && (!industry || i.industry === industry) &&
-    (!q || `${i.title} ${i.client || ""} ${i.industry} ${i.summary} ${i.category || ""} ${(i.technologies || []).join(" ")} ${i.services.join(" ")}`.toLowerCase().includes(q.toLowerCase())));
+    (!q || `${i.title} ${i.client || ""} ${i.industry} ${i.summary} ${i.category || ""} ${(i.tags || []).join(" ")} ${(i.technologies || []).join(" ")} ${i.services.join(" ")}`.toLowerCase().includes(q.toLowerCase())));
   const active = group !== "All" || tech || industry || q;
   return (
     <div>
@@ -220,7 +221,7 @@ export function ContactForm({ formId, fields, success, style, layout, submitLabe
     try {
       const r = await fetch("/api/forms", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ formId, values }) });
       const j = await r.json(); if (!r.ok) throw new Error(j.error || "Couldn't send.");
-      setState("done");
+      setState("done"); trackLead("form");
     } catch (x: any) { setErr(x.message); setState("error"); }
   }
   if (state === "done") return (

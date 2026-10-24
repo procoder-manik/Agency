@@ -4,7 +4,7 @@ import { slugify } from "./util";
 import { buildLocationPage, DEFAULT_PATTERNS } from "./templating";
 import { IDENTITY, NAVIGATION, SERVICES, PACKAGES, CATEGORIES, FAQS, PACK_VERSION } from "./content-pack/services";
 import { POSTS } from "./content-pack/posts";
-import { SAMPLE_TEAM, SAMPLE_PROJECTS } from "./content-pack/samples";
+import { SAMPLE_TEAM, SAMPLE_PROJECTS, PROJECT_CATEGORIES } from "./content-pack/samples";
 import { CORE_PAGES, PLATFORM_PAGES, TOPIC_PAGES, LOCATION_TEMPLATES, SAMPLE_LOCATIONS, MODULES, FORM } from "./content-pack/pages";
 
 type Sql = postgres.Sql<any>;
@@ -77,13 +77,16 @@ export async function installPack(sql: Sql, mode: "missing" | "replace"): Promis
   for (const [i, [q, a, group, help]] of FAQS.entries()) await upsert("faqs", slugify(q), q, { answer: a, category: group, showOnFaq: true, showInHelp: help }, { order: i });
 
   // example team cards and example projects: created once, never overwritten
-  async function once(collection: string, slug: string, title: string, data: any, o: { order?: number; featured?: boolean } = {}) {
+  async function once(collection: string, slug: string, title: string, data: any, o: { order?: number; featured?: boolean } = {}): Promise<number> {
     const [ex] = await sql`SELECT id FROM entries WHERE collection = ${collection} AND slug = ${slug} LIMIT 1`; // includes trashed, so deleted examples do not come back
-    if (ex) { r.skipped++; return; }
-    await sql`INSERT INTO entries (collection, slug, title, status, builtin, featured, sort_order, data, seo, published_at) VALUES (${collection}, ${slug}, ${title}, 'published', false, ${!!o.featured}, ${o.order ?? 0}, ${j(data)}::text::jsonb, '{}'::text::jsonb, now())`; r.created++;
+    if (ex) { r.skipped++; return ex.id as number; }
+    const [row] = await sql`INSERT INTO entries (collection, slug, title, status, builtin, featured, sort_order, data, seo, published_at) VALUES (${collection}, ${slug}, ${title}, 'published', false, ${!!o.featured}, ${o.order ?? 0}, ${j(data)}::text::jsonb, '{}'::text::jsonb, now()) RETURNING id`; r.created++;
+    return row.id as number;
   }
+  const pcat: Record<string, number> = {};
+  for (const [i, c] of PROJECT_CATEGORIES.entries()) pcat[c.name] = await once("projectCategories", slugify(c.name), c.name, { color: c.color, description: "" }, { order: i });
   for (const [i, m] of SAMPLE_TEAM.entries()) await once("team", m.slug, m.title, { role: m.role, bio: m.bio, skills: m.skills }, { order: i });
-  for (const [i, p] of SAMPLE_PROJECTS.entries()) await once("projects", p.slug, p.title, { client: "Example client", industry: p.industry, summary: p.summary, body: `This is an example project that shows how a project page looks. Open it in Admin > Portfolio and replace the text, screenshot and details with one of your real projects.\n\n${p.summary}`, category: p.category, platform: p.platform, technologies: p.technologies, deliverables: p.deliverables, workStatus: "completed", accent: p.color }, { order: i, featured: true });
+  for (const [i, p] of SAMPLE_PROJECTS.entries()) await once("projects", p.slug, p.title, { client: "Example client", industry: p.industry, summary: p.summary, body: `This is an example project that shows how a project page looks. Open it in Admin > Portfolio and replace the text, screenshot and details with one of your real projects.\n\n${p.summary}`, category: pcat[p.category], platform: p.platform, technologies: p.technologies, deliverables: p.deliverables, workStatus: "completed", accent: p.color }, { order: i, featured: true });
 
   // blog posts, spread over recent weeks so they sort naturally
   for (const [i, p] of POSTS.entries()) {

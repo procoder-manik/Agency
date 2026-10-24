@@ -64,18 +64,28 @@ export function SiteSettings() {
         {tab === "Payments" && <SettingsSection k="payments" fields={[
           t("currencies", "Currencies you accept", "tags"), t("defaultCurrency", "Default currency"), t("methods", "Payment methods", "tags", { help: "e.g. Card (Stripe), bKash, Nagad, Bank transfer" }), t("note", "Payment note on the pricing page", "textarea"),
         ]} />}
-        {tab === "Integrations" && <SettingsSection k="integrations" fields={[
-          t("gaId", "Google Analytics ID", "text", { placeholder: "G-XXXXXXX" }),
-          t("chatMode", "Chat widget", "select", { options: [{ value: "builtin", label: "Built-in assistant (answers from FAQ)" }, { value: "thirdparty", label: "Third-party chat script" }, { value: "off", label: "Off" }] }),
-          t("chatPosition", "Chat position", "select", { options: [{ value: "right", label: "Right" }, { value: "left", label: "Left" }] }),
-          t("backToTopPosition", "Back-to-top button position", "select", { options: [{ value: "right", label: "Right" }, { value: "left", label: "Left" }], help: "If it shares a side with the chat button, it moves up automatically." }),
-          t("chatBotName", "Assistant name (blank = your agency name)"), t("chatGreeting", "Chat greeting", "textarea"), t("chatSuggestions", "Quick-reply buttons (blank = automatic)", "tags", { help: "Short questions visitors can tap. Example: How much does it cost?" }), t("chatLeadCapture", "Let the chat collect name and email for a human follow-up", "toggle"), t("chatSound", "Chat sounds (typing tick, send and reply chime)", "toggle"), t("chatIconImage", "Or use your own chat icon image", "image", { size: "128 × 128 (square, transparent PNG)", help: "If set, this image replaces the icon chosen below, on the chat button and in the chat header." }), t("chatScript", "Third-party chat embed code", "textarea", { help: "Paste the snippet from Crisp, Tawk.to, Intercom, etc." }),
-        ]}>{(v, set) => <ChatIconPicker value={v.chatIcon || "bubble"} custom={!!v.chatIconImage} onChange={(id) => set({ ...v, chatIcon: id })} />}</SettingsSection>}
+        {tab === "Integrations" && <div className="space-y-8">
+          <p className="max-w-3xl text-sm text-fg2">Connect your marketing and analytics tools by pasting their ID. Each ID is checked against that tool's format, and the tool only loads once it is filled in. Chat settings live under <a className="text-accent underline" href="/admin/chat/settings">Chatbot &gt; Settings</a>.</p>
+          <SettingsSection k="integrations" fields={[
+            t("gaId", "Google Analytics 4", "text", { placeholder: "G-XXXXXXXXXX", help: "Analytics > Admin > Data streams." }),
+            t("gtmId", "Google Tag Manager", "text", { placeholder: "GTM-XXXXXXX", help: "If you use Tag Manager, you can add other tools there instead." }),
+            t("googleAdsId", "Google Ads conversion tag", "text", { placeholder: "AW-1234567890" }),
+            t("metaPixelId", "Facebook (Meta) Pixel", "text", { placeholder: "123456789012345", help: "Events Manager > Data sources. Sends PageView, and Lead when someone submits a form or the chat." }),
+            t("tiktokPixelId", "TikTok Pixel", "text", { placeholder: "CXXXXXXXXXXXXXXXXXXX" }),
+            t("linkedinId", "LinkedIn Insight Tag (partner ID)", "text", { placeholder: "1234567" }),
+            t("clarityId", "Microsoft Clarity", "text", { placeholder: "abcdefghij", help: "Free heatmaps and session recordings." }),
+            t("hotjarId", "Hotjar site ID", "text", { placeholder: "1234567" }),
+            t("googleVerification", "Google Search Console verification code", "text", { help: "Only the code from the verification meta tag (content=\"...\")." }),
+            t("bingVerification", "Bing Webmaster verification code", "text"),
+            t("pinterestVerification", "Pinterest domain verification code", "text"),
+            t("facebookVerification", "Facebook domain verification code", "text"),
+            t("headCode", "Other tracking code (advanced)", "textarea", { mono: true, rows: 6, help: "Paste any other script or tag, such as a booking widget or another pixel. It is added to every public page. Only paste code you trust." }),
+          ]} />
+        </div>}
         {tab === "Notifications" && <NotificationsSettings />}
         {tab === "Portfolio" && <SettingsSection k="portfolio" fields={[
           t("label", "Name used on the site", "text", { ai: false, help: "Shown in breadcrumbs and headings, for example Work, Portfolio or Projects. Change the menu link in Menus, header and footer." }),
           t("base", "Web address name", "text", { ai: false, placeholder: "work", help: "The part of the address after your domain: yourdomain.com/work/project-name. Lowercase letters, numbers and hyphens only. When you change it, the portfolio page is renamed to match and the old address redirects. Remember to update the menu link too." }),
-          t("categories", "Categories and colours", "list", { help: "Each project picks one category. Its colour is used on the card, the filter button and the project page.", fields: [{ name: "name", label: "Category name", type: "text", ai: false }, { name: "color", label: "Colour", type: "color" }] }),
         ]} />}
         {tab === "Email" && <SettingsSection k="email" fields={[
           t("autoReply", "Send an automatic thank-you email to everyone who submits a form", "toggle"),
@@ -212,6 +222,30 @@ function NotificationsSettings() {
     </div>
   );
 }
+
+/* ---------------- Chatbot > Settings ---------------- */
+export function ChatSettings() {
+  return (
+    <div>
+      <p className="mb-5 max-w-3xl text-sm text-fg2">How the chat looks and behaves on your site. Teach it new things under <a className="text-accent underline" href="/admin/chat">Training</a>, and set who gets notified under <a className="text-accent underline" href="/admin/chat/notifications">Notifications</a>.</p>
+      <SettingsSection k="integrations" fields={[
+        t("chatMode", "Chat widget", "select", { options: [{ value: "builtin", label: "Built-in assistant (answers from your content)" }, { value: "thirdparty", label: "Third-party chat script" }, { value: "off", label: "Off" }] }),
+        t("chatPosition", "Chat position", "select", { options: [{ value: "right", label: "Right" }, { value: "left", label: "Left" }] }),
+        t("backToTopPosition", "Back-to-top button position", "select", { options: [{ value: "right", label: "Right" }, { value: "left", label: "Left" }], help: "If it shares a side with the chat button, it moves up automatically." }),
+        t("chatBotName", "Assistant name (blank = your agency name)"), t("chatGreeting", "Chat greeting", "textarea"),
+        t("chatSuggestions", "Quick-reply buttons (blank = automatic)", "tags", { help: "Short questions visitors can tap. Example: How much does it cost?" }),
+        t("chatLeadCapture", "Let the chat collect name and email for a human follow-up", "toggle"),
+        t("chatSound", "Chat sounds (typing tick, send and reply chime)", "toggle"),
+        t("chatWhatsapp", "Show a WhatsApp link in the chat", "toggle", { help: "A small text link under the message box, and again after someone leaves their details, so they can reach you directly. Uses the WhatsApp number from Site settings > Contact and social." }),
+        t("chatWhatsappText", "Text before the WhatsApp link", "text", { ai: true, placeholder: "Can't reach us here?" }),
+        t("chatWhatsappMessage", "Message that WhatsApp pre-fills for the visitor", "text", { ai: true }),
+        t("chatIconImage", "Or use your own chat icon image", "image", { size: "128 × 128 (square, transparent PNG)", help: "If set, this image replaces the icon chosen below, on the chat button and in the chat header." }),
+        t("chatScript", "Third-party chat script", "textarea", { mono: true, rows: 4, help: "Only used when the chat widget above is set to Third-party." }),
+      ]}>{(v, set) => <ChatIconPicker value={v.chatIcon || "bubble"} custom={!!v.chatIconImage} onChange={(id) => set({ ...v, chatIcon: id })} />}</SettingsSection>
+    </div>
+  );
+}
+export { NotificationsSettings };
 
 /* ---------------- Header button and footer content ---------------- */
 export function FooterContent() {
