@@ -9,7 +9,7 @@ export function pg() {
   if (!g.__pg) {
     const url = process.env.DATABASE_URL;
     if (!url) throw new Error("DATABASE_URL is not set. Copy .env.example to .env and add your PostgreSQL connection string.");
-    g.__pg = postgres(url, { max: 5, idle_timeout: 20, prepare: false, onnotice: () => {} });
+    g.__pg = postgres(url, { max: Number(process.env.PG_POOL_MAX || 5), idle_timeout: 20, prepare: false, onnotice: () => {} });
   }
   return g.__pg;
 }

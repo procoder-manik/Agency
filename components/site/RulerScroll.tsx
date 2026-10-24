@@ -12,7 +12,7 @@ export function RulerScroll() {
 
   useEffect(() => {
     if (matchMedia("(pointer: coarse)").matches) return; // touch devices keep their own scrollbar
-    const root = document.documentElement; root.classList.add("comet-scroll");
+    const root = document.documentElement;
     let raf = 0;
     const measure = () => {
       const vh = window.innerHeight, dh = Math.max(root.scrollHeight, document.body.scrollHeight);
@@ -25,9 +25,11 @@ export function RulerScroll() {
     window.addEventListener("scroll", onScroll, { passive: true }); window.addEventListener("resize", tick);
     const ro = new ResizeObserver(tick); ro.observe(document.body);
     const t = setInterval(measure, 1500);
-    return () => { root.classList.remove("comet-scroll"); window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", tick); ro.disconnect(); clearInterval(t); cancelAnimationFrame(raf); };
+    return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", tick); ro.disconnect(); clearInterval(t); cancelAnimationFrame(raf); };
   }, []);
 
+  // the browser scrollbar is hidden only while the ruler is actually visible; otherwise people would have no scrollbar at all
+  useEffect(() => { const root = document.documentElement; if (g.show && matchMedia("(min-width: 768px)").matches) root.classList.add("comet-scroll"); else root.classList.remove("comet-scroll"); return () => root.classList.remove("comet-scroll"); }, [g.show]);
   if (!g.show) return null;
   const { y, vh, dh } = g;
   const max = Math.max(1, dh - vh), track = vh - MARGIN * 2;

@@ -21,7 +21,7 @@ export function Footer({ s, columns }: { s: Settings; columns: { title: string; 
   const email = ft.email || id.email, phone = ft.phone || id.phone, whatsapp = ft.whatsapp || id.whatsapp, address = ft.address || id.address, hours = ft.hours || id.hours;
   const waUrl = waLink(id as any, whatsapp);
   const on = (k: string) => (ft as any)[k] !== false;
-  const socials = Object.entries(id.socials || {}).filter(([, v]) => v);
+  const socials = Object.entries(id.socials && typeof id.socials === "object" ? id.socials : {}).filter(([, v]) => typeof v === "string" && v);
   const year = new Date().getFullYear();
   const bigText = ft.bigText || id.name;
   return (
@@ -72,7 +72,7 @@ export function Footer({ s, columns }: { s: Settings; columns: { title: string; 
           </div>
           <p className="flex flex-wrap gap-x-4 gap-y-1">
             {id.registration && <span><LinkText text={id.registration} name={id.name} /></span>}
-            {((ft as any).bottomLinks || []).filter((l: any) => l?.label && l?.href).map((l: any) => <LinkText key={l.href + l.label} text={`[${l.label}](${l.href})`} />)}
+            {(Array.isArray((ft as any).bottomLinks) ? (ft as any).bottomLinks : []).filter((l: any) => l?.label && l?.href).map((l: any) => <LinkText key={l.href + l.label} text={`[${l.label}](${l.href})`} />)}
             {ft.showLocalTime !== false && <span>Local time <Clock /></span>}
             {ft.note && <span><RichInline text={ft.note} name={id.name} /></span>}
           </p>

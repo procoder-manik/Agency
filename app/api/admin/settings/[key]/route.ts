@@ -6,7 +6,7 @@ import { bust } from "@/lib/entries-admin";
 import { normalizeTokens } from "@/lib/themes";
 import { and, eq, isNull } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
-import { isValidBase } from "@/lib/portfolio";
+import { isValidBase } from "@/lib/permalinks";
 import { sanitizeInline, toRichHtml } from "@/lib/rich";
 
 type C = { params: { key: string } };

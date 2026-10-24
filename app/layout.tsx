@@ -5,6 +5,7 @@ import { getAllSettings, siteUrl } from "@/lib/settings";
 import { mediaUrl } from "@/lib/media";
 import { scrollStyleOf } from "@/lib/scroll-style";
 import { NavProgress } from "@/components/site/NavProgress";
+import { Safe } from "@/components/site/Safe";
 import { ButtonFX } from "@/components/site/ButtonFX";
 import { paletteFor, themeCssBoth, themeFontHrefs, uiOf } from "@/lib/themes";
 
@@ -58,7 +59,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <style id="theme-tokens" dangerouslySetInnerHTML={{ __html: themeCssBoth(t) }} />
         <noscript><style>{".reveal,.fade-in,.word>span,.split .word>span{opacity:1!important;transform:none!important;animation:none!important;filter:none!important}.clip{clip-path:none!important}.clip>.clip-inner{transform:none!important}.intro{display:none!important}"}</style></noscript>
       </head>
-      <body><NavProgress /><ButtonFX />{children}</body>
+      <body><Safe name="progress"><NavProgress /></Safe><Safe name="button effects"><ButtonFX /></Safe>{children}</body>
     </html>
   );
 }
