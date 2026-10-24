@@ -4,57 +4,64 @@ import { useMemo, useState } from "react";
 import { Media } from "./motion";
 import { ClipReveal } from "./fx";
 import { CardLayout } from "./CardLayout";
+import { ScrollShot } from "./ScrollShot";
 import { categoryTheme } from "@/lib/themes";
 import { parseOptions } from "@/lib/util";
 
 /* ---------------- Work grid with filters ---------------- */
-export interface WorkCard { id: number; title: string; href: string; img: string; alt: string; industry: string; services: string[]; status: string; summary: string; accent?: string; client?: string }
+export interface WorkCard { id: number; title: string; href: string; img: string; alt: string; industry: string; services: string[]; status: string; summary: string; accent?: string; client?: string; direction?: string; platform?: string; technologies?: string[]; liveUrl?: string; tall?: boolean }
 const STATUS: Record<string, string> = { completed: "Live", ongoing: "Still building", care: "Ongoing care" };
 
-
-function workCard(p: WorkCard) {
+function workCard(p: WorkCard, priority = false) {
+  const tech = (p.technologies || []).slice(0, 3);
   return (
-    <Link href={p.href} data-cursor="View" className="group img-zoom block h-full">
-      <ClipReveal className="relative bg-raised">
-        <div className="relative aspect-[16/11]">
-          <Media src={p.img} alt={p.alt} poster={p.title} className="h-full w-full" />
-          <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-bg/80 px-3 py-1 text-xs font-medium text-fg backdrop-blur">
-            <span className={`h-1.5 w-1.5 rounded-full ${p.status === "completed" ? "bg-success" : "animate-pulse bg-accent"}`} />{STATUS[p.status] || "Live"}
-          </span>
-        </div>
-      </ClipReveal>
-      <div className="mt-6 flex items-start justify-between gap-4">
+    <article className="group relative flex h-full flex-col">
+      <Link href={p.href} data-cursor="View" className="block" aria-label={`${p.title}: view project`}>
+        <ScrollShot src={p.img} alt={p.alt} url={p.liveUrl} direction={p.direction} accent={p.accent} eager={priority}
+          className="transition-[transform,box-shadow,border-color] duration-500 ease-out group-hover:-translate-y-1 group-hover:border-accent/50 group-hover:shadow-[0_40px_80px_-40px_rgb(var(--c-accent)/.55)]" />
+      </Link>
+      <div className="mt-5 flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <h3 className="h-card">{p.title}</h3>
-          <p className="mt-1.5 text-fg2">{[p.client, p.industry].filter(Boolean).join(", ")}</p>
-          <div className="mt-4 flex flex-wrap gap-1.5">{p.services.slice(0, 3).map((s) => <span key={s} className="chip">{s}</span>)}</div>
+          <h3 className="h-card"><Link href={p.href} className="transition-colors hover:text-accent">{p.title}</Link></h3>
+          <p className="mt-1 text-fg2">{[p.client, p.industry].filter(Boolean).join(", ")}</p>
         </div>
-        <span aria-hidden className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-line transition-all duration-500 group-hover:-rotate-45 group-hover:border-accent group-hover:bg-accent group-hover:text-onaccent">→</span>
+        {p.liveUrl && <a href={p.liveUrl} target="_blank" rel="noopener noreferrer" aria-label={`Visit ${p.title} live site`} className="relative z-10 grid h-10 w-10 shrink-0 place-items-center rounded-full border border-line text-fg transition-colors hover:border-accent hover:bg-accent hover:text-onaccent">↗</a>}
       </div>
-    </Link>
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        {p.platform && <span className="chip !border-transparent font-semibold text-onaccent" style={{ background: p.accent || "rgb(var(--c-accent))" }}>{p.platform}</span>}
+        {tech.map((t) => <span key={t} className="chip">{t}</span>)}
+        {p.status !== "completed" && <span className="chip !text-accent">{STATUS[p.status] || ""}</span>}
+      </div>
+    </article>
   );
 }
 
 export function WorkGrid({ items, filters, layout = "grid", auto = true }: { items: WorkCard[]; filters?: boolean; layout?: string; auto?: boolean }) {
-  const [industry, setIndustry] = useState(""); const [service, setService] = useState(""); const [status, setStatus] = useState("");
-  const inds = useMemo(() => Array.from(new Set(items.map((i) => i.industry).filter(Boolean))), [items]);
-  const svcs = useMemo(() => Array.from(new Set(items.flatMap((i) => i.services))), [items]);
-  const list = items.filter((i) => (!industry || i.industry === industry) && (!service || i.services.includes(service)) && (!status || i.status === status));
+  const [platform, setPlatform] = useState("All"); const [tech, setTech] = useState(""); const [industry, setIndustry] = useState(""); const [q, setQ] = useState("");
+  const plat = (p: WorkCard) => p.platform || "Other";
+  const pills = useMemo(() => { const c: Record<string, number> = {}; items.forEach((i) => { c[plat(i)] = (c[plat(i)] || 0) + 1; }); return [["All", items.length] as [string, number], ...Object.entries(c).sort((a, b) => b[1] - a[1])]; }, [items]);
+  const techs = useMemo(() => Array.from(new Set(items.flatMap((i) => i.technologies || []))).sort(), [items]);
+  const inds = useMemo(() => Array.from(new Set(items.map((i) => i.industry).filter(Boolean))).sort(), [items]);
+  const list = items.filter((i) => (platform === "All" || plat(i) === platform) && (!tech || (i.technologies || []).includes(tech)) && (!industry || i.industry === industry) &&
+    (!q || `${i.title} ${i.client || ""} ${i.industry} ${i.summary} ${(i.technologies || []).join(" ")} ${i.services.join(" ")}`.toLowerCase().includes(q.toLowerCase())));
+  const active = platform !== "All" || tech || industry || q;
   return (
     <div>
       {filters && (
-        <div className="mb-8 flex flex-wrap gap-3" role="group" aria-label="Filter work">
-          <Select label="Industry" value={industry} onChange={setIndustry} options={inds} />
-          <Select label="Service" value={service} onChange={setService} options={svcs} />
-          <Select label="Status" value={status} onChange={setStatus} options={Object.keys(STATUS)} labels={STATUS} />
-          {(industry || service || status) && <button className="btn btn-ghost !py-2" onClick={() => { setIndustry(""); setService(""); setStatus(""); }}>Clear filters</button>}
+        <div className="mb-12 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between" role="group" aria-label="Filter work">
+          {pills.length > 2 && <div className="flex flex-wrap gap-2">{pills.map(([name, n]) => (
+            <button key={name} type="button" aria-pressed={platform === name} onClick={() => setPlatform(name)} className={`rounded-full border px-4 py-2 text-[0.92rem] font-medium transition-colors ${platform === name ? "border-transparent bg-accent text-onaccent" : "border-line text-fg2 hover:text-fg"}`}>{name} <span className={platform === name ? "opacity-70" : "text-muted"}>{n}</span></button>))}</div>}
+          <div className="flex flex-wrap gap-2 lg:ml-auto">
+            <Select label="Technology" value={tech} onChange={setTech} options={techs} />
+            <Select label="Industry" value={industry} onChange={setIndustry} options={inds} />
+            <label className="relative block"><span className="sr-only">Search projects</span><input className="input !rounded-full !py-2 !pl-4 text-sm sm:w-56" placeholder="Search projects" value={q} onChange={(e) => setQ(e.target.value)} /></label>
+            {active && <button type="button" className="btn btn-ghost !py-2 text-sm" onClick={() => { setPlatform("All"); setTech(""); setIndustry(""); setQ(""); }}>Clear</button>}
+          </div>
         </div>
       )}
-      {list.length === 0 && <p className="text-fg2">No projects match these filters.</p>}
+      {list.length === 0 && <p className="py-16 text-center text-fg2">No projects match. Clear the filters or try another search.</p>}
       {layout === "carousel" ? <CardLayout layout="carousel" auto={auto} perView={3} items={list.map((p) => workCard(p))} />
-        : <div className="grid gap-x-6 gap-y-16 md:grid-cols-12">
-          {list.map((p, i) => { const wide = i % 4 === 0 || i % 4 === 3; return <div key={p.id} className={wide ? "md:col-span-7" : "md:col-span-5"}>{workCard(p)}</div>; })}
-        </div>}
+        : <div className="grid gap-x-8 gap-y-16 md:grid-cols-2 xl:grid-cols-3">{list.map((p, i) => <div key={p.id}>{workCard(p, i < 3)}</div>)}</div>}
     </div>
   );
 }

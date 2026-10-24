@@ -46,7 +46,12 @@ export const POST = api(async (req: Request) => {
     let width: number | null = null, height: number | null = null;
     let name = f.name.replace(/[^\w.-]+/g, "-").toLowerCase();
     if (["image/jpeg", "image/png"].includes(mime)) { // optimise to WebP, max 2400px
-      const img = sharp(buf).rotate().resize({ width: 2400, height: 2400, fit: "inside", withoutEnlargement: true });
+      // Very tall images (full-page website screenshots) are limited by width only, so they stay readable.
+      // WebP cannot be taller than 16383 px, so the height is capped just under that.
+      const meta0 = await sharp(buf).metadata();
+      const tall = (meta0.height || 0) > (meta0.width || 1) * 2.2;
+      const img = tall ? sharp(buf).rotate().resize({ width: 1600, height: 16000, fit: "inside", withoutEnlargement: true })
+        : sharp(buf).rotate().resize({ width: 2400, height: 2400, fit: "inside", withoutEnlargement: true });
       buf = await img.webp({ quality: 82 }).toBuffer(); mime = "image/webp"; name = name.replace(/\.\w+$/, "") + ".webp";
     }
     if (mime.startsWith("image/") && mime !== "image/svg+xml") { try { const m = await sharp(buf, { animated: mime === "image/gif" }).metadata(); width = m.width ?? null; height = (m.pageHeight || m.height) ?? null; } catch {} }

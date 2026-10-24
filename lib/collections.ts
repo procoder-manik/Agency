@@ -73,7 +73,7 @@ export const COLLECTIONS: CollectionDef[] = [
     tabs: { Content: ["role", "bio", "longBio", "skills"], Images: ["photo"], Details: ["socials"] },
   },
   {
-    key: "projects", label: "Work", singular: "Project", titleLabel: "Project title", hasSlug: true, seo: true, group: "Content",
+    key: "projects", label: "Portfolio", singular: "Project", titleLabel: "Project title", hasSlug: true, seo: true, group: "Content",
     publicPath: (s) => `/work/${s}`, defaultSchema: "CreativeWork", ogLabel: "Work",
     fields: [
       { name: "client", label: "Client", type: "text" },
@@ -82,7 +82,9 @@ export const COLLECTIONS: CollectionDef[] = [
       { name: "summary", label: "Summary", type: "textarea" },
       { name: "body", label: "Full write-up", type: "markdown" },
       { name: "cover", label: "Cover / banner image", type: "image", size: IMG_COVER },
-      { name: "screenshot", label: "Screenshot (used on cards)", type: "media", size: "1440 × 900 (16:10)" },
+      { name: "scrollImage", label: "Full-page screenshot (scrolls on the card and on the project page)", type: "image", size: "1440 px wide, any height", help: "One tall image of the whole page. On the Work grid it scrolls slowly when someone hovers the card, and on the project page visitors can scroll through it like the real site. Capture it with a full-page screenshot tool, then upload it here (WebP or JPG under 10 MB works best)." },
+      { name: "scrollDirection", label: "Card scroll direction", type: "select", options: opts("down|Top to bottom", "up|Bottom to top") },
+      { name: "screenshot", label: "Normal screenshot (used if there is no full-page image)", type: "media", size: "1440 × 900 (16:10)" },
       { name: "gallery", label: "Gallery", type: "list", fields: [{ name: "image", label: "Image", type: "media", size: "1600 × 1000" }, { name: "caption", label: "Caption", type: "text" }] },
       { name: "services", label: "Services used", type: "relation", collection: "services", multiple: true },
       { name: "technologies", label: "Technologies", type: "tags" },
@@ -91,8 +93,11 @@ export const COLLECTIONS: CollectionDef[] = [
       { name: "startDate", label: "Start date", type: "date" },
       { name: "endDate", label: "End date", type: "date" },
       { name: "accent", label: "Accent colour", type: "color" },
+      { name: "deliverables", label: "What was delivered", type: "tags", help: "Press Enter after each item, e.g. Custom theme, Speed optimisation, On-page SEO." },
+      { name: "metrics", label: "Results and numbers (real ones only)", type: "list", fields: [{ name: "value", label: "Number or short result", type: "text", ai: false, placeholder: "3 weeks" }, { name: "label", label: "What it measures", type: "text", placeholder: "From brief to launch" }] },
+      { name: "video", label: "Video walkthrough (YouTube link or video file)", type: "media" },
     ],
-    tabs: { Content: ["client", "summary", "body"], Images: ["cover", "screenshot", "gallery"], Details: ["industry", "liveUrl", "services", "technologies", "platform", "workStatus", "startDate", "endDate", "accent"] },
+    tabs: { Content: ["client", "summary", "body", "deliverables", "metrics"], Images: ["scrollImage", "scrollDirection", "cover", "screenshot", "gallery", "video"], Details: ["industry", "liveUrl", "services", "technologies", "platform", "workStatus", "startDate", "endDate", "accent"] },
   },
   {
     key: "caseStudies", label: "Case studies", singular: "Case study", titleLabel: "Headline", hasSlug: true, seo: true, group: "Content",
