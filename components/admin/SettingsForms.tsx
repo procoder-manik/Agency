@@ -45,7 +45,7 @@ const t = (name: string, label: string, type: Field["type"] = "text", extra: Par
 
 export function SiteSettings() {
   const [tab, setTab] = useState("Site identity");
-  const tabs = ["Site identity", "Contact & social", "Payments", "Integrations", "Notifications", "Email", "Portfolio", "Features", "General", "Starter content"];
+  const tabs = ["Site identity", "Contact & social", "Payments", "Integrations", "Notifications", "Email", "Permalinks", "Features", "General", "Starter content"];
   return (
     <>
       <PageHead title="Site settings" sub="Everything here is read by every page, email and schema block. Nothing is hard-coded." />
@@ -96,10 +96,19 @@ export function SiteSettings() {
           ]} />
         </div>}
         {tab === "Notifications" && <NotificationsSettings />}
-        {tab === "Portfolio" && <SettingsSection k="portfolio" fields={[
-          t("label", "Name used on the site", "text", { ai: false, help: "Shown in breadcrumbs and headings, for example Work, Portfolio or Projects. Change the menu link in Menus, header and footer." }),
-          t("base", "Web address name", "text", { ai: false, placeholder: "work", help: "The part of the address after your domain: yourdomain.com/work/project-name. Lowercase letters, numbers and hyphens only. When you change it, the portfolio page is renamed to match and the old address redirects. Remember to update the menu link too." }),
-        ]} />}
+        {tab === "Permalinks" && <div className="space-y-8">
+          <p className="max-w-3xl text-sm text-fg2">Choose the address pattern of each content type, for example <code className="rounded bg-raised px-1.5">yourdomain.com/<b>articles</b>/post-name</code>. Individual items can still have their own full address: open the item and use the <b>URL</b> tab. Changing a name here redirects the old addresses (301) and updates canonical URLs and the sitemap automatically, so SEO is not harmed. Remember to update menu links to the list pages.</p>
+          <SettingsSection k="permalinks" fields={[
+            t("posts", "Posts", "text", { ai: false, placeholder: "blog", help: "Posts live at /name/post-title. Their list page is renamed to match." }),
+            t("services", "Services", "text", { ai: false, placeholder: "services" }),
+            t("caseStudies", "Case studies", "text", { ai: false, placeholder: "case-studies" }),
+          ]} />
+          <div><h3 className="mb-3 font-semibold">Portfolio</h3><SettingsSection k="portfolio" fields={[
+            t("label", "Name used on the site", "text", { ai: false, help: "Shown in breadcrumbs and headings." }),
+            t("base", "Address name", "text", { ai: false, placeholder: "work", help: "Projects live at /name/project-title." }),
+          ]} /></div>
+          <div className="rounded-[var(--r-md)] border border-line bg-raised/40 p-4 text-sm text-fg2"><p className="font-medium text-fg">Pages and landing pages</p><p className="mt-1">Pages have no base name. Their address is the page address you set (the slug), or the <b>parent page</b> address plus the slug, for example <code className="rounded bg-raised px-1.5">/service-area/new-jersey</code>. Or type any full address in the page's URL tab, for example <code className="rounded bg-raised px-1.5">/dentist-in-new-jersey</code>.</p></div>
+        </div>}
         {tab === "Email" && <SettingsSection k="email" fields={[
           t("autoReply", "Send an automatic thank-you email to everyone who submits a form", "toggle"),
           t("chatAutoReply", "Also send it to people who leave their details in the chat", "toggle"),
@@ -248,6 +257,7 @@ export function ChatSettings() {
         t("chatBotName", "Assistant name (blank = your agency name)"), t("chatGreeting", "Chat greeting", "textarea"),
         t("chatSuggestions", "Quick-reply buttons (blank = automatic)", "tags", { help: "Short questions visitors can tap. Example: How much does it cost?" }),
         t("chatLeadCapture", "Let the chat collect name and email for a human follow-up", "toggle"),
+        t("chatAnimation", "Chat button animation", "select", { options: [{ value: "ring", label: "Pulsing ring (blinks)" }, { value: "breathe", label: "Gentle breathing" }, { value: "wiggle", label: "Small wiggle every few seconds" }, { value: "none", label: "No animation" }] }),
         t("chatSound", "Chat sounds (typing tick, send and reply chime)", "toggle"),
         t("chatWhatsapp", "Show a WhatsApp link in the chat", "toggle", { help: "A small text link under the message box, and again after someone leaves their details, so they can reach you directly. Uses the WhatsApp number and on/off switch from Site settings > Contact and social." }),
         t("chatWhatsappText", "Text before the WhatsApp link", "text", { ai: true, placeholder: "Can't reach us here?" }),

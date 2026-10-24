@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { entryUrl } from "@/lib/permalinks";
 import { getPublished } from "@/lib/content";
 import { visibleNav } from "@/lib/site";
 import { NotFoundSearch } from "@/components/site/NotFoundSearch";
@@ -7,10 +8,10 @@ export default async function NotFound() {
   const [pages, services, posts, work] = await Promise.all(["pages", "services", "posts", "projects"].map((c) => getPublished(c)));
   const nav = await visibleNav();
   const items = [
-    ...pages.map((p) => ({ title: p.title, href: p.slug === "home" ? "/" : `/${p.slug}`, kind: "Page" })),
-    ...services.map((s) => ({ title: s.title, href: `/services/${s.slug}`, kind: "Service" })),
-    ...work.map((s) => ({ title: s.title, href: `/work/${s.slug}`, kind: "Work" })),
-    ...posts.map((s) => ({ title: s.title, href: `/blog/${s.slug}`, kind: "Article" })),
+    ...pages.map((p) => ({ title: p.title, href: entryUrl("pages", p.slug, p.data), kind: "Page" })),
+    ...services.map((s) => ({ title: s.title, href: entryUrl("services", s.slug, s.data), kind: "Service" })),
+    ...work.map((s) => ({ title: s.title, href: entryUrl("projects", s.slug, s.data), kind: "Work" })),
+    ...posts.map((s) => ({ title: s.title, href: entryUrl("posts", s.slug, s.data), kind: "Article" })),
   ];
   return (
     <section className="tex relative overflow-hidden py-24 text-center sm:py-32">

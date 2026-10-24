@@ -7,6 +7,7 @@ import { renderMustache, scopeCss } from "@/lib/mustache";
 import { hash } from "@/lib/templating";
 import { resolveCategory } from "@/lib/portfolio";
 import { waLink } from "@/lib/whatsapp";
+import { entryUrl, listUrl } from "@/lib/permalinks";
 import { mediaAlt, mediaUrl } from "@/lib/media";
 import { fmtDate, formatPrice } from "@/lib/util";
 import { Counter, Media, Reveal, Tilt } from "./motion";
@@ -265,7 +266,7 @@ async function Services({ d }: { d: D }) {
   const list = await getPublished("services");
   return (
     <section className="section"><div className="container-x"><Head d={d} />
-      <ServiceRows items={list.map((s) => ({ id: s.id, title: s.title, href: `/services/${s.slug}`, summary: s.data.summary || "", icon: s.data.icon || "", img: mediaUrl(s.data.cover) || mediaUrl(s.data.media) }))} />
+      <ServiceRows items={list.map((s) => ({ id: s.id, title: s.title, href: entryUrl("services", s.slug, s.data), summary: s.data.summary || "", icon: s.data.icon || "", img: mediaUrl(s.data.cover) || mediaUrl(s.data.media) }))} />
     </div></section>
   );
 }
@@ -274,7 +275,7 @@ export async function workCards(list: Entry[]) {
   const [services, st, terms] = await Promise.all([getPublished("services"), getAllSettings(), getPublished("projectCategories")]);
   const cats = st.portfolio.categories;
   return list.map((p) => ({
-    id: p.id, title: p.title, href: `/${st.portfolio.base}/${p.slug}`, client: p.data.client || "",
+    id: p.id, title: p.title, href: entryUrl("projects", p.slug, p.data), client: p.data.client || "",
     category: resolveCategory(p.data.category, terms, cats).name, accent: p.data.accent || resolveCategory(p.data.category, terms, cats).color || "",
     tags: (Array.isArray(p.data.tags) ? p.data.tags : []) as string[],
     img: mediaUrl(p.data.scrollImage) || mediaUrl(p.data.screenshot) || mediaUrl(p.data.cover),
@@ -304,7 +305,7 @@ async function CaseStudies({ d }: { d: D }) {
   const img = (c: Entry) => mediaUrl(c.data.cover);
   return (
     <section className="section"><div className="container-x"><Head d={d} />
-      <Reveal><Link href={`/case-studies/${first.slug}`} className="card group grid overflow-hidden md:grid-cols-[1fr_1.1fr]">
+      <Reveal><Link href={entryUrl("caseStudies", first.slug, first.data)} className="card group grid overflow-hidden md:grid-cols-[1fr_1.1fr]">
         <div className="aspect-[4/5] overflow-hidden bg-raised md:aspect-auto"><Media src={img(first)} poster={first.title} alt={mediaAlt(first.data.cover, first.title)} className="h-full w-full transition-transform duration-700 group-hover:scale-[1.03]" /></div>
         <div className="flex flex-col justify-center p-8 sm:p-12">
           <p className="text-fg2">{[first.data.client, first.data.industry].filter(Boolean).join(", ")}</p>
@@ -316,7 +317,7 @@ async function CaseStudies({ d }: { d: D }) {
       </Link></Reveal>
       {rest.length > 0 && <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {rest.map((c, i) => (
-          <Reveal key={c.id} delay={i * 70}><Link href={`/case-studies/${c.slug}`} className="card group block h-full">
+          <Reveal key={c.id} delay={i * 70}><Link href={entryUrl("caseStudies", c.slug, c.data)} className="card group block h-full">
             <div className="aspect-[4/3] overflow-hidden bg-raised"><Media src={img(c)} poster={c.title} alt={mediaAlt(c.data.cover, c.title)} className="h-full w-full transition-transform duration-700 group-hover:scale-[1.03]" /></div>
             <div className="p-6"><p className="text-sm text-muted">{c.data.client}</p><h3 className="mt-1 text-xl font-semibold">{c.title}</h3></div>
           </Link></Reveal>
@@ -331,7 +332,7 @@ export async function postCards(list: Entry[]) {
   return list.map((p) => {
     const cat = cats.find((c) => c.id === Number(p.data.category));
     return {
-      id: p.id, title: p.title, href: `/blog/${p.slug}`, img: mediaUrl(p.data.cover),
+      id: p.id, title: p.title, href: entryUrl("posts", p.slug, p.data), img: mediaUrl(p.data.cover),
       alt: mediaAlt(p.data.cover, p.title), excerpt: p.data.excerpt || "",
       category: cat ? { id: cat.id, slug: cat.slug, title: cat.title, color: cat.data.color as string | undefined } : undefined,
       date: fmtDate(p.publishedAt || p.createdAt), author: team.find((t) => t.id === Number(Array.isArray(p.data.author) ? p.data.author[0] : p.data.author))?.title || "", kind: p.data.kind || "article",
@@ -351,7 +352,7 @@ async function Blog({ d }: { d: D }) {
 export async function pricingGroups(serviceId?: number) {
   const [services, packages] = await Promise.all([getPublished("services"), getPublished("packages")]);
   return services.filter((s) => !serviceId || s.id === serviceId).map((s) => ({
-    service: s.title, href: `/services/${s.slug}`,
+    service: s.title, href: entryUrl("services", s.slug, s.data),
     packages: packages.filter((p) => Number(p.data.service) === s.id).map((p) => ({
       id: p.id, name: p.title, price: formatPrice(p.data.price, p.data.currency || "USD"), range: p.data.priceMax ? formatPrice(p.data.priceMax, p.data.currency || "USD") : undefined,
       billing: p.data.billing === "monthly" ? "per month" : p.data.billing === "yearly" ? "per year" : "one-time", delivery: p.data.delivery || "", summary: p.data.summary || "",
@@ -509,7 +510,7 @@ function Compare({ d }: { d: D }) {
 async function Locations({ d }: { d: D }) {
   const pages = (await getPublished("pages")).filter((p) => p.data.location && !p.data.template);
   if (!pages.length) return null;
-  let list = pages.map((p) => ({ title: p.title, href: `/${p.slug}`, service: p.data.location.service || "", industry: p.data.location.industry || "", city: p.data.location.label || p.data.location.city || "" }));
+  let list = pages.map((p) => ({ title: p.title, href: entryUrl("pages", p.slug, p.data), service: p.data.location.service || "", industry: p.data.location.industry || "", city: p.data.location.label || p.data.location.city || "" }));
   if (Number(d.limit) > 0 && !d.filters) list = list.slice(0, Number(d.limit));
   return <section className="section"><div className="container-x"><Head d={d} /><LocationsGrid items={list} filters={!!d.filters} /></div></section>;
 }

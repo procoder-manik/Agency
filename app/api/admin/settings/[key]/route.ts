@@ -42,6 +42,25 @@ export const PUT = api(async (req: Request, { params }: C) => {
       await db().update(P).set({ slug: base, updatedAt: new Date() }).where(and(eq(P.collection, "pages"), eq(P.slug, cur.base), isNull(P.deletedAt)));
     }
   }
+  if (params.key === "permalinks") {
+    const cur: any = await getSetting("permalinks"); const port: any = await getSetting("portfolio");
+    const next: Record<string, string> = {};
+    for (const k of ["posts", "services", "caseStudies"]) {
+      const b = String(value[k] || cur[k]).trim().toLowerCase().replace(/^\/+|\/+$/g, "");
+      if (!isValidBase(b)) throw new Error(`"${b}" cannot be used as an address name. Use lowercase letters, numbers and hyphens, and not a name the site already uses.`);
+      next[k] = b;
+    }
+    const all = [next.posts, next.services, next.caseStudies, port.base];
+    if (new Set(all).size !== all.length) throw new Error("Each content type needs its own address name.");
+    const P = schema.entries;
+    for (const k of ["posts", "services", "caseStudies"]) {
+      if (next[k] === cur[k]) continue; // the list page (a normal page) moves to the new address; item addresses follow automatically
+      const [clash] = await db().select({ id: P.id }).from(P).where(and(eq(P.collection, "pages"), eq(P.slug, next[k]), isNull(P.deletedAt))).limit(1);
+      if (clash) throw new Error(`A page called "${next[k]}" already exists. Rename or delete it first, or pick another name.`);
+      await db().update(P).set({ slug: next[k], updatedAt: new Date() }).where(and(eq(P.collection, "pages"), eq(P.slug, cur[k]), isNull(P.deletedAt)));
+    }
+    value = next;
+  }
   if (params.key === "general") value.trashDays = Math.min(365, Math.max(1, Number(value.trashDays) || 30));
   const saved = await saveSetting(params.key as SettingKey, value);
   await audit(u.email, "update settings", params.key);

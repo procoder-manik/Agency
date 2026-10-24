@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getAllSettings, siteUrl } from "@/lib/settings";
 import { getPublished } from "@/lib/content";
+import { entryUrl } from "@/lib/permalinks";
 import { getCollection } from "@/lib/collections";
 import { hiddenPaths } from "@/lib/site";
 
@@ -15,7 +16,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const col = getCollection(key)!;
     for (const e of await getPublished(key)) {
       if (e.seo?.noindex || e.seo?.excludeFromSitemap || e.data?.template) continue;
-      const path = col.publicPath!(e.slug);
+      const path = entryUrl(key, e.slug, e.data as any);
       if (hidden.has(path) || [...hidden].some((h) => h !== "/" && path.startsWith(h + "/"))) continue;
       out.push({ url: base + (path === "/" ? "" : path), lastModified: e.updatedAt, changeFrequency: key === "posts" ? "monthly" : "weekly", priority: path === "/" ? 1 : key === "pages" ? 0.8 : 0.6 });
     }

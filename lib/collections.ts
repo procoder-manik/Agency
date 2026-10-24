@@ -1,4 +1,4 @@
-import { PORTFOLIO } from "./portfolio";
+import { BASES } from "./permalinks";
 import { Field, opts } from "./fields";
 
 export interface CollectionDef {
@@ -29,12 +29,15 @@ export const COLLECTIONS: CollectionDef[] = [
       { name: "blocks", label: "Sections", type: "list", fields: [] }, // rendered by the page-builder editor
       { name: "category", label: "Page category (optional)", type: "relation", collection: "pageCategories" },
       { name: "tags", label: "Tags (optional)", type: "tags" },
+      { name: "parent", label: "Parent page (optional)", type: "relation", collection: "pages", help: "Makes this page a child, so its address becomes parent-address/this-page, for example service-area/new-jersey. Great for service and location landing pages." },
+      { name: "permalink", label: "Custom address (permalink)", type: "text", ai: false, placeholder: "dentist-in-new-jersey", help: "Optional. Type any address you like, for example dentist-in-new-jersey or service-area/new-jersey/dentist. Leave empty to use the default address. The old default address redirects here, and the canonical URL follows automatically." },
+      { name: "landing", label: "This is a landing page (service or location)", type: "toggle", help: "Lists it under Landing pages in the sidebar instead of Pages." },
     ],
-    tabs: { Sections: ["blocks"], Images: ["cover"], Details: ["category", "tags"] },
+    tabs: { Sections: ["blocks"], Images: ["cover"], Details: ["category", "tags", "landing"], URL: ["parent", "permalink"] },
   },
   {
     key: "services", label: "Services", singular: "Service", titleLabel: "Service name", hasSlug: true, seo: true, group: "Content",
-    publicPath: (s) => `/services/${s}`, defaultSchema: "Service", ogLabel: "Service",
+    publicPath: (s) => `/${BASES.services}/${s}`, defaultSchema: "Service", ogLabel: "Service",
     fields: [
       { name: "icon", label: "Icon (emoji or short symbol)", type: "text", placeholder: "◆" },
       { name: "summary", label: "Short summary", type: "textarea" },
@@ -45,8 +48,9 @@ export const COLLECTIONS: CollectionDef[] = [
       { name: "relatedWork", label: "Related work", type: "relation", collection: "projects", multiple: true },
       { name: "cover", label: "Cover image", type: "image", size: IMG_COVER },
       { name: "media", label: "Feature media (image, GIF, video or Lottie)", type: "media", size: IMG_COVER },
+      { name: "permalink", label: "Custom address (permalink)", type: "text", ai: false, placeholder: "dentist-in-new-jersey", help: "Optional. Type any address you like, for example dentist-in-new-jersey or service-area/new-jersey/dentist. Leave empty to use the default address. The old default address redirects here, and the canonical URL follows automatically." },
     ],
-    tabs: { Content: ["icon", "summary", "description", "includes"], Details: ["steps", "faq", "relatedWork"], Images: ["cover", "media"] },
+    tabs: { Content: ["icon", "summary", "description", "includes"], Details: ["steps", "faq", "relatedWork"], Images: ["cover", "media"], URL: ["permalink"] },
   },
   {
     key: "packages", label: "Packages", singular: "Package", titleLabel: "Package name", hasSlug: false, seo: false, group: "Content",
@@ -77,7 +81,7 @@ export const COLLECTIONS: CollectionDef[] = [
   },
   {
     key: "projects", label: "Portfolio", singular: "Project", titleLabel: "Project title", hasSlug: true, seo: true, group: "Content",
-    publicPath: (s) => `/${PORTFOLIO.base}/${s}`, defaultSchema: "CreativeWork", ogLabel: "Work",
+    publicPath: (s) => `/${BASES.projects}/${s}`, defaultSchema: "CreativeWork", ogLabel: "Work",
     fields: [
       { name: "client", label: "Client", type: "text" },
       { name: "industry", label: "Industry", type: "text" },
@@ -101,12 +105,13 @@ export const COLLECTIONS: CollectionDef[] = [
       { name: "deliverables", label: "What was delivered", type: "tags", help: "Press Enter after each item, e.g. Custom theme, Speed optimisation, On-page SEO." },
       { name: "metrics", label: "Results and numbers (real ones only)", type: "list", fields: [{ name: "value", label: "Number or short result", type: "text", ai: false, placeholder: "3 weeks" }, { name: "label", label: "What it measures", type: "text", placeholder: "From brief to launch" }] },
       { name: "video", label: "Video walkthrough (YouTube link or video file)", type: "media" },
+      { name: "permalink", label: "Custom address (permalink)", type: "text", ai: false, placeholder: "dentist-in-new-jersey", help: "Optional. Type any address you like, for example dentist-in-new-jersey or service-area/new-jersey/dentist. Leave empty to use the default address. The old default address redirects here, and the canonical URL follows automatically." },
     ],
-    tabs: { Content: ["client", "summary", "body", "deliverables", "metrics"], Images: ["scrollImage", "scrollDirection", "cover", "screenshot", "gallery", "video"], Details: ["category", "tags", "industry", "liveUrl", "services", "technologies", "platform", "workStatus", "startDate", "endDate", "accent"] },
+    tabs: { Content: ["client", "summary", "body", "deliverables", "metrics"], Images: ["scrollImage", "scrollDirection", "cover", "screenshot", "gallery", "video"], URL: ["permalink"], Details: ["category", "tags", "industry", "liveUrl", "services", "technologies", "platform", "workStatus", "startDate", "endDate", "accent"] },
   },
   {
     key: "caseStudies", label: "Case studies", singular: "Case study", titleLabel: "Headline", hasSlug: true, seo: true, group: "Content",
-    publicPath: (s) => `/case-studies/${s}`, defaultSchema: "Article", ogLabel: "Case Study",
+    publicPath: (s) => `/${BASES.caseStudies}/${s}`, defaultSchema: "Article", ogLabel: "Case Study",
     fields: [
       { name: "client", label: "Client", type: "text" },
       { name: "industry", label: "Industry", type: "text" },
@@ -123,8 +128,9 @@ export const COLLECTIONS: CollectionDef[] = [
       { name: "technologies", label: "Technologies", type: "tags" },
       { name: "category", label: "Category", type: "relation", collection: "caseStudyCategories" },
       { name: "tags", label: "Tags", type: "tags" },
+      { name: "permalink", label: "Custom address (permalink)", type: "text", ai: false, placeholder: "dentist-in-new-jersey", help: "Optional. Type any address you like, for example dentist-in-new-jersey or service-area/new-jersey/dentist. Leave empty to use the default address. The old default address redirects here, and the canonical URL follows automatically." },
     ],
-    tabs: { Content: ["client", "summary", "overview", "challenges", "approach", "results", "resultsText"], Images: ["cover", "media"], Details: ["category", "tags", "industry", "project", "services", "technologies"] },
+    tabs: { Content: ["client", "summary", "overview", "challenges", "approach", "results", "resultsText"], Images: ["cover", "media"], Details: ["category", "tags", "industry", "project", "services", "technologies"], URL: ["permalink"] },
   },
   {
     key: "testimonials", label: "Testimonials", singular: "Testimonial", titleLabel: "Client name", hasSlug: false, seo: false, group: "Content",
@@ -138,7 +144,7 @@ export const COLLECTIONS: CollectionDef[] = [
   },
   {
     key: "posts", label: "Blog posts", singular: "Post", titleLabel: "Title", hasSlug: true, seo: true, group: "Content",
-    publicPath: (s) => `/blog/${s}`, defaultSchema: "BlogPosting", ogLabel: "Article",
+    publicPath: (s) => `/${BASES.posts}/${s}`, defaultSchema: "BlogPosting", ogLabel: "Article",
     fields: [
       { name: "excerpt", label: "Excerpt", type: "textarea" },
       { name: "body", label: "Body", type: "markdown" },
@@ -151,8 +157,9 @@ export const COLLECTIONS: CollectionDef[] = [
       { name: "ctaLabel", label: "Sidebar call to action: button label (optional)", type: "text" },
       { name: "ctaHref", label: "Sidebar call to action: button link (optional)", type: "url" },
       { name: "kind", label: "Type", type: "select", options: opts("article|Article", "update|Short update") },
+      { name: "permalink", label: "Custom address (permalink)", type: "text", ai: false, placeholder: "dentist-in-new-jersey", help: "Optional. Type any address you like, for example dentist-in-new-jersey or service-area/new-jersey/dentist. Leave empty to use the default address. The old default address redirects here, and the canonical URL follows automatically." },
     ],
-    tabs: { Content: ["excerpt", "body"], Images: ["cover"], Details: ["author", "category", "tags", "kind", "ctaTitle", "ctaText", "ctaLabel", "ctaHref"] },
+    tabs: { Content: ["excerpt", "body"], Images: ["cover"], Details: ["author", "category", "tags", "kind", "ctaTitle", "ctaText", "ctaLabel", "ctaHref"], URL: ["permalink"] },
   },
   {
     key: "categories", label: "Post categories", singular: "Category", titleLabel: "Name", hasSlug: true, seo: false, group: "Taxonomy",

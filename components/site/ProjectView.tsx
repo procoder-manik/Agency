@@ -6,6 +6,7 @@ import { mediaAlt, mediaUrl } from "@/lib/media";
 import { fmtDate } from "@/lib/util";
 import { getAllSettings } from "@/lib/settings";
 import { resolveCategory } from "@/lib/portfolio";
+import { entryUrl } from "@/lib/permalinks";
 import { JsonLd, handleMissing } from "@/lib/page-render";
 import { Crumbs } from "@/components/site/Detail";
 import { Media, Reveal } from "@/components/site/motion";
@@ -18,7 +19,7 @@ const STATUS: Record<string, string> = { completed: "Live", ongoing: "Still buil
 export async function projectMetadata(slug: string) {
   const p = await getPublishedBySlug("projects", slug); if (!p) return {};
   const base = (await getAllSettings()).portfolio.base;
-  return buildMetadata({ title: p.title, description: p.data.summary, path: `/${base}/${p.slug}`, seo: p.seo, image: mediaUrl(p.data.cover) || mediaUrl(p.data.screenshot), ogLabel: "Work" });
+  return buildMetadata({ title: p.title, description: p.data.summary, path: entryUrl("projects", p.slug, p.data), seo: p.seo, image: mediaUrl(p.data.cover) || mediaUrl(p.data.screenshot), ogLabel: "Work" });
 }
 
 /** "3 weeks", "2 months" from the start and end dates (only for finished work). */
@@ -37,7 +38,7 @@ export async function ProjectView({ slug }: { slug: string }) {
   const scroll = mediaUrl(d.scrollImage);
   const shot = scroll || mediaUrl(d.screenshot) || mediaUrl(d.cover);
   const heroSrc = mediaUrl(d.cover) || mediaUrl(d.screenshot);
-  const ld = await buildJsonLd({ type: p.seo?.schemaType && p.seo.schemaType !== "auto" ? p.seo.schemaType : "CreativeWork", title: p.title, description: d.summary, path: `/${s.portfolio.base}/${p.slug}`, image: heroSrc || ogFallback(p.title, "page", "Work"), crumbs: [{ name: s.portfolio.label || "Work", path: `/${s.portfolio.base}` }, { name: p.seo?.breadcrumbTitle || p.title, path: `/${s.portfolio.base}/${p.slug}` }], dateModified: p.updatedAt });
+  const ld = await buildJsonLd({ type: p.seo?.schemaType && p.seo.schemaType !== "auto" ? p.seo.schemaType : "CreativeWork", title: p.title, description: d.summary, path: entryUrl("projects", p.slug, p.data), image: heroSrc || ogFallback(p.title, "page", "Work"), crumbs: [{ name: s.portfolio.label || "Work", path: `/${s.portfolio.base}` }, { name: p.seo?.breadcrumbTitle || p.title, path: entryUrl("projects", p.slug, p.data) }], dateModified: p.updatedAt });
   const idx = all.findIndex((x) => x.id === p.id); const prev = all.length > 1 ? all[(idx - 1 + all.length) % all.length] : null; const next = all.length > 1 ? all[(idx + 1) % all.length] : null;
   const others = all.filter((x) => x.id !== p.id).slice(0, 3);
   const dur = d.workStatus === "completed" || !d.workStatus ? duration(d.startDate, d.endDate) : "";
@@ -48,7 +49,7 @@ export async function ProjectView({ slug }: { slug: string }) {
   const video = mediaUrl(d.video);
   const facts: [string, React.ReactNode][] = [
     ["Client", d.client], ["Industry", d.industry], ["Platform", d.platform], ["Status", STATUS[d.workStatus] || "Live"],
-    ["Services", services.length ? services.map((sv, i) => <span key={sv.id}>{i > 0 && ", "}<Link className="text-accent hover:underline" href={`/services/${sv.slug}`}>{sv.title}</Link></span>) : null],
+    ["Services", services.length ? services.map((sv, i) => <span key={sv.id}>{i > 0 && ", "}<Link className="text-accent hover:underline" href={entryUrl("services", sv.slug, sv.data)}>{sv.title}</Link></span>) : null],
     ["Started", fmtDate(d.startDate)], ["Finished", d.workStatus === "completed" || !d.workStatus ? fmtDate(d.endDate) : ""], ["Duration", dur],
   ];
   const cat = resolveCategory(d.category, await getPublished("projectCategories"), s.portfolio.categories);
@@ -104,7 +105,7 @@ export async function ProjectView({ slug }: { slug: string }) {
           )}
           {video && <div className="mt-14"><h2 className="mb-5 text-2xl font-semibold">Video walkthrough</h2><div className="overflow-hidden border border-line bg-raised" style={{ borderRadius: "var(--r-lg)" }}><Media src={video} alt={`${p.title} walkthrough`} cover={false} className="aspect-video w-full" /></div></div>}
           {(d.gallery || []).length > 0 && <div className="mt-14 grid gap-5 sm:grid-cols-2">{d.gallery.map((g: any, i: number) => <Reveal key={i}><figure className="glass overflow-hidden p-1.5"><Media src={mediaUrl(g.image)} alt={mediaAlt(g.image, g.caption || p.title)} className="aspect-[16/10] w-full" />{g.caption && <figcaption className="p-2 text-sm text-fg2">{g.caption}</figcaption>}</figure></Reveal>)}</div>}
-          {cs && <Link href={`/case-studies/${cs.slug}`} className="card mt-14 block p-8 transition-colors hover:border-accent/50"><p className="text-fg2">Read the full story</p><p className="mt-1 font-display text-2xl font-bold">{cs.title}</p></Link>}
+          {cs && <Link href={entryUrl("caseStudies", cs.slug, cs.data)} className="card mt-14 block p-8 transition-colors hover:border-accent/50"><p className="text-fg2">Read the full story</p><p className="mt-1 font-display text-2xl font-bold">{cs.title}</p></Link>}
         </div>
         <aside className="lg:sticky lg:top-28 lg:self-start">
           <div className="glass p-6">
@@ -124,8 +125,8 @@ export async function ProjectView({ slug }: { slug: string }) {
 
       {prev && next && (
         <nav className="container-x grid gap-4 border-t border-line py-10 sm:grid-cols-2" aria-label="More projects">
-          <Link href={`/${base}/${prev.slug}`} className="group rounded-[var(--r-lg)] p-4 transition-colors hover:bg-surface"><span className="text-sm text-muted">← Previous</span><span className="mt-1 block font-display text-xl font-semibold group-hover:text-accent">{prev.title}</span></Link>
-          <Link href={`/${base}/${next.slug}`} className="group rounded-[var(--r-lg)] p-4 text-right transition-colors hover:bg-surface"><span className="text-sm text-muted">Next →</span><span className="mt-1 block font-display text-xl font-semibold group-hover:text-accent">{next.title}</span></Link>
+          <Link href={entryUrl("projects", prev.slug, prev.data)} className="group rounded-[var(--r-lg)] p-4 transition-colors hover:bg-surface"><span className="text-sm text-muted">← Previous</span><span className="mt-1 block font-display text-xl font-semibold group-hover:text-accent">{prev.title}</span></Link>
+          <Link href={entryUrl("projects", next.slug, next.data)} className="group rounded-[var(--r-lg)] p-4 text-right transition-colors hover:bg-surface"><span className="text-sm text-muted">Next →</span><span className="mt-1 block font-display text-xl font-semibold group-hover:text-accent">{next.title}</span></Link>
         </nav>
       )}
 

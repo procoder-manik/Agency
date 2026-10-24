@@ -36,7 +36,7 @@ function Rich({ text }: { text: string }) {
   return <>{blocks}</>;
 }
 
-export function ChatWidget({ side, greeting, name, suggestions, leadCapture, sound = true, icon = "bubble", iconImage = "", waUrl = "", whatsappText = "" }: { side: "left" | "right"; greeting: string; name: string; suggestions: string[]; leadCapture: boolean; sound?: boolean; icon?: string; iconImage?: string; waUrl?: string; whatsappText?: string }) {
+export function ChatWidget({ side, greeting, name, suggestions, leadCapture, sound = true, icon = "bubble", iconImage = "", waUrl = "", whatsappText = "", animation = "ring" }: { side: "left" | "right"; greeting: string; name: string; suggestions: string[]; leadCapture: boolean; sound?: boolean; icon?: string; iconImage?: string; waUrl?: string; whatsappText?: string; animation?: string }) {
   const wa = waUrl;
   const [open, setOpen] = useState(false); const [msgs, setMsgs] = useState<Msg[]>([]); const [input, setInput] = useState(""); const [busy, setBusy] = useState(false);
   const [unread, setUnread] = useState(false); const [hint, setHint] = useState(false); const [muted, setMuted] = useState(false);
@@ -144,8 +144,8 @@ export function ChatWidget({ side, greeting, name, suggestions, leadCapture, sou
         </button>
       )}
       <button ref={launcher} type="button" onClick={() => setOpen(!open)} aria-expanded={open} aria-label={open ? "Close chat" : "Open chat"}
-        className="chat-launcher relative grid h-14 w-14 place-items-center rounded-full text-white">
-        {!open && <span aria-hidden className="absolute inset-0 animate-ping rounded-full bg-accent/30 [animation-duration:2.6s]" />}
+        className={`chat-launcher relative grid h-14 w-14 place-items-center rounded-full text-white ${!open && animation === "breathe" ? "chat-breathe" : ""} ${!open && animation === "wiggle" ? "chat-wiggle" : ""}`}>
+        {!open && animation === "ring" && <span aria-hidden className="absolute inset-0 animate-ping rounded-full bg-accent/30 [animation-duration:2.6s]" />}
         <span aria-hidden className="chat-launcher-glow" />
         {open ? <svg className="relative" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M6 6l12 12M18 6L6 18" /></svg>
           : iconImage ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={iconImage} alt="" className="relative h-8 w-8 rounded-full object-contain" /> : <ChatIcon id={icon} className="relative" />}

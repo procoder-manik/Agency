@@ -30,7 +30,9 @@ export default async function PanelLayout({ children }: { children: React.ReactN
   const groups: NavGroup[] = [
     { title: "Dashboard", items: [{ label: "Overview", href: "/admin" }] },
     { title: "Content", items: [
-      type("pages", "Pages", { cats: "pageCategories", tags: true }), type("posts", "Posts", { cats: "categories", tags: true }),
+      type("pages", "Pages", { cats: "pageCategories", tags: true }),
+      { label: "Landing pages", href: "/admin/landing", match: ["/admin/landing", "/admin/locations"], children: [{ label: "All Landing Pages", href: "/admin/landing" }, { label: "Add New", href: "/admin/c/pages/new?landing=1" }, { label: "Generate from template", href: "/admin/locations" }, { label: "Categories", href: "/admin/c/pageCategories" }] },
+      type("posts", "Posts", { cats: "categories", tags: true }),
       type("projects", "Portfolio", { cats: "projectCategories", tags: true }), type("caseStudies", "Case studies", { cats: "caseStudyCategories", tags: true }),
       type("services", "Services"), type("packages", "Packages"), type("team", "Team"), type("testimonials", "Testimonials"), type("faqs", "FAQ and help"),
       { label: "Media library", href: "/admin/media" },
@@ -40,7 +42,6 @@ export default async function PanelLayout({ children }: { children: React.ReactN
       ...(admin ? [{ label: "Email campaigns", href: "/admin/email" }] : []),
       { label: "Form submissions", href: "/admin/submissions", badge: unread },
       type("forms", "Forms"), type("popups", "Popups and announcements"),
-      { label: "Location pages", href: "/admin/locations" },
     ] },
     ...(admin ? [
       { title: "Design", items: [{ label: "Themes", href: "/admin/appearance" }, { label: "Menus, header and footer", href: "/admin/navigation" }, type("modules", "Custom modules")] },

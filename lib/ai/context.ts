@@ -1,3 +1,4 @@
+import { entryUrl } from "../permalinks";
 import { getAllSettings, brandTemplate } from "../settings";
 import { getPublished } from "../content";
 import { getCollection } from "../collections";
@@ -8,11 +9,11 @@ export async function siteContext() {
   const s = await getAllSettings();
   const [services, packages, projects, pages, posts, cases] = await Promise.all(["services", "packages", "projects", "pages", "posts", "caseStudies"].map((c) => getPublished(c)));
   const svc = services.map((sv) => ({
-    id: sv.id, name: sv.title, path: `/services/${sv.slug}`, summary: sv.data.summary || "",
+    id: sv.id, name: sv.title, path: entryUrl("services", sv.slug, sv.data), summary: sv.data.summary || "",
     packages: packages.filter((p) => Number(p.data.service) === sv.id).map((p) => `${p.title}: ${formatPrice(p.data.price, p.data.currency)}${p.data.priceMax ? " to " + formatPrice(p.data.priceMax, p.data.currency) : ""} (${p.data.billing || "one-time"})`),
   }));
   const paths = new Set<string>(["/"]);
-  for (const p of pages) paths.add(getCollection("pages")!.publicPath!(p.slug));
+  for (const p of pages) paths.add(entryUrl("pages", p.slug, p.data));
   for (const [list, c] of [[services, "services"], [projects, "projects"], [posts, "posts"], [cases, "caseStudies"]] as const)
     for (const e of list) paths.add(getCollection(c)!.publicPath!(e.slug));
   return {

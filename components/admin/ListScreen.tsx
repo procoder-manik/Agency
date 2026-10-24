@@ -13,7 +13,8 @@ import { newBlock } from "@/lib/blocks";
 
 type Status = "all" | "published" | "draft" | "trash";
 
-export function ListScreen({ collection, openAi }: { collection: string; openAi?: boolean }) {
+/** kind: pages = normal pages only, landing = service and location landing pages only (both are Pages underneath). */
+export function ListScreen({ collection, openAi, kind }: { collection: string; openAi?: boolean; kind?: "pages" | "landing" }) {
   const col = getCollection(collection)!;
   const router = useRouter(); const { aiOn } = useAdmin();
   const [status, setStatus] = useState<Status>("all"); const [q, setQ] = useState(""); const [sort, setSort] = useState("order"); const [dir, setDir] = useState<"asc" | "desc">("asc");
@@ -25,10 +26,20 @@ export function ListScreen({ collection, openAi }: { collection: string; openAi?
 
   const load = useCallback(async () => {
     setLoading(true);
-    try { const r = await apiFetch(`/api/admin/entries?collection=${collection}&status=${status}&q=${encodeURIComponent(q)}&sort=${sort}&dir=${dir}`); setItems(r.items); setCounts(r.counts); setSel([]); }
+    try {
+      const r = await apiFetch(`/api/admin/entries?collection=${collection}&status=${status}&q=${encodeURIComponent(q)}&sort=${sort}&dir=${dir}`);
+      const isLanding = (i: any) => !!(i.data?.landing || i.data?.location);
+      if (collection === "pages" && kind) { // pages and landing pages share one collection; split them here
+        const keep = (i: any) => (kind === "landing" ? isLanding(i) : !isLanding(i));
+        const all = await apiFetch(`/api/admin/entries?collection=${collection}&status=all&sort=${sort}&dir=${dir}`);
+        const tally = { all: 0, published: 0, draft: 0, trash: 0 }; all.items.filter(keep).forEach((i: any) => { tally.all++; (tally as any)[i.status] = ((tally as any)[i.status] || 0) + 1; });
+        setItems(r.items.filter(keep)); setCounts({ ...r.counts, ...tally });
+      } else { setItems(r.items); setCounts(r.counts); }
+      setSel([]);
+    }
     catch (e: any) { toast(e.message, "error"); }
     setLoading(false);
-  }, [collection, status, q, sort, dir]);
+  }, [collection, status, q, sort, dir, kind]);
   useEffect(() => { const t = setTimeout(load, q ? 300 : 0); return () => clearTimeout(t); }, [load, q]);
 
   async function bulk(action: string, ids = sel) {
@@ -76,12 +87,12 @@ export function ListScreen({ collection, openAi }: { collection: string; openAi?
 
   return (
     <>
-      <PageHead title={col.label}>
+      <PageHead title={kind === "landing" ? "Landing pages" : col.label}>
         {collection === "pages" && <><button className="btn btn-ghost !py-2 text-sm" disabled={!aiOn} onClick={() => setModal("location")}>✦ Location & industry pages</button><button className="btn btn-ghost !py-2 text-sm" disabled={!aiOn} onClick={() => setModal("page")}>✦ Write a page with AI</button></>}
         {collection === "caseStudies" && <button className="btn btn-ghost !py-2 text-sm" disabled={!aiOn} onClick={() => setModal("case")}>✦ Write a case study with AI</button>}
         {collection === "services" && <button className="btn btn-ghost !py-2 text-sm" disabled={!aiOn || !!job} onClick={servicePages}>✦ Create pages from {sel.length ? "selected" : "all"} services</button>}
         {col.seo && <button className="btn btn-ghost !py-2 text-sm" disabled={!aiOn || !!job} onClick={bulkSeo}>✦ Write SEO for {sel.length ? "selected" : "items missing it"}</button>}
-        {collection === "pages" ? <button className="btn btn-primary !py-2 text-sm" onClick={() => setPicker(true)}>Add page from template</button> : <Link href={`/admin/c/${collection}/new`} className="btn btn-primary !py-2 text-sm">Add {col.singular.toLowerCase()}</Link>}
+        {kind === "landing" ? <><Link href="/admin/locations" className="btn btn-ghost !py-2 text-sm">Generate from template</Link><Link href="/admin/c/pages/new?landing=1" className="btn btn-primary !py-2 text-sm">Add landing page</Link></> : collection === "pages" ? <button className="btn btn-primary !py-2 text-sm" onClick={() => setPicker(true)}>Add page from template</button> : <Link href={`/admin/c/${collection}/new`} className="btn btn-primary !py-2 text-sm">Add {col.singular.toLowerCase()}</Link>}
       </PageHead>
       {!aiOn && (col.seo || collection === "services") && <p className="-mt-3 mb-4 text-xs text-muted">AI buttons are disabled until you add a key in Admin &gt; AI.</p>}
 

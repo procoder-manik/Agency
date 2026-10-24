@@ -16,7 +16,7 @@ export const SETTING_DEFAULTS = {
     gaId: "", googleAdsId: "", gtmId: "", metaPixelId: "", tiktokPixelId: "", linkedinId: "", clarityId: "", hotjarId: "", googleVerification: "", bingVerification: "", pinterestVerification: "", facebookVerification: "", headCode: "",
     chatWhatsapp: true, chatWhatsappText: "Can't reach us here?",
     chatMode: "builtin", chatPosition: "right", chatGreeting: "Hi! Ask us anything about our services.",
-    chatScript: "", backToTopPosition: "right", chatBotName: "", chatSuggestions: [] as string[], chatLeadCapture: true, chatSound: true, chatIcon: "bubble", chatIconImage: "",
+    chatScript: "", backToTopPosition: "right", chatBotName: "", chatSuggestions: [] as string[], chatLeadCapture: true, chatSound: true, chatIcon: "bubble", chatIconImage: "", chatAnimation: "ring",
   },
   payments: { currencies: ["USD", "BDT"], defaultCurrency: "USD", methods: ["Card (Stripe)", "bKash", "Bank transfer"], note: "We accept card payments and local methods. Custom quotes are always available." },
   features: { pricing: true, blog: true, caseStudies: true, team: true, helpCenter: true, chat: true, backToTop: true, announcement: true },
@@ -32,6 +32,7 @@ export const SETTING_DEFAULTS = {
     heading: "", email: "", phone: "", whatsapp: "", address: "", hours: "", bigText: "", showBigName: true, showLocalTime: true,
     copyright: "", note: "",
   },
+  permalinks: { posts: "blog", services: "services", caseStudies: "case-studies" },
   portfolio: {
     label: "Work", base: "work",
     categories: [

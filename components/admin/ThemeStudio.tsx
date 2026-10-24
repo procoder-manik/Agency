@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { BTN_ANIMS, COLOR_TOKENS, CURATED_FONTS, FORM_STYLES, contrastReport, fontHref, normalizeTokens, normalizeUi, paletteFor, themeCss, uiOf, type Theme, type ThemeTokens, type UiTokens } from "@/lib/themes";
+import { BTN_ANIMS, BTN_FILLS, COLOR_TOKENS, CURATED_FONTS, FORM_STYLES, contrastReport, fontHref, normalizeTokens, normalizeUi, paletteFor, themeCss, uiOf, type Theme, type ThemeTokens, type UiTokens } from "@/lib/themes";
 import { apiFetch, PageHead, Spinner, toast } from "./ui";
 import { SettingsSection } from "./SettingsForms";
 
@@ -56,6 +56,8 @@ function UiControls({ ui, onChange }: { ui: UiTokens; onChange: (u: UiTokens) =>
             <select id="ui-size" className="input" value={ui.btnSize} onChange={(e) => set({ btnSize: e.target.value as any })}><option value="sm">Compact</option><option value="md">Standard</option><option value="lg">Roomy</option><option value="custom">Custom padding</option></select></div>
           {ui.btnSize === "custom" && <><div><label className="label" htmlFor="ui-py">Vertical padding (px)</label><input id="ui-py" type="number" min={4} max={32} className="input" value={ui.btnPadY} onChange={(e) => set({ btnPadY: Number(e.target.value) })} /></div>
             <div><label className="label" htmlFor="ui-px">Horizontal padding (px)</label><input id="ui-px" type="number" min={8} max={64} className="input" value={ui.btnPadX} onChange={(e) => set({ btnPadX: Number(e.target.value) })} /></div></>}
+          <div><label className="label" htmlFor="ui-fill">Button style</label>
+            <select id="ui-fill" className="input" value={ui.btnFill} onChange={(e) => set({ btnFill: e.target.value as any })}>{BTN_FILLS.map((a) => <option key={a.id} value={a.id}>{a.label}</option>)}</select></div>
           <div><label className="label" htmlFor="ui-anim">Button animation</label>
             <select id="ui-anim" className="input" value={ui.btnAnim} onChange={(e) => set({ btnAnim: e.target.value as any })}>{BTN_ANIMS.map((a) => <option key={a.id} value={a.id}>{a.label}</option>)}</select></div>
           <div><label className="label" htmlFor="ui-form">Form field style</label>
@@ -63,7 +65,7 @@ function UiControls({ ui, onChange }: { ui: UiTokens; onChange: (u: UiTokens) =>
         </div>
         <p className="text-xs text-muted">These apply to every button (header, footer, sections, forms, chat) so the whole site stays consistent. A single form can still choose its own field style in Forms.</p>
       </div>
-      <div id="main" className="btn-scope rounded-[var(--r-lg)] border border-line bg-bg/60 p-5" data-btn-anim={ui.btnAnim} style={previewVars}>
+      <div id="main" className="btn-scope rounded-[var(--r-lg)] border border-line bg-bg/60 p-5" data-btn-anim={ui.btnAnim} data-btn-fill={ui.btnFill} style={previewVars}>
         <p className="mb-3 text-sm text-fg2">Live preview (hover the buttons)</p>
         <div className="flex flex-wrap gap-3"><span className="btn btn-primary" role="presentation">Free consultation<span className="arrow" aria-hidden>→</span></span><span className="btn btn-ghost" role="presentation">See our work</span></div>
         <div className="form-wrap mt-5 space-y-3" data-form-style={ui.formStyle}>

@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { PORTFOLIO } from "./portfolio";
+import { BASES } from "./permalinks";
 import { memo, clearMemo } from "./memo";
 import { headers } from "next/headers";
 import { eq } from "drizzle-orm";
@@ -24,6 +25,7 @@ export const getAllSettings = cache(async (): Promise<Settings> => {
   try { rows = await memo("settings", 10_000, () => db().select().from(schema.settings)); } catch (e) { console.error("[settings] database unavailable:", (e as Error).message); }
   for (const k of Object.keys(SETTING_DEFAULTS) as SettingKey[]) out[k] = merge(SETTING_DEFAULTS[k], rows.find((r) => r.key === k)?.value);
   PORTFOLIO.base = out.portfolio?.base || "work";
+  Object.assign(BASES, { posts: out.permalinks?.posts || "blog", services: out.permalinks?.services || "services", caseStudies: out.permalinks?.caseStudies || "case-studies", projects: PORTFOLIO.base });
   return out;
 });
 

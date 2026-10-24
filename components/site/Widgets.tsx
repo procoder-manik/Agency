@@ -6,11 +6,11 @@ import { ChatWidget } from "./Chat";
 
 type Side = "left" | "right";
 
-export function FloatingWidgets({ chat, wa, backToTop }: { chat: null | { side: Side; greeting: string; mode: string; name: string; botName: string; suggestions: string[]; leadCapture: boolean; sound?: boolean; icon?: string; iconImage?: string; waUrl?: string; whatsappText?: string }; wa?: null | { url: string; text: string; side: Side }; backToTop: null | { side: Side } }) {
+export function FloatingWidgets({ chat, wa, backToTop }: { chat: null | { side: Side; greeting: string; mode: string; name: string; botName: string; suggestions: string[]; leadCapture: boolean; sound?: boolean; icon?: string; iconImage?: string; waUrl?: string; whatsappText?: string; animation?: string }; wa?: null | { url: string; text: string; side: Side }; backToTop: null | { side: Side } }) {
   const stacked = chat && backToTop && chat.side === backToTop.side;
   return (
     <>
-      {chat?.mode === "builtin" && <ChatWidget side={chat.side} greeting={chat.greeting} name={chat.botName || chat.name} suggestions={chat.suggestions} leadCapture={chat.leadCapture} sound={chat.sound !== false} icon={chat.icon} iconImage={chat.iconImage} waUrl={chat.waUrl} whatsappText={chat.whatsappText} />}
+      {chat?.mode === "builtin" && <ChatWidget side={chat.side} greeting={chat.greeting} name={chat.botName || chat.name} suggestions={chat.suggestions} leadCapture={chat.leadCapture} sound={chat.sound !== false} icon={chat.icon} iconImage={chat.iconImage} waUrl={chat.waUrl} whatsappText={chat.whatsappText} animation={chat.animation} />}
       {wa && <a href={wa.url} target="_blank" rel="noopener noreferrer" style={{ [wa.side]: "1.25rem" } as React.CSSProperties} className="fixed bottom-5 z-40 rounded-full border border-line bg-surface/90 px-4 py-2.5 text-sm font-semibold text-fg shadow-lg backdrop-blur transition-all hover:-translate-y-0.5 hover:border-[#25D366] hover:shadow-xl"><span aria-hidden className="mr-2 inline-block h-2 w-2 rounded-full bg-[#25D366]" />{wa.text}</a>}
       {backToTop && <BackToTop side={backToTop.side} raised={!!stacked} />}
     </>

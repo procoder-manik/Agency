@@ -15,11 +15,17 @@ export type Radius = "sharp" | "soft" | "pill";
 export type Texture = "none" | "grid" | "dots" | "noise" | "aurora";
 export type Motion = "minimal" | "standard" | "playful";
 
-export type BtnAnim = "none" | "shine" | "lift" | "glow" | "slide" | "pulse" | "bounce" | "outline" | "arrow";
+export type BtnAnim = "none" | "shine" | "lift" | "glow" | "slide" | "pulse" | "bounce" | "outline" | "arrow" | "swap" | "fill" | "invert" | "spotlight" | "border" | "flow" | "neon" | "ripple";
+export type BtnFill = "soft" | "solid" | "duo" | "outline" | "glass";
 export type FormStyle = "boxed" | "underline" | "filled" | "rounded";
 export const BTN_ANIMS: { id: BtnAnim; label: string }[] = [
-  { id: "shine", label: "Shine sweep" }, { id: "lift", label: "Lift and shadow" }, { id: "glow", label: "Soft glow" }, { id: "slide", label: "Colour slide" },
+  { id: "shine", label: "Shine sweep" }, { id: "swap", label: "Colour switch (circle wipe)" }, { id: "slide", label: "Colour slide" }, { id: "fill", label: "Fill rises" },
+  { id: "invert", label: "Invert colours" }, { id: "spotlight", label: "Spotlight follows cursor" }, { id: "border", label: "Light runs around the border" }, { id: "flow", label: "Flowing gradient" },
+  { id: "neon", label: "Neon glow" }, { id: "ripple", label: "Click ripple" }, { id: "lift", label: "Lift and shadow" }, { id: "glow", label: "Soft glow" },
   { id: "pulse", label: "Gentle pulse" }, { id: "bounce", label: "Press bounce" }, { id: "outline", label: "Ring outline" }, { id: "arrow", label: "Arrow only" }, { id: "none", label: "None" },
+];
+export const BTN_FILLS: { id: BtnFill; label: string }[] = [
+  { id: "soft", label: "Soft (one colour, gentle light)" }, { id: "solid", label: "Solid" }, { id: "duo", label: "Two-colour gradient" }, { id: "outline", label: "Outline" }, { id: "glass", label: "Glass" },
 ];
 export const FORM_STYLES: { id: FormStyle; label: string }[] = [{ id: "boxed", label: "Boxed" }, { id: "underline", label: "Underline only" }, { id: "filled", label: "Filled" }, { id: "rounded", label: "Rounded pill" }];
 export const BTN_SIZES = { sm: ["0.6rem", "1.1rem"], md: ["0.875rem", "1.5rem"], lg: ["1.05rem", "1.9rem"] } as const;
@@ -27,9 +33,9 @@ export const BTN_SIZES = { sm: ["0.6rem", "1.1rem"], md: ["0.875rem", "1.5rem"],
 export interface UiTokens {
   btnRadius: "theme" | "sharp" | "soft" | "pill" | "custom"; btnRadiusPx: number;
   btnSize: "sm" | "md" | "lg" | "custom"; btnPadY: number; btnPadX: number;
-  btnAnim: BtnAnim; formStyle: FormStyle;
+  btnAnim: BtnAnim; btnFill: BtnFill; formStyle: FormStyle;
 }
-export const DEFAULT_UI: UiTokens = { btnRadius: "theme", btnRadiusPx: 12, btnSize: "md", btnPadY: 14, btnPadX: 24, btnAnim: "shine", formStyle: "boxed" };
+export const DEFAULT_UI: UiTokens = { btnRadius: "theme", btnRadiusPx: 12, btnSize: "md", btnPadY: 14, btnPadX: 24, btnAnim: "shine", btnFill: "soft", formStyle: "boxed" };
 
 export interface ThemeTokens {
   mode: "dark" | "light"; // the theme's default mode
@@ -243,6 +249,7 @@ export function normalizeUi(input: any): UiTokens {
     btnSize: ["sm", "md", "lg", "custom"].includes(u.btnSize) ? u.btnSize : DEFAULT_UI.btnSize,
     btnPadY: num(u.btnPadY, DEFAULT_UI.btnPadY, 4, 32), btnPadX: num(u.btnPadX, DEFAULT_UI.btnPadX, 8, 64),
     btnAnim: BTN_ANIMS.some((a) => a.id === u.btnAnim) ? u.btnAnim : DEFAULT_UI.btnAnim,
+    btnFill: BTN_FILLS.some((a) => a.id === u.btnFill) ? u.btnFill : DEFAULT_UI.btnFill,
     formStyle: FORM_STYLES.some((f) => f.id === u.formStyle) ? u.formStyle : DEFAULT_UI.formStyle,
   };
 }

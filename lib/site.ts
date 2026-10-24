@@ -5,6 +5,7 @@ import { normPath } from "./menu";
 import { BUILTIN_SLUGS } from "./blocks";
 import { db, schema } from "./db";
 import { memo } from "./memo";
+import { entryUrl, listUrl } from "./permalinks";
 import { and, eq, isNull } from "drizzle-orm";
 
 export const FEATURE_PATHS: Record<string, string> = { pricing: "/pricing", blog: "/blog", caseStudies: "/case-studies", helpCenter: "/help" };
@@ -13,11 +14,12 @@ export const FEATURE_PATHS: Record<string, string> = { pricing: "/pricing", blog
 export const hiddenPaths = cache(async () => {
   const s = await getAllSettings();
   const hidden = new Set<string>();
-  for (const [f, p] of Object.entries(FEATURE_PATHS)) if (!(s.features as any)[f]) hidden.add(p);
+  const live: Record<string, string> = { ...FEATURE_PATHS, blog: listUrl("posts"), caseStudies: listUrl("caseStudies") };
+  for (const [f, p] of Object.entries(live)) if (!(s.features as any)[f]) hidden.add(p);
   try {
-    const rows = await memo("pageStatus", 15_000, () => db().select({ slug: schema.entries.slug, status: schema.entries.status }).from(schema.entries)
+    const rows = await memo("pageStatus", 15_000, () => db().select({ slug: schema.entries.slug, status: schema.entries.status, data: schema.entries.data }).from(schema.entries)
       .where(and(eq(schema.entries.collection, "pages"), isNull(schema.entries.deletedAt))));
-    for (const r of rows) if (r.status !== "published") hidden.add(r.slug === "home" ? "/" : "/" + r.slug);
+    for (const r of rows) if (r.status !== "published") hidden.add(entryUrl("pages", r.slug, r.data as any));
   } catch {}
   return hidden;
 });

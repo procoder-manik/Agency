@@ -5,24 +5,25 @@ import { useCallback, useEffect, useState } from "react";
 import { getCollection } from "@/lib/collections";
 import { slugify } from "@/lib/util";
 import { apiFetch, Spinner, Tabs, Toggle, toast } from "./ui";
+import { entryUrl } from "@/lib/permalinks";
 import { AiButton, FieldInput } from "./FieldInput";
 import { BlocksEditor } from "./BlocksEditor";
 import { SeoPanel } from "./SeoPanel";
 import { ItemProvider } from "./context";
 import { ModulePreview, resetModules } from "./ModuleTools";
 
-interface Props { collection: string; initial: any | null; titleTemplate: string; menu?: { header: boolean; footer: boolean; footerCol: number }; footerColumns?: string[] }
+interface Props { collection: string; initial: any | null; preset?: Record<string, any>; titleTemplate: string; menu?: { header: boolean; footer: boolean; footerCol: number }; footerColumns?: string[] }
 
-export function Editor({ collection, initial, titleTemplate, menu: menu0, footerColumns = [] }: Props) {
+export function Editor({ collection, initial, preset, titleTemplate, menu: menu0, footerColumns = [] }: Props) {
   const col = getCollection(collection)!;
   const router = useRouter();
-  const [item, setItem] = useState<any>(initial || { title: "", slug: "", status: "draft", data: collection === "pages" ? { blocks: [] } : {}, seo: {}, sortOrder: 0, featured: false });
+  const [item, setItem] = useState<any>(initial || { title: "", slug: "", status: "draft", data: collection === "pages" ? { blocks: [], ...(preset || {}) } : {}, seo: {}, sortOrder: 0, featured: false });
   const [menu, setMenu] = useState(menu0 || { header: false, footer: false, footerCol: 0 });
   const [dirty, setDirty] = useState(false); const [saving, setSaving] = useState(false);
   const tabNames = [...Object.keys(col.tabs), ...(col.seo ? ["SEO", "Social", "Schema"] : []), "Advanced"];
   const [tab, setTab] = useState(tabNames[0]);
   const isNew = !initial;
-  const path = col.publicPath && item.slug ? col.publicPath(item.slug) : "";
+  const path = col.publicPath && item.slug ? entryUrl(col.key, item.slug, item.data) : "";
   const upd = (patch: any) => { setItem((x: any) => ({ ...x, ...patch })); setDirty(true); };
   const setData = (k: string, v: any) => { setItem((x: any) => ({ ...x, data: { ...x.data, [k]: v } })); setDirty(true); };
 

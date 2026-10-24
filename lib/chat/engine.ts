@@ -6,6 +6,7 @@ import { scrubNumbers } from "../ai/tasks";
 import { and, isNull, eq } from "drizzle-orm";
 import { db, schema } from "../db";
 import { chunkText } from "./sources";
+import { entryUrl } from "../permalinks";
 
 export interface Chunk { id: string; type: string; title: string; text: string; url: string; say: string }
 export interface ChatMsg { role: "user" | "assistant"; content: string }
@@ -56,7 +57,7 @@ export async function buildKb(): Promise<Chunk[]> {
   for (const f of faqs) add({ id: `faq-${f.id}`, type: "faq", title: f.title, text: `${f.title} ${stripMd(f.data.answer || "")}`, url: "/faq", say: truncate(stripMd(f.data.answer || ""), 520) });
   for (const sv of services) {
     const inc = arr(sv.data.includes).map((x: any) => x.title).filter(Boolean);
-    const url = `/services/${sv.slug}`;
+    const url = entryUrl("services", sv.slug, sv.data);
     add({ id: `svc-${sv.id}`, type: "service", title: sv.title, url, text: `${sv.title} ${sv.data.summary || ""} ${stripMd(sv.data.description || "")} ${inc.join(" ")}`,
       say: `**${sv.title}**\n${sv.data.summary || truncate(stripMd(sv.data.description || ""), 240)}${inc.length ? `\n${inc.slice(0, 5).map((x: string) => `- ${x}`).join("\n")}` : ""}` });
     const steps = arr(sv.data.steps).filter((x: any) => x.title);
@@ -70,7 +71,7 @@ export async function buildKb(): Promise<Chunk[]> {
       const price = formatPrice(p.data.price, p.data.currency || "USD"); const max = p.data.priceMax ? formatPrice(p.data.priceMax, p.data.currency || "USD") : "";
       const per = p.data.billing === "monthly" ? "per month" : p.data.billing === "yearly" ? "per year" : "one-time";
       const feats = arr(p.data.features);
-      add({ id: `pkg-${p.id}`, type: "package", title: `${p.title}${sv ? ` (${sv.title})` : ""}`, url: sv ? `/services/${sv.slug}` : "/pricing",
+      add({ id: `pkg-${p.id}`, type: "package", title: `${p.title}${sv ? ` (${sv.title})` : ""}`, url: sv ? entryUrl("services", sv.slug, sv.data) : "/pricing",
         text: `${p.title} ${sv?.title || ""} package price cost ${price} ${max} ${per} ${p.data.delivery || ""} ${p.data.summary || ""} ${feats.join(" ")}`,
         say: `**${p.title}**${sv ? ` for ${sv.title}` : ""}: ${price ? `${price}${max ? ` to ${max}` : ""} (${per}${p.data.delivery ? `, ${p.data.delivery}` : ""})` : "custom pricing"}${feats.length ? `\n${feats.slice(0, 5).map((x: string) => `- ${x}`).join("\n")}` : ""}` });
     }
@@ -79,8 +80,8 @@ export async function buildKb(): Promise<Chunk[]> {
   }
   for (const p of projects) add({ id: `prj-${p.id}`, type: "project", title: p.title, url: `/work/${p.slug}`, text: `${p.title} ${p.data.client || ""} ${p.data.industry || ""} ${p.data.summary || ""} ${arr(p.data.technologies).join(" ")} portfolio work project`,
     say: `**${p.title}**${p.data.client ? ` for ${p.data.client}` : ""}${p.data.industry ? ` (${p.data.industry})` : ""}. ${p.data.summary || ""}` });
-  if (s.features.caseStudies) for (const c of cases) add({ id: `case-${c.id}`, type: "case", title: c.title, url: `/case-studies/${c.slug}`, text: `${c.title} ${c.data.client || ""} ${c.data.summary || ""} ${stripMd(c.data.overview || "")} case study`, say: `**${c.title}**. ${c.data.summary || ""}` });
-  if (s.features.blog) for (const p of posts) add({ id: `post-${p.id}`, type: "post", title: p.title, url: `/blog/${p.slug}`, text: `${p.title} ${p.data.excerpt || ""} blog article`, say: `Our article **${p.title}** may help. ${p.data.excerpt || ""}` });
+  if (s.features.caseStudies) for (const c of cases) add({ id: `case-${c.id}`, type: "case", title: c.title, url: entryUrl("caseStudies", c.slug, c.data), text: `${c.title} ${c.data.client || ""} ${c.data.summary || ""} ${stripMd(c.data.overview || "")} case study`, say: `**${c.title}**. ${c.data.summary || ""}` });
+  if (s.features.blog) for (const p of posts) add({ id: `post-${p.id}`, type: "post", title: p.title, url: entryUrl("posts", p.slug, p.data), text: `${p.title} ${p.data.excerpt || ""} blog article`, say: `Our article **${p.title}** may help. ${p.data.excerpt || ""}` });
   add({ id: "about", type: "about", title: `About ${s.identity.name}`, url: "/about", text: `about who we are team agency company ${s.identity.name} ${s.identity.description} ${s.identity.longDescription}`, say: `${s.identity.longDescription || s.identity.description}` });
   const id = s.identity;
   add({ id: "contact", type: "contact", title: "Contact details", url: "/contact", text: `contact reach email phone call whatsapp address hours ${id.email} ${id.phone} ${id.address} ${id.hours}`,
