@@ -126,6 +126,19 @@ export const campaigns = pgTable("campaigns", {
   ...stamps,
 });
 
+export const chatSources = pgTable("chat_sources", {
+  id: serial("id").primaryKey(),
+  kind: text("kind").notNull().default("url"),
+  title: text("title").notNull().default(""),
+  url: text("url").notNull().default(""),
+  content: text("content").notNull().default(""),
+  status: text("status").notNull().default("ok"),
+  error: text("error").notNull().default(""),
+  fetchedAt: ts("fetched_at"),
+  deletedAt: ts("deleted_at"),
+  ...stamps,
+});
+
 export const redirects = pgTable("redirects", {
   id: serial("id").primaryKey(),
   fromPath: text("from_path").notNull().unique(),

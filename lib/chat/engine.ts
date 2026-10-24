@@ -3,6 +3,9 @@ import { getAllSettings, siteUrl } from "../settings";
 import { formatPrice, stripMd, truncate } from "../util";
 import { aiAvailable, generate, parseJson } from "../ai/providers";
 import { scrubNumbers } from "../ai/tasks";
+import { and, isNull, eq } from "drizzle-orm";
+import { db, schema } from "../db";
+import { chunkText } from "./sources";
 
 export interface Chunk { id: string; type: string; title: string; text: string; url: string; say: string }
 export interface ChatMsg { role: "user" | "assistant"; content: string }
@@ -37,6 +40,8 @@ export function tokenize(s: string) {
 
 /* ---------------- knowledge base ---------------- */
 let cache: { at: number; chunks: Chunk[]; key: string } | null = null;
+/** Called after training sources change so the assistant sees them immediately. */
+export function resetKbCache() { cache = null; }
 
 export async function buildKb(): Promise<Chunk[]> {
   if (cache && Date.now() - cache.at < 30_000) return cache.chunks;
@@ -80,6 +85,11 @@ export async function buildKb(): Promise<Chunk[]> {
   const id = s.identity;
   add({ id: "contact", type: "contact", title: "Contact details", url: "/contact", text: `contact reach email phone call whatsapp address hours ${id.email} ${id.phone} ${id.address} ${id.hours}`,
     say: [`You can reach us here:`, id.email && `- Email: ${id.email}`, id.phone && `- Phone: ${id.phone}`, id.whatsapp && `- WhatsApp: ${id.whatsapp}`, id.address && `- Address: ${id.address}`, id.hours && `- Hours: ${id.hours}`, id.replyTime && `We reply ${id.replyTime}.`].filter(Boolean).join("\n") });
+  // Extra pages and notes added in Admin > Chat training
+  try {
+    const srcs = await db().select().from(schema.chatSources).where(and(isNull(schema.chatSources.deletedAt), eq(schema.chatSources.status, "ok")));
+    for (const sr of srcs) chunkText(sr.content).forEach((t, i) => out.push({ id: `src-${sr.id}-${i}`, type: "source", title: sr.title || sr.url, url: sr.kind === "url" ? sr.url : "/contact", text: `${sr.title} ${t}`, say: truncate(t, 520) }));
+  } catch (e) { console.error("[chat] could not load training sources:", (e as Error).message); }
   cache = { at: Date.now(), chunks: out, key: base };
   return out;
 }

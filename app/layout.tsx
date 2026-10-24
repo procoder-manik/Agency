@@ -2,17 +2,22 @@ import "./globals.css";
 import type { Metadata, Viewport } from "next";
 import { getActiveTheme, getEffectiveTheme } from "@/lib/theme-server";
 import { getAllSettings, siteUrl } from "@/lib/settings";
+import { mediaUrl } from "@/lib/media";
 import { paletteFor, themeCssBoth, themeFontHrefs, uiOf } from "@/lib/themes";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
   const s = await getAllSettings();
+  const favRaw = mediaUrl((s.identity as any).favicon);
+  const fav = favRaw ? favRaw + (favRaw.includes("?") ? "&" : "?") + "v=" + encodeURIComponent(favRaw.slice(-12)) : "";
   return {
     metadataBase: new URL(siteUrl(s.identity)),
     title: s.identity.name,
     description: s.identity.description,
-    icons: { icon: [{ url: "/api/logo?v=" + encodeURIComponent(s.identity.shortName + s.identity.logo), type: "image/svg+xml" }] },
+    icons: fav
+      ? { icon: [{ url: fav }], shortcut: [{ url: fav }], apple: [{ url: fav }] }
+      : { icon: [{ url: "/api/logo?v=" + encodeURIComponent(s.identity.shortName + s.identity.logo), type: "image/svg+xml" }] },
     applicationName: s.identity.name,
   };
 }

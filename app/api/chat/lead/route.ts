@@ -6,6 +6,7 @@ import { esc, sendMail } from "@/lib/email";
 import { captureLead } from "@/lib/leads";
 import { sendAutoReply } from "@/lib/autoreply";
 import { buildNotification } from "@/lib/email-templates";
+import { notifyTeam } from "@/lib/notify";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +23,7 @@ export async function POST(req: Request) {
   const s = await getAllSettings();
   const note = await buildNotification({ title: "New chat lead", rows: [["name", name], ["email", email], ["message", message]], replyTo: email, extraHtml: transcript ? `<pre style="white-space:pre-wrap;margin:20px 0 0;padding:14px;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;font-family:Arial,sans-serif;font-size:13px;color:#334155">${esc(transcript)}</pre>` : "" });
   await sendMail(s.general.notifyEmail || s.identity.email, `New chat lead on ${s.identity.name}`, `${note.text}\n\n${transcript}`, note.html, { replyTo: email });
+  await notifyTeam({ kind: "chat", title: "Someone wants to talk (chat)", rows: [["Name", name], ["Email", email], ["Message", message || "(none)"]], replyTo: email });
   await sendAutoReply({ lead, name, formTitle: "Chat", kind: "chat", summary: message ? [["Message", message]] : [] });
   return NextResponse.json({ ok: true });
 }

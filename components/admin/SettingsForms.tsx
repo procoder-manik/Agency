@@ -5,6 +5,7 @@ import type { Field } from "@/lib/fields";
 import { apiFetch, fmt, PageHead, Spinner, Tabs, Toggle, toast } from "./ui";
 import { FieldInput } from "./FieldInput";
 import { ItemProvider } from "./context";
+import { CHAT_ICONS, ChatIcon } from "@/components/site/chat-icons";
 
 export function useSetting<T = any>(key: string) {
   const [value, setValue] = useState<T | null>(null); const [saving, setSaving] = useState(false); const router = useRouter();
@@ -38,12 +39,12 @@ export function SettingsSection({ k, fields, title, children }: { k: string; fie
 }
 
 /** Facts the AI must never make up (contact details, legal names, hours) stay manual; everything written in words gets the AI button. */
-const FACTUAL = /^(address|hours|replyTime|legalName|registration|availability|shortName|fromName|replyTo|bigText|copyright|chatBotName|defaultCurrency|ctaHref|domain)$/;
+const FACTUAL = /^(address|hours|replyTime|legalName|registration|availability|shortName|fromName|replyTo|bigText|copyright|chatBotName|defaultCurrency|ctaHref|domain|phone|emails|twilioSid|twilioToken|twilioFrom|callmebotKey)$/;
 const t = (name: string, label: string, type: Field["type"] = "text", extra: Partial<Field> = {}): Field & { path?: string } => ({ name, label, type, ...(FACTUAL.test(name) ? { ai: false } : {}), ...extra });
 
 export function SiteSettings() {
   const [tab, setTab] = useState("Site identity");
-  const tabs = ["Site identity", "Contact & social", "Payments", "Integrations", "Email", "Features", "General", "Starter content"];
+  const tabs = ["Site identity", "Contact & social", "Payments", "Integrations", "Notifications", "Email", "Features", "General", "Starter content"];
   return (
     <>
       <PageHead title="Site settings" sub="Everything here is read by every page, email and schema block. Nothing is hard-coded." />
@@ -52,7 +53,7 @@ export function SiteSettings() {
         {tab === "Site identity" && <SettingsSection k="identity" fields={[
           t("name", "Agency name"), t("shortName", "Short name / initials", "text", { help: "Used for the generated logo mark and favicon." }),
           t("tagline", "Tagline", "text", { ai: true }), t("ctaLabel", "Main call to action label"), t("description", "One-line description", "textarea", { ai: true }),
-          t("longDescription", "Long description", "textarea", { ai: true }), t("logo", "Logo for light mode (dark logo on a light background)", "image", { size: "400 × 120", help: "Leave empty to use the generated mark. Also used in emails." }), t("logoDark", "Logo for dark mode (light or white logo)", "image", { size: "400 × 120", help: "Optional. If empty, the light-mode logo is used in both modes." }), t("logoAlt", "Logo alt text"),
+          t("longDescription", "Long description", "textarea", { ai: true }), t("logo", "Logo for light mode (dark logo on a light background)", "image", { size: "400 × 120", help: "Leave empty to use the generated mark. Also used in emails." }), t("logoDark", "Logo for dark mode (light or white logo)", "image", { size: "400 × 120", help: "Optional. If empty, the light-mode logo is used in both modes." }), t("logoAlt", "Logo alt text"), t("favicon", "Favicon (the small icon in the browser tab)", "image", { size: "512 × 512 (square PNG)", help: "Upload a square PNG, at least 512 × 512. Leave empty to use an icon generated from your name." }),
           t("ctaHref", "Main call to action link"), t("domain", "Primary domain", "url", { help: "e.g. https://youragency.com, used for canonical URLs and the sitemap." }),
           t("legalName", "Legal business name"), t("registration", "Registration details"), t("availability", "Availability line shown on the home hero", "text", { help: "A small status pill with a pulsing dot. Leave empty to hide it. Keep it true." }),
         ]} />}
@@ -68,8 +69,9 @@ export function SiteSettings() {
           t("chatMode", "Chat widget", "select", { options: [{ value: "builtin", label: "Built-in assistant (answers from FAQ)" }, { value: "thirdparty", label: "Third-party chat script" }, { value: "off", label: "Off" }] }),
           t("chatPosition", "Chat position", "select", { options: [{ value: "right", label: "Right" }, { value: "left", label: "Left" }] }),
           t("backToTopPosition", "Back-to-top button position", "select", { options: [{ value: "right", label: "Right" }, { value: "left", label: "Left" }], help: "If it shares a side with the chat button, it moves up automatically." }),
-          t("chatBotName", "Assistant name (blank = your agency name)"), t("chatGreeting", "Chat greeting", "textarea"), t("chatSuggestions", "Quick-reply buttons (blank = automatic)", "tags", { help: "Short questions visitors can tap. Example: How much does it cost?" }), t("chatLeadCapture", "Let the chat collect name and email for a human follow-up", "toggle"), t("chatSound", "Chat sounds (typing tick, send and reply chime)", "toggle"), t("chatScript", "Third-party chat embed code", "textarea", { help: "Paste the snippet from Crisp, Tawk.to, Intercom, etc." }),
-        ]} />}
+          t("chatBotName", "Assistant name (blank = your agency name)"), t("chatGreeting", "Chat greeting", "textarea"), t("chatSuggestions", "Quick-reply buttons (blank = automatic)", "tags", { help: "Short questions visitors can tap. Example: How much does it cost?" }), t("chatLeadCapture", "Let the chat collect name and email for a human follow-up", "toggle"), t("chatSound", "Chat sounds (typing tick, send and reply chime)", "toggle"), t("chatIconImage", "Or use your own chat icon image", "image", { size: "128 × 128 (square, transparent PNG)", help: "If set, this image replaces the icon chosen below, on the chat button and in the chat header." }), t("chatScript", "Third-party chat embed code", "textarea", { help: "Paste the snippet from Crisp, Tawk.to, Intercom, etc." }),
+        ]}>{(v, set) => <ChatIconPicker value={v.chatIcon || "bubble"} custom={!!v.chatIconImage} onChange={(id) => set({ ...v, chatIcon: id })} />}</SettingsSection>}
+        {tab === "Notifications" && <NotificationsSettings />}
         {tab === "Email" && <SettingsSection k="email" fields={[
           t("autoReply", "Send an automatic thank-you email to everyone who submits a form", "toggle"),
           t("chatAutoReply", "Also send it to people who leave their details in the chat", "toggle"),
@@ -153,6 +155,55 @@ function HeaderMenuEditor({ list, onChange }: { list: any[]; onChange: (l: any[]
         );
       })}
       <button className="text-sm text-accent hover:underline" onClick={() => onChange([...list, { label: "", href: "/" }])}>Add menu item</button>
+    </div>
+  );
+}
+
+
+/* ---------------- Chat icon picker ---------------- */
+function ChatIconPicker({ value, custom, onChange }: { value: string; custom: boolean; onChange: (id: string) => void }) {
+  return (
+    <div className="mt-6">
+      <p className="mb-2 text-sm font-medium text-fg2">Chat button icon</p>
+      <div className="grid grid-cols-4 gap-2 sm:grid-cols-8">
+        {CHAT_ICONS.map((i) => (
+          <button key={i.id} type="button" onClick={() => onChange(i.id)} aria-pressed={value === i.id && !custom} title={i.label} className={`grid h-14 place-items-center rounded-[var(--r-md)] border transition-colors ${value === i.id && !custom ? "border-accent bg-accent/10 text-accent" : "border-line text-fg2 hover:border-accent hover:text-fg"}`}>
+            <ChatIcon id={i.id} size={24} /><span className="sr-only">{i.label}</span>
+          </button>
+        ))}
+      </div>
+      {custom && <p className="mt-2 text-xs text-warning">Your own image is set above, so it is used instead of these icons. Remove it to use a built-in icon.</p>}
+    </div>
+  );
+}
+
+/* ---------------- Notifications: tell the owner when someone wants to talk ---------------- */
+function NotificationsSettings() {
+  const [test, setTest] = useState<any>(null); const [busy, setBusy] = useState(false);
+  async function run() {
+    setBusy(true); setTest(null);
+    try { setTest(await apiFetch("/api/admin/notify-test", { method: "POST" })); } catch (e: any) { toast(e.message, "error"); } finally { setBusy(false); }
+  }
+  return (
+    <div>
+      <p className="mb-5 text-sm text-fg2">When a visitor asks the chat for a human, or sends a message, you get a short message here. Save your settings first, then press Send a test.</p>
+      <SettingsSection k="notify" fields={[
+        t("chatRequests", "Tell me when someone asks to talk in the chat", "toggle"),
+        t("formSubmissions", "Also tell me about contact form messages", "toggle"),
+        t("emails", "Extra email addresses to notify", "text", { placeholder: "sales@yourdomain.com, manager@yourdomain.com", help: "Comma separated. The main notification email is set in Settings > General." }),
+        t("channel", "Phone message", "select", { options: [{ value: "off", label: "Off" }, { value: "callmebot", label: "WhatsApp through CallMeBot (free, for your own number)" }, { value: "twilio", label: "WhatsApp or SMS through Twilio (paid, most reliable)" }] }),
+        t("phone", "Your WhatsApp or mobile number", "text", { placeholder: "+8801XXXXXXXXX", help: "With the country code. This is where the message is sent." }),
+        t("callmebotKey", "CallMeBot API key", "text", { help: "Only for CallMeBot. You get the key by activating your own number once on callmebot.com (search for the WhatsApp API there)." }),
+        t("twilioSid", "Twilio Account SID", "text", { help: "Only for Twilio." }), t("twilioToken", "Twilio Auth Token", "text"),
+        t("twilioFrom", "Twilio sender number", "text", { placeholder: "+14155238886", help: "Your Twilio WhatsApp-enabled number, or an SMS-capable number." }),
+        t("twilioMode", "Twilio message type", "select", { options: [{ value: "whatsapp", label: "WhatsApp" }, { value: "sms", label: "SMS" }] }),
+      ]}>{() => (
+        <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-line pt-5">
+          <button type="button" className="btn btn-ghost !py-2 text-sm" disabled={busy} onClick={run}>{busy ? <Spinner /> : "Send a test"}</button>
+          {test && <div className="text-sm"><p className={test.phone.ok ? "text-success" : test.phone.channel === "off" ? "text-muted" : "text-danger"}>Phone: {test.phone.ok ? `sent by ${test.phone.channel}. Check your phone.` : test.phone.error}</p><p className={test.email.ok ? "text-success" : "text-danger"}>Email to {test.emailTo}: {test.email.ok ? "sent." : test.email.error || "could not be sent."}</p></div>}
+        </div>
+      )}</SettingsSection>
+      <p className="mt-4 text-xs text-muted">Messages are sent only when a visitor submits their details, so you never get a message without a name and email to reply to. At most 30 notifications per hour are sent.</p>
     </div>
   );
 }

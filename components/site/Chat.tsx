@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { ChatIcon } from "./chat-icons";
 import { playKey, playReceive, playSend, setSoundPref, soundPref } from "@/lib/chat-sound";
 
 type Link_ = { label: string; href: string };
@@ -34,7 +35,7 @@ function Rich({ text }: { text: string }) {
   return <>{blocks}</>;
 }
 
-export function ChatWidget({ side, greeting, name, suggestions, leadCapture, sound = true }: { side: "left" | "right"; greeting: string; name: string; suggestions: string[]; leadCapture: boolean; sound?: boolean }) {
+export function ChatWidget({ side, greeting, name, suggestions, leadCapture, sound = true, icon = "bubble", iconImage = "" }: { side: "left" | "right"; greeting: string; name: string; suggestions: string[]; leadCapture: boolean; sound?: boolean; icon?: string; iconImage?: string }) {
   const [open, setOpen] = useState(false); const [msgs, setMsgs] = useState<Msg[]>([]); const [input, setInput] = useState(""); const [busy, setBusy] = useState(false);
   const [unread, setUnread] = useState(false); const [hint, setHint] = useState(false); const [muted, setMuted] = useState(false);
   const ping = useRef({ key: playKey, send: playSend, recv: playReceive });
@@ -95,7 +96,7 @@ export function ChatWidget({ side, greeting, name, suggestions, leadCapture, sou
         <div role="dialog" aria-label={`Chat with ${name}`} data-lenis-prevent
           className="chat-panel fixed inset-0 z-[56] flex flex-col overflow-hidden border border-line bg-surface/95 shadow-2xl backdrop-blur-2xl sm:absolute sm:inset-auto sm:bottom-[76px] sm:h-[min(640px,calc(100vh-130px))] sm:w-[390px] sm:rounded-[var(--r-xl)]" style={{ [side]: 0 } as any}>
           <div className="relative flex items-center gap-3 border-b border-line px-4 py-3.5" style={{ background: "linear-gradient(135deg, rgb(var(--c-accent) / .16), rgb(var(--c-accent2) / .08))" }}>
-            <span aria-hidden className="grid h-11 w-11 shrink-0 place-items-center rounded-full font-display text-sm font-bold text-onaccent" style={{ background: "linear-gradient(135deg, rgb(var(--c-accent)), rgb(var(--c-accent2)))" }}>{initials}</span>
+            <span aria-hidden className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full font-display text-sm font-bold text-onaccent" style={{ background: "linear-gradient(135deg, rgb(var(--c-accent)), rgb(var(--c-accent2)))" }}>{iconImage ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={iconImage} alt="" className="h-full w-full object-cover" /> : initials}</span>
             <div className="min-w-0 flex-1"><p className="truncate font-display font-semibold leading-tight">{name}</p><p className="flex items-center gap-1.5 text-xs text-fg2"><span className="pulse-dot !h-1.5 !w-1.5" />Online, replies instantly</p></div>
             {sound && <button type="button" onClick={() => { const next = !muted; setMuted(next); setSoundPref(!next); if (!next) playReceive(); }} title={muted ? "Turn sound on" : "Turn sound off"} aria-label={muted ? "Turn chat sound on" : "Turn chat sound off"} aria-pressed={!muted} className="grid h-10 w-10 place-items-center rounded-full text-fg2 transition-colors hover:bg-raised hover:text-fg">
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M11 5 6 9H2v6h4l5 4V5z" />{muted ? <path d="m22 9-6 6M16 9l6 6" /> : <path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" />}</svg></button>}
@@ -143,7 +144,8 @@ export function ChatWidget({ side, greeting, name, suggestions, leadCapture, sou
         className="chat-launcher relative grid h-14 w-14 place-items-center rounded-full text-white">
         {!open && <span aria-hidden className="absolute inset-0 animate-ping rounded-full bg-accent/30 [animation-duration:2.6s]" />}
         <span aria-hidden className="chat-launcher-glow" />
-        <svg className="relative" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{open ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z" />}</svg>
+        {open ? <svg className="relative" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M6 6l12 12M18 6L6 18" /></svg>
+          : iconImage ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={iconImage} alt="" className="relative h-8 w-8 rounded-full object-contain" /> : <ChatIcon id={icon} className="relative" />}
         {unread && !open && <span aria-label="New message" className="absolute -right-0.5 -top-0.5 h-4 w-4 rounded-full border-2 border-bg bg-danger" />}
       </button>
     </div>

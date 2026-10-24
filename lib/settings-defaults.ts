@@ -4,7 +4,7 @@ export const SETTING_DEFAULTS = {
     name: "Your Agency", shortName: "YA", tagline: IDENTITY.tagline,
     description: IDENTITY.description,
     longDescription: IDENTITY.longDescription,
-    logo: "", logoDark: "", domain: "",
+    logo: "", logoDark: "", favicon: "", domain: "",
     email: "hello@example.com", phone: "", whatsapp: "", address: "", hours: "Sun to Thu, 10am to 7pm", replyTime: "within one business day",
     socials: { linkedin: "", x: "", instagram: "", facebook: "", youtube: "", dribbble: "", github: "" },
     legalName: "", registration: "", availability: "Open for new projects", ctaLabel: "Book a free consultation", ctaHref: "/contact", logoAlt: "",
@@ -14,7 +14,7 @@ export const SETTING_DEFAULTS = {
   appearance: { ui: null as null | Record<string, any>, activeTheme: "signal", defaultMode: "system", modeToggle: true, accentPicker: true, intro: true, cursor: true, smoothScroll: true, ambient: true },
   integrations: {
     gaId: "", chatMode: "builtin", chatPosition: "right", chatGreeting: "Hi! Ask us anything about our services.",
-    chatScript: "", backToTopPosition: "right", chatBotName: "", chatSuggestions: [] as string[], chatLeadCapture: true, chatSound: true,
+    chatScript: "", backToTopPosition: "right", chatBotName: "", chatSuggestions: [] as string[], chatLeadCapture: true, chatSound: true, chatIcon: "bubble", chatIconImage: "",
   },
   payments: { currencies: ["USD", "BDT"], defaultCurrency: "USD", methods: ["Card (Stripe)", "bKash", "Bank transfer"], note: "We accept card payments and local methods. Custom quotes are always available." },
   features: { pricing: true, blog: true, caseStudies: true, team: true, helpCenter: true, chat: true, backToTop: true, announcement: true },
@@ -29,6 +29,10 @@ export const SETTING_DEFAULTS = {
   footer: {
     heading: "", email: "", phone: "", whatsapp: "", address: "", hours: "", bigText: "", showBigName: true, showLocalTime: true,
     copyright: "", note: "",
+  },
+  notify: {
+    chatRequests: true, formSubmissions: false, emails: "", channel: "off", phone: "",
+    callmebotKey: "", twilioSid: "", twilioToken: "", twilioFrom: "", twilioMode: "whatsapp",
   },
   general: { trashDays: 30, notifyEmail: "", packVersion: 0 },
 };

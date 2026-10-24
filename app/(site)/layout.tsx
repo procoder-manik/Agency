@@ -8,6 +8,7 @@ import { FloatingWidgets, Announcements, Analytics, ThirdPartyChat } from "@/com
 import { Ambient, Cursor, Intro, SmoothScroll } from "@/components/site/fx";
 import { getEffectiveTheme } from "@/lib/theme-server";
 import { uiOf } from "@/lib/themes";
+import { mediaUrl } from "@/lib/media";
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   const s = await getAllSettings();
@@ -31,7 +32,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <main id="main" className="page-enter" data-form-style={uiOf(theme.tokens).formStyle}>{children}</main>
       <Footer s={s} columns={nav.footer} />
       <FloatingWidgets
-        chat={chatOn ? { side: i.chatPosition === "left" ? "left" : "right", greeting: i.chatGreeting, mode: i.chatMode, name: id.name, botName: (i as any).chatBotName || "", suggestions: ((i as any).chatSuggestions || []) as string[], leadCapture: (i as any).chatLeadCapture !== false, sound: (i as any).chatSound !== false } : null}
+        chat={chatOn ? { side: i.chatPosition === "left" ? "left" : "right", greeting: i.chatGreeting, mode: i.chatMode, name: id.name, botName: (i as any).chatBotName || "", suggestions: ((i as any).chatSuggestions || []) as string[], leadCapture: (i as any).chatLeadCapture !== false, sound: (i as any).chatSound !== false, icon: (i as any).chatIcon || "bubble", iconImage: mediaUrl((i as any).chatIconImage) } : null}
         backToTop={s.features.backToTop ? { side: i.backToTopPosition === "left" ? "left" : "right" } : null}
       />
       {chatOn && i.chatMode === "thirdparty" && i.chatScript && <ThirdPartyChat html={i.chatScript} />}

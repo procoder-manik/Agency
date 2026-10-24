@@ -8,7 +8,7 @@ function privateIp(ip: string) {
 }
 
 /** Fetch a user-supplied URL safely: http(s) only, public IPs only, no redirects to private hosts, size and time limits. */
-export async function safeFetchText(raw: string, maxBytes = 400_000): Promise<string> {
+export async function safeFetchText(raw: string, maxBytes = 400_000, asHtml = false): Promise<string> {
   let url = new URL(raw);
   for (let hop = 0; hop < 4; hop++) {
     if (!/^https?:$/.test(url.protocol)) throw new Error("Only http and https URLs are allowed.");
@@ -22,6 +22,7 @@ export async function safeFetchText(raw: string, maxBytes = 400_000): Promise<st
     const chunks: Uint8Array[] = []; let total = 0;
     for (;;) { const { done, value } = await reader.read(); if (done) break; total += value.length; chunks.push(value); if (total > maxBytes) { reader.cancel(); break; } }
     const html = Buffer.concat(chunks).toString("utf8");
+    if (asHtml) return html;
     return html.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim().slice(0, 12000);
   }
   throw new Error("Too many redirects.");

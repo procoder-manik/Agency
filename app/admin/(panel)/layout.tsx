@@ -31,7 +31,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
     ...(admin ? [
       { title: "Design", items: [{ label: "Themes", href: "/admin/appearance" }, { label: "Menus, header and footer", href: "/admin/navigation" }, ...col("Design")] },
       { title: "SEO", items: [{ label: "SEO, redirects and 404s", href: "/admin/seo" }] },
-      { title: "AI", items: [{ label: "AI tools", href: "/admin/ai" }] },
+      { title: "AI", items: [{ label: "AI tools", href: "/admin/ai" }, { label: "Chat training", href: "/admin/chat" }] },
       { title: "Settings", items: [{ label: "Site settings", href: "/admin/settings" }, { label: "Users and my account", href: "/admin/users" }, { label: "Audit log", href: "/admin/audit" }] },
     ] : [{ title: "Account", items: [{ label: "My account", href: "/admin/users" }] }]),
   ];

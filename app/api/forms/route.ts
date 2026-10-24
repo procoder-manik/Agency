@@ -7,6 +7,7 @@ import { clientIp, rateLimit } from "@/lib/ratelimit";
 import { sendMail } from "@/lib/email";
 import { captureLead } from "@/lib/leads";
 import { sendAutoReply } from "@/lib/autoreply";
+import { notifyTeam } from "@/lib/notify";
 import { buildNotification } from "@/lib/email-templates";
 import { parseOptions } from "@/lib/util";
 
@@ -38,6 +39,7 @@ export async function POST(req: Request) {
   const rows: [string, string][] = Object.entries(values).map(([k, v]) => [label(k), v]);
   const note = await buildNotification({ title: `New ${form?.title || "contact"} submission`, rows, replyTo: values.email });
   await sendMail(to, `New ${form?.title || "contact"} submission on ${s.identity.name}`, note.text, note.html, { replyTo: values.email });
+  await notifyTeam({ kind: "form", title: `New ${form?.title || "contact"} form message`, rows: rows.slice(0, 6), replyTo: values.email });
   if (lead && lead.email) {
     await sendAutoReply({ lead, name: values.name || "", formTitle: form?.title || "Contact", kind: "form", customMessage: form?.data.autoReplyMessage || undefined, summary: Object.entries(values).filter(([k]) => k !== "name" && k !== "email").slice(0, 8).map(([k, v]) => [label(k), v] as [string, string]) });
   }
