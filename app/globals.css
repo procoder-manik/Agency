@@ -476,7 +476,7 @@ html.comet-scroll::-webkit-scrollbar { width: 0 !important; height: 0 !important
 /* hero glow: logo blue into indigo, softer and larger than the default aurora */
 [data-theme="apple"][data-texture="aurora"] .tex::before { background: radial-gradient(60% 55% at 20% 0%, rgb(var(--c-accent) / .26), transparent 70%), radial-gradient(50% 50% at 88% 4%, rgb(var(--c-accent2) / .2), transparent 70%); }
 [data-theme="apple"] .grain { display: none; }
-/* header: frosted glass with a hairline, like apple.com */
-[data-theme="apple"] header { backdrop-filter: saturate(180%) blur(22px); -webkit-backdrop-filter: saturate(180%) blur(22px); background-color: rgb(var(--c-bg) / .72); border-bottom: 1px solid rgb(var(--c-line) / .55); }
+/* header: the floating pill gets an Apple-style frosted glass only once you scroll (the site's own header logic toggles it); the bar itself stays transparent */
+[data-theme="apple"] header .backdrop-blur-2xl { backdrop-filter: saturate(180%) blur(24px); -webkit-backdrop-filter: saturate(180%) blur(24px); }
 [data-theme="apple"] ::selection { background: rgb(var(--c-accent) / .85); color: #fff; }
 @media (prefers-reduced-motion: reduce) { [data-theme="apple"] .card, [data-theme="apple"] .btn { transition: none; } [data-theme="apple"] .btn-primary { animation: none; } }
