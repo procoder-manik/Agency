@@ -63,6 +63,12 @@ export const FONT_WEIGHTS: Record<string, string> = {
 export const CURATED_FONTS = Object.keys(FONT_WEIGHTS);
 
 export const PRESETS: Theme[] = [
+  { slug: "nextgen", name: "NextGen (logo colours)", builtin: true, tokens: {
+    mode: "dark", radius: "pill", texture: "aurora", motion: "standard",
+    fonts: { display: "SF Pro", body: "SF Pro", mono: "JetBrains Mono" },
+    ui: { btnRadius: "pill", btnFill: "duo", btnAnim: "swap", btnSize: "md" },
+    colors: { bg: "#05060F", surface: "#0C0E1C", raised: "#151830", line: "#242A4A", fg: "#F3F5FF", fg2: "#B6BCD8", muted: "#848BAE", accent: "#2D8CFF", accent2: "#A640FF", onaccent: "#FFFFFF", success: "#30D158", warning: "#FFD60A", danger: "#FF453A" },
+    alt: { bg: "#F7F8FF", surface: "#FFFFFF", raised: "#EEF0FC", line: "#D9DDF2", fg: "#0B0D1F", fg2: "#3D4366", muted: "#666D92", accent: "#0A74F0", accent2: "#8E2DE2", onaccent: "#FFFFFF", success: "#1F8A3B", warning: "#8A6A00", danger: "#D70015" } } },
   { slug: "apple", name: "Apple", builtin: true, tokens: {
     mode: "dark", radius: "pill", texture: "aurora", motion: "standard",
     fonts: { display: "SF Pro", body: "SF Pro", mono: "JetBrains Mono" },
@@ -101,7 +107,7 @@ export const PRESETS: Theme[] = [
     alt: { bg: "#0A101C", surface: "#111A2C", raised: "#18233A", line: "#26344F", fg: "#EEF3FB", fg2: "#B7C3D6", muted: "#8392AA", accent: "#5B8CFF", accent2: "#38BDF8", onaccent: "#06101F", success: "#34D399", warning: "#FBBF24", danger: "#F87171" } } },
 ];
 
-export const DEFAULT_THEME = PRESETS[0];
+export const DEFAULT_THEME = PRESETS.find((p) => p.slug === "apple") || PRESETS[0];
 
 export function hexToRgb(hex: string): [number, number, number] {
   let h = (hex || "#000").replace("#", "").trim();

@@ -46,7 +46,7 @@ export const COLLECTIONS: CollectionDef[] = [
       { name: "steps", label: "Process steps", type: "list", fields: [{ name: "title", label: "Step", type: "text" }, { name: "text", label: "Description", type: "textarea" }] },
       { name: "faq", label: "Service FAQ", type: "list", fields: [{ name: "q", label: "Question", type: "text" }, { name: "a", label: "Answer", type: "textarea" }] },
       { name: "relatedWork", label: "Related work", type: "relation", collection: "projects", multiple: true },
-      { name: "cover", label: "Cover image", type: "image", size: IMG_COVER },
+      { name: "cover", label: "Cover image (also appears behind this service on the home page when you hover it)", type: "image", size: IMG_COVER },
       { name: "media", label: "Feature media (image, GIF, video or Lottie)", type: "media", size: IMG_COVER },
       { name: "permalink", label: "Custom address (permalink)", type: "text", ai: false, placeholder: "dentist-in-new-jersey", help: "Optional. Type any address you like, for example dentist-in-new-jersey or service-area/new-jersey/dentist. Leave empty to use the default address. The old default address redirects here, and the canonical URL follows automatically." },
     ],

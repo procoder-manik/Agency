@@ -5,24 +5,13 @@ import { Media } from "./motion";
 
 /* ---------- Services as large interactive rows with a cursor-following preview ---------- */
 export function ServiceRows({ items }: { items: { id: number; title: string; href: string; summary: string; icon: string; img: string }[] }) {
-  const box = useRef<HTMLDivElement>(null); const prev = useRef<HTMLDivElement>(null);
-  const [hover, setHover] = useState<number | null>(null);
-  useEffect(() => {
-    let x = 0, y = 0, cx = 0, cy = 0, raf = 0;
-    const move = (e: PointerEvent) => { const r = box.current?.getBoundingClientRect(); if (!r) return; x = e.clientX - r.left; y = e.clientY - r.top; };
-    const loop = () => { cx += (x - cx) * 0.12; cy += (y - cy) * 0.12; if (prev.current) prev.current.style.transform = `translate3d(${cx}px, ${cy}px, 0) translate(-50%, -50%) rotate(${(x - cx) * 0.05}deg)`; raf = requestAnimationFrame(loop); };
-    window.addEventListener("pointermove", move, { passive: true }); raf = requestAnimationFrame(loop);
-    return () => { window.removeEventListener("pointermove", move); cancelAnimationFrame(raf); };
-  }, []);
-  const cur = items.find((i) => i.id === hover);
   return (
-    <div ref={box} className="relative border-t border-line" onPointerLeave={() => setHover(null)}>
-      <div ref={prev} aria-hidden className={`pointer-events-none absolute left-0 top-0 z-20 hidden h-56 w-80 overflow-hidden rounded-[var(--r-lg)] shadow-2xl transition-[opacity,scale] duration-500 lg:block ${cur?.img ? "scale-100 opacity-100" : "scale-75 opacity-0"}`}>
-        {items.filter((i) => i.img).map((i) => <div key={i.id} className={`absolute inset-0 transition-opacity duration-500 ${hover === i.id ? "opacity-100" : "opacity-0"}`}><Media src={i.img} alt="" className="h-full w-full" /></div>)}
-      </div>
-      {items.map((s) => (
-        <Link key={s.id} href={s.href} onPointerEnter={() => setHover(s.id)} data-cursor={s.img ? "" : "Explore"}
-          className="row-link group grid grid-cols-[auto_1fr_auto] items-center gap-5 border-b border-line px-2 py-7 sm:gap-8 sm:px-4 sm:py-9">
+    <div className="relative border-t border-line">
+      {items.map((s, i) => (
+        <Link key={s.id} href={s.href} data-cursor="Explore" data-img={s.img ? "1" : undefined}
+          className="row-link group grid grid-cols-[auto_1fr_auto] items-center gap-5 overflow-hidden border-b border-line px-2 py-7 sm:gap-8 sm:px-4 sm:py-9">
+          {/* shown only on hover: your service image, or a generated colour artwork when there is none */}
+          <span aria-hidden className={`row-bg ${s.img ? "" : `row-art-${i % 4}`}`} style={s.img ? { backgroundImage: `url("${s.img.replace(/"/g, "%22")}")` } : undefined} />
           <span aria-hidden className="grid h-12 w-12 place-items-center rounded-full border border-line text-lg text-accent transition-colors sm:h-14 sm:w-14">{s.icon || "◆"}</span>
           <span className="min-w-0">
             <span className="block font-display text-[clamp(1.7rem,4.2vw,3.6rem)] font-bold leading-none tracking-tight text-fg">{s.title}</span>

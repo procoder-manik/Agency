@@ -162,9 +162,17 @@
 .tilt:hover { border-color: rgb(var(--c-accent) / .45); }
 
 .row-link { position: relative; isolation: isolate; }
-.row-link::before { content: ""; position: absolute; inset: 0; z-index: -1; background: rgb(var(--c-accent)); transform: scaleY(0); transform-origin: 50% 100%; transition: transform .6s cubic-bezier(.77,0,.18,1); }
+.row-link::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(105deg, rgb(var(--c-accent)), rgb(var(--c-accent2))); transform: scaleY(0); transform-origin: 50% 100%; transition: transform .6s cubic-bezier(.77,0,.18,1); }
 .row-link:hover::before { transform: scaleY(1); transform-origin: 50% 0; }
 .row-link:hover, .row-link:hover * { color: rgb(var(--c-onaccent)) !important; }
+.row-link[data-img]::before { opacity: .82; }
+.row-bg { position: absolute; inset: 0; z-index: -2; opacity: 0; background-size: cover; background-position: center; transform: scale(1.07); transition: opacity .7s ease, transform 1.4s cubic-bezier(.16,1,.3,1); pointer-events: none; }
+.row-link:hover .row-bg, .row-link:focus-visible .row-bg { opacity: 1; transform: scale(1); }
+.row-art-0 { background-image: radial-gradient(60% 140% at 10% 0%, rgb(255 255 255 / .3), transparent 60%), radial-gradient(45% 110% at 92% 100%, rgb(255 255 255 / .22), transparent 70%); }
+.row-art-1 { background-image: radial-gradient(50% 130% at 85% 0%, rgb(255 255 255 / .32), transparent 62%), repeating-linear-gradient(115deg, rgb(255 255 255 / .09) 0 2px, transparent 2px 26px); }
+.row-art-2 { background-image: radial-gradient(40% 120% at 30% 100%, rgb(255 255 255 / .3), transparent 65%), radial-gradient(circle at 78% 30%, rgb(255 255 255 / .22) 0 90px, transparent 91px); }
+.row-art-3 { background-image: radial-gradient(70% 150% at 50% 0%, rgb(255 255 255 / .26), transparent 60%), radial-gradient(rgb(255 255 255 / .18) 1.4px, transparent 1.4px); background-size: auto, 22px 22px; }
+@media (prefers-reduced-motion: reduce) { .row-bg { transition: opacity .2s; transform: none; } }
 .row-link .row-arrow { transition: transform .6s cubic-bezier(.16,1,.3,1); }
 .row-link:hover .row-arrow { transform: rotate(-45deg) scale(1.15); }
 
@@ -178,7 +186,7 @@
   transition: width .35s cubic-bezier(.16,1,.3,1), height .35s cubic-bezier(.16,1,.3,1), margin .35s cubic-bezier(.16,1,.3,1), background-color .35s, border-color .35s; }
 .cursor-ring span { font-size: 12px; font-weight: 600; color: rgb(var(--c-onaccent)); opacity: 0; transition: opacity .2s; white-space: nowrap; }
 .cursor-ring.is-link { width: 64px; height: 64px; margin: -32px 0 0 -32px; border-color: rgb(var(--c-accent)); background: rgb(var(--c-accent) / .12); }
-.cursor-ring.is-label { width: 96px; height: 96px; margin: -48px 0 0 -48px; background: rgb(var(--c-accent)); border-color: transparent; }
+.cursor-ring.is-label { width: 96px; height: 96px; margin: -48px 0 0 -48px; background: linear-gradient(135deg, rgb(var(--c-accent) / .72), rgb(var(--c-accent2) / .72)); border-color: rgb(255 255 255 / .28); backdrop-filter: blur(14px) saturate(170%); -webkit-backdrop-filter: blur(14px) saturate(170%); box-shadow: 0 10px 40px -8px rgb(var(--c-accent) / .55), inset 0 1px 0 rgb(255 255 255 / .35); }
 .cursor-ring.is-label span { opacity: 1; }
 @media (hover: none), (pointer: coarse) { .cursor-dot, .cursor-ring { display: none; } }
 
@@ -438,65 +446,68 @@ html.comet-scroll::-webkit-scrollbar { width: 0 !important; height: 0 !important
    Apple theme: glass header, large soft cards, gradient accents, calm motion.
    Scoped to data-theme="apple" so every other theme looks exactly as before.
    ========================================================= */
-[data-theme="apple"] body { font-feature-settings: "ss01", "cv11"; -webkit-font-smoothing: antialiased; letter-spacing: -0.011em; }
-[data-theme="apple"] h1, [data-theme="apple"] h2, [data-theme="apple"] h3 { font-weight: 600; letter-spacing: -0.032em; }
-[data-theme="apple"] .h-display { font-weight: 600; letter-spacing: -0.05em; line-height: 1.04; }
-[data-theme="apple"] .h-section { font-weight: 600; letter-spacing: -0.04em; line-height: 1.06; }
-[data-theme="apple"] .lead { color: rgb(var(--c-fg2)); letter-spacing: -0.016em; }
-[data-theme="apple"] .section { padding-top: clamp(5rem, 11vw, 9rem); padding-bottom: clamp(5rem, 11vw, 9rem); }
+:is([data-theme="apple"],[data-theme="nextgen"]) body { font-feature-settings: "ss01", "cv11"; -webkit-font-smoothing: antialiased; letter-spacing: -0.011em; }
+:is([data-theme="apple"],[data-theme="nextgen"]) h1, :is([data-theme="apple"],[data-theme="nextgen"]) h2, :is([data-theme="apple"],[data-theme="nextgen"]) h3 { font-weight: 600; letter-spacing: -0.032em; }
+:is([data-theme="apple"],[data-theme="nextgen"]) .h-display { font-weight: 600; letter-spacing: -0.05em; line-height: 1.04; }
+:is([data-theme="apple"],[data-theme="nextgen"]) .h-section { font-weight: 600; letter-spacing: -0.04em; line-height: 1.06; }
+:is([data-theme="apple"],[data-theme="nextgen"]) .lead { color: rgb(var(--c-fg2)); letter-spacing: -0.016em; }
+:is([data-theme="apple"],[data-theme="nextgen"]) .section { padding-top: clamp(5rem, 11vw, 9rem); padding-bottom: clamp(5rem, 11vw, 9rem); }
 /* logo-colour gradient on headline emphasis and the kicker line */
-[data-theme="apple"] .text-gradient, [data-theme="apple"] .h-display em, [data-theme="apple"] .h-section em {
+:is([data-theme="apple"],[data-theme="nextgen"]) .text-gradient, :is([data-theme="apple"],[data-theme="nextgen"]) .h-display em, :is([data-theme="apple"],[data-theme="nextgen"]) .h-section em {
   background: linear-gradient(100deg, rgb(var(--c-accent)) 0%, rgb(var(--c-accent2)) 80%, rgb(var(--c-accent)) 150%); -webkit-background-clip: text; background-clip: text; color: transparent; font-style: normal; }
-[data-theme="apple"] .kicker::before { height: 2px; width: 22px; border-radius: 2px; background: linear-gradient(90deg, rgb(var(--c-accent)), rgb(var(--c-accent2))); }
-[data-theme="apple"] .scroll-progress { height: 3px; border-radius: 0 3px 3px 0; }
+:is([data-theme="apple"],[data-theme="nextgen"]) .kicker::before { height: 2px; width: 22px; border-radius: 2px; background: linear-gradient(90deg, rgb(var(--c-accent)), rgb(var(--c-accent2))); }
+:is([data-theme="apple"],[data-theme="nextgen"]) .scroll-progress { height: 3px; border-radius: 0 3px 3px 0; }
 /* cards: big radius, hairline border, deep soft shadow, gentle lift */
-[data-theme="apple"] .glass { background: rgb(var(--c-surface) / .72); border-color: rgb(var(--c-line) / .7); border-radius: 28px; backdrop-filter: saturate(180%) blur(24px); -webkit-backdrop-filter: saturate(180%) blur(24px);
+:is([data-theme="apple"],[data-theme="nextgen"]) .glass { background: rgb(var(--c-surface) / .72); border-color: rgb(var(--c-line) / .7); border-radius: 28px; backdrop-filter: saturate(180%) blur(24px); -webkit-backdrop-filter: saturate(180%) blur(24px);
   box-shadow: 0 1px 0 rgb(255 255 255 / .04) inset, 0 20px 50px -28px rgb(0 0 0 / .55); }
-[data-mode="light"][data-theme="apple"] .glass, [data-theme="apple"][data-mode="light"] .glass { box-shadow: 0 1px 2px rgb(0 0 0 / .04), 0 24px 56px -32px rgb(0 0 0 / .18); }
-[data-theme="apple"] .card { transition: transform .6s cubic-bezier(.16,1,.3,1), box-shadow .6s, border-color .4s; }
-[data-theme="apple"] .card:hover { transform: translateY(-4px) scale(1.006); border-color: rgb(var(--c-accent) / .35); box-shadow: 0 30px 70px -30px rgb(var(--c-accent) / .35), 0 1px 0 rgb(255 255 255 / .05) inset; }
-[data-theme="apple"] .chip { background: rgb(var(--c-raised) / .7); border-color: rgb(var(--c-line) / .6); backdrop-filter: saturate(180%) blur(14px); }
+[data-mode="light"]:is([data-theme="apple"],[data-theme="nextgen"]) .glass, :is([data-theme="apple"],[data-theme="nextgen"])[data-mode="light"] .glass { box-shadow: 0 1px 2px rgb(0 0 0 / .04), 0 24px 56px -32px rgb(0 0 0 / .18); }
+:is([data-theme="apple"],[data-theme="nextgen"]) .card { transition: transform .6s cubic-bezier(.16,1,.3,1), box-shadow .6s, border-color .4s; }
+:is([data-theme="apple"],[data-theme="nextgen"]) .card:hover { transform: translateY(-4px) scale(1.006); border-color: rgb(var(--c-accent) / .35); box-shadow: 0 30px 70px -30px rgb(var(--c-accent) / .35), 0 1px 0 rgb(255 255 255 / .05) inset; }
+:is([data-theme="apple"],[data-theme="nextgen"]) .chip { background: rgb(var(--c-raised) / .7); border-color: rgb(var(--c-line) / .6); backdrop-filter: saturate(180%) blur(14px); }
 /* buttons: pill, logo-blue gradient, soft glow */
-[data-theme="apple"] .btn { font-weight: 600; letter-spacing: -0.01em; border: 0; }
+:is([data-theme="apple"],[data-theme="nextgen"]) .btn { font-weight: 600; letter-spacing: -0.01em; border: 0; }
 /* gradient buttons in the theme's own two colours. The extra class repeats lift specificity so this wins over any sitewide Buttons and forms override saved in Admin.
    On hover a reversed-gradient circle opens from the centre, so the colour "switches" like the theme-colour change. */
-[data-theme="apple"] .btn.btn-primary.btn-primary { --btn-bg: linear-gradient(115deg, rgb(var(--c-accent)), rgb(var(--c-accent2))); --btn-shadow: none; color: #fff; border: 0; box-shadow: none; animation: appleWave 2.4s ease-out infinite; }
-[data-theme="apple"] .btn.btn-primary.btn-primary::before, [data-theme="apple"] .btn.btn-primary.btn-primary:hover::before { background: linear-gradient(115deg, rgb(var(--c-accent)), rgb(var(--c-accent2))); opacity: 1; transform: none; clip-path: none; filter: none; }
-[data-theme="apple"] .btn.btn-primary.btn-primary::after { display: block; background: linear-gradient(115deg, rgb(var(--c-accent2)), rgb(var(--c-accent))); opacity: 1; clip-path: circle(0% at 50% 50%); transform: none; transition: clip-path .6s cubic-bezier(.16,1,.3,1); }
-[data-theme="apple"] .btn.btn-primary.btn-primary:hover::after { clip-path: circle(150% at 50% 50%); }
-[data-theme="apple"] .btn.btn-primary.btn-primary:hover { transform: translateY(-1px); animation-duration: 1.4s; color: #fff; }
+:is([data-theme="apple"],[data-theme="nextgen"]) .btn.btn-primary.btn-primary { --btn-bg: linear-gradient(115deg, rgb(var(--c-accent)), rgb(var(--c-accent2))); --btn-shadow: none; color: #fff; border: 0; box-shadow: none; animation: appleWave 2.4s ease-out infinite; }
+:is([data-theme="apple"],[data-theme="nextgen"]) .btn.btn-primary.btn-primary::before, :is([data-theme="apple"],[data-theme="nextgen"]) .btn.btn-primary.btn-primary:hover::before { background: linear-gradient(115deg, rgb(var(--c-accent)), rgb(var(--c-accent2))); opacity: 1; transform: none; clip-path: none; filter: none; }
+:is([data-theme="apple"],[data-theme="nextgen"]) .btn.btn-primary.btn-primary::after { display: block; background: linear-gradient(115deg, rgb(var(--c-accent2)), rgb(var(--c-accent))); opacity: 1; clip-path: circle(0% at 50% 50%); transform: none; transition: clip-path .6s cubic-bezier(.16,1,.3,1); }
+:is([data-theme="apple"],[data-theme="nextgen"]) .btn.btn-primary.btn-primary:hover::after { clip-path: circle(150% at 50% 50%); }
+:is([data-theme="apple"],[data-theme="nextgen"]) .btn.btn-primary.btn-primary:hover { transform: translateY(-1px); animation-duration: 1.4s; color: #fff; }
 /* the chat launcher's wave: a soft ring of the button's own colour spreads out and fades, again and again */
 @keyframes appleWave {
   0% { box-shadow: 0 0 0 0 rgb(var(--c-accent) / .42); }
   75%, 100% { box-shadow: 0 0 0 20px rgb(var(--c-accent) / 0); }
 }
-[data-theme="apple"] .btn-ghost { background: rgb(var(--c-raised) / .85); color: rgb(var(--c-fg)); box-shadow: none; backdrop-filter: saturate(180%) blur(16px); }
-[data-theme="apple"] .btn-ghost:hover { background: rgb(var(--c-line) / .9); }
+:is([data-theme="apple"],[data-theme="nextgen"]) .btn-ghost { background: rgb(var(--c-raised) / .85); color: rgb(var(--c-fg)); box-shadow: none; backdrop-filter: saturate(180%) blur(16px); }
+:is([data-theme="apple"],[data-theme="nextgen"]) .btn-ghost:hover { background: rgb(var(--c-line) / .9); }
 /* inputs */
-[data-theme="apple"] .input { border-radius: 14px; background: rgb(var(--c-raised) / .55); border-color: rgb(var(--c-line) / .8); }
-[data-theme="apple"] .input:focus { border-color: rgb(var(--c-accent)); box-shadow: 0 0 0 4px rgb(var(--c-accent) / .22); }
+:is([data-theme="apple"],[data-theme="nextgen"]) .input { border-radius: 14px; background: rgb(var(--c-raised) / .55); border-color: rgb(var(--c-line) / .8); }
+:is([data-theme="apple"],[data-theme="nextgen"]) .input:focus { border-color: rgb(var(--c-accent)); box-shadow: 0 0 0 4px rgb(var(--c-accent) / .22); }
 /* hero glow: logo blue into indigo, softer and larger than the default aurora */
-[data-theme="apple"][data-texture="aurora"] .tex::before { background: radial-gradient(60% 55% at 20% 0%, rgb(var(--c-accent) / .26), transparent 70%), radial-gradient(50% 50% at 88% 4%, rgb(var(--c-accent2) / .2), transparent 70%); }
-[data-theme="apple"] .grain { display: none; }
+:is([data-theme="apple"],[data-theme="nextgen"])[data-texture="aurora"] .tex::before { background: radial-gradient(60% 55% at 20% 0%, rgb(var(--c-accent) / .26), transparent 70%), radial-gradient(50% 50% at 88% 4%, rgb(var(--c-accent2) / .2), transparent 70%); }
+:is([data-theme="apple"],[data-theme="nextgen"]) .grain { display: none; }
 /* header: the floating pill gets an Apple-style frosted glass only once you scroll (the site's own header logic toggles it); the bar itself stays transparent */
-[data-theme="apple"] header .backdrop-blur-2xl { backdrop-filter: saturate(180%) blur(24px); -webkit-backdrop-filter: saturate(180%) blur(24px); }
-[data-theme="apple"] ::selection { background: rgb(var(--c-accent) / .85); color: #fff; }
-@media (prefers-reduced-motion: reduce) { [data-theme="apple"] .card, [data-theme="apple"] .btn { transition: none; } [data-theme="apple"] .btn-primary { animation: none; } }
+:is([data-theme="apple"],[data-theme="nextgen"]) header .backdrop-blur-2xl { backdrop-filter: saturate(180%) blur(24px); -webkit-backdrop-filter: saturate(180%) blur(24px); }
+:is([data-theme="apple"],[data-theme="nextgen"]) ::selection { background: rgb(var(--c-accent) / .85); color: #fff; }
+@media (prefers-reduced-motion: reduce) { :is([data-theme="apple"],[data-theme="nextgen"]) .card, :is([data-theme="apple"],[data-theme="nextgen"]) .btn { transition: none; } :is([data-theme="apple"],[data-theme="nextgen"]) .btn-primary { animation: none; } }
 
 /* =========================================================
    Apple theme: chatbot in the style of iOS Messages
    ========================================================= */
-[data-theme="apple"] .chat-panel { background: rgb(var(--c-surface) / .72); border: 1px solid rgb(var(--c-line) / .6); border-radius: 28px; backdrop-filter: saturate(180%) blur(40px); -webkit-backdrop-filter: saturate(180%) blur(40px);
+:is([data-theme="apple"],[data-theme="nextgen"]) .chat-panel { background: rgb(var(--c-surface) / .72); border: 1px solid rgb(var(--c-line) / .6); border-radius: 28px; backdrop-filter: saturate(180%) blur(40px); -webkit-backdrop-filter: saturate(180%) blur(40px);
   box-shadow: 0 1px 0 rgb(255 255 255 / .06) inset, 0 40px 90px -30px rgb(0 0 0 / .6), 0 8px 24px -12px rgb(0 0 0 / .35); }
-@media (max-width: 639px) { [data-theme="apple"] .chat-panel { border-radius: 0; } }
-[data-theme="apple"] .chat-head { background: rgb(var(--c-bg) / .35) !important; border-bottom: 1px solid rgb(var(--c-line) / .5); backdrop-filter: saturate(180%) blur(24px); }
-[data-theme="apple"] .chat-bubble { border-radius: 20px; padding: .6rem .95rem; line-height: 1.4; letter-spacing: -0.012em; box-shadow: none; }
-[data-theme="apple"] .chat-bubble-user { background: linear-gradient(180deg, rgb(var(--c-accent2) / .9), rgb(var(--c-accent))) !important; color: #fff; border-bottom-right-radius: 6px; }
-[data-theme="apple"] .chat-bubble-bot { background: rgb(var(--c-raised) / .9); color: rgb(var(--c-fg)); border-bottom-left-radius: 6px; }
-[data-theme="apple"] .chat-form { border-top: 1px solid rgb(var(--c-line) / .5); background: rgb(var(--c-bg) / .3); }
-[data-theme="apple"] .chat-field { background: rgb(var(--c-raised) / .7); border: 1px solid rgb(var(--c-line) / .8); padding-top: .2rem; padding-bottom: .2rem; }
-[data-theme="apple"] .chat-field:focus-within { border-color: rgb(var(--c-accent)); box-shadow: 0 0 0 3px rgb(var(--c-accent) / .2); }
-[data-theme="apple"] .chat-send { background: linear-gradient(180deg, rgb(var(--c-accent2)), rgb(var(--c-accent))); color: #fff; width: 2.25rem; height: 2.25rem; }
-[data-theme="apple"] .chat-send svg { transform: rotate(-90deg); }
-[data-theme="apple"] .chat-suggest { background: rgb(var(--c-raised) / .7); border-color: rgb(var(--c-line) / .7); backdrop-filter: blur(12px); }
-[data-theme="apple"] .chat-suggest:hover { background: rgb(var(--c-accent)); border-color: transparent; color: #fff; }
+@media (max-width: 639px) { :is([data-theme="apple"],[data-theme="nextgen"]) .chat-panel { border-radius: 0; } }
+:is([data-theme="apple"],[data-theme="nextgen"]) .chat-head { background: rgb(var(--c-bg) / .35) !important; border-bottom: 1px solid rgb(var(--c-line) / .5); backdrop-filter: saturate(180%) blur(24px); }
+:is([data-theme="apple"],[data-theme="nextgen"]) .chat-bubble { border-radius: 20px; padding: .6rem .95rem; line-height: 1.4; letter-spacing: -0.012em; box-shadow: none; }
+:is([data-theme="apple"],[data-theme="nextgen"]) .chat-bubble-user { background: linear-gradient(180deg, rgb(var(--c-accent2) / .9), rgb(var(--c-accent))) !important; color: #fff; border-bottom-right-radius: 6px; }
+:is([data-theme="apple"],[data-theme="nextgen"]) .chat-bubble-bot { background: rgb(var(--c-raised) / .9); color: rgb(var(--c-fg)); border-bottom-left-radius: 6px; }
+:is([data-theme="apple"],[data-theme="nextgen"]) .chat-form { border-top: 1px solid rgb(var(--c-line) / .5); background: rgb(var(--c-bg) / .3); }
+:is([data-theme="apple"],[data-theme="nextgen"]) .chat-field { background: rgb(var(--c-raised) / .7); border: 1px solid rgb(var(--c-line) / .8); padding-top: .2rem; padding-bottom: .2rem; }
+:is([data-theme="apple"],[data-theme="nextgen"]) .chat-field:focus-within { border-color: rgb(var(--c-accent)); box-shadow: 0 0 0 3px rgb(var(--c-accent) / .2); }
+:is([data-theme="apple"],[data-theme="nextgen"]) .chat-send { background: linear-gradient(180deg, rgb(var(--c-accent2)), rgb(var(--c-accent))); color: #fff; width: 2.25rem; height: 2.25rem; }
+:is([data-theme="apple"],[data-theme="nextgen"]) .chat-send svg { transform: rotate(-90deg); }
+:is([data-theme="apple"],[data-theme="nextgen"]) .chat-suggest { background: rgb(var(--c-raised) / .7); border-color: rgb(var(--c-line) / .7); backdrop-filter: blur(12px); }
+:is([data-theme="apple"],[data-theme="nextgen"]) .chat-suggest:hover { background: rgb(var(--c-accent)); border-color: transparent; color: #fff; }
+
+/* NextGen theme: the logo's own gradient (sky blue to blue to violet) on every gradient text */
+[data-theme="nextgen"] .text-gradient, [data-theme="nextgen"] .h-display em, [data-theme="nextgen"] .h-section em { background: linear-gradient(100deg, #00C0FF 0%, rgb(var(--c-accent)) 45%, rgb(var(--c-accent2)) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
