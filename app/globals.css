@@ -458,9 +458,11 @@ html.comet-scroll::-webkit-scrollbar { width: 0 !important; height: 0 !important
 [data-theme="apple"] .chip { background: rgb(var(--c-raised) / .7); border-color: rgb(var(--c-line) / .6); backdrop-filter: saturate(180%) blur(14px); }
 /* buttons: pill, logo-blue gradient, soft glow */
 [data-theme="apple"] .btn { font-weight: 600; letter-spacing: -0.01em; border: 0; }
-[data-theme="apple"] .btn-primary { --btn-bg: rgb(var(--c-accent)); --btn-shadow: none; color: #fff; box-shadow: none; animation: appleWave 2.4s ease-out infinite; }
-[data-theme="apple"] .btn-primary::before { background: rgb(var(--c-accent)); }
-[data-theme="apple"] .btn-primary:hover { transform: translateY(-1px); animation-duration: 1.4s; }
+/* extra class repeats lift specificity so Apple buttons win over any sitewide Buttons and forms override saved in Admin */
+[data-theme="apple"] .btn.btn-primary.btn-primary { --btn-bg: rgb(var(--c-accent)); --btn-shadow: none; color: #fff; border: 0; box-shadow: none; animation: appleWave 2.4s ease-out infinite; }
+[data-theme="apple"] .btn.btn-primary.btn-primary::before, [data-theme="apple"] .btn.btn-primary.btn-primary:hover::before { background: rgb(var(--c-accent)); opacity: 1; transform: none; clip-path: none; filter: none; }
+[data-theme="apple"] .btn.btn-primary.btn-primary::after { display: none; }
+[data-theme="apple"] .btn.btn-primary.btn-primary:hover { transform: translateY(-1px); animation-duration: 1.4s; color: #fff; }
 /* the chat launcher's wave: a soft ring of the button's own colour spreads out and fades, again and again */
 @keyframes appleWave {
   0% { box-shadow: 0 0 0 0 rgb(var(--c-accent) / .42); }

@@ -6,7 +6,7 @@ import { audit } from "@/lib/content";
 import { bust } from "@/lib/entries-admin";
 import { listThemes } from "@/lib/theme-server";
 import { getSetting, saveSetting } from "@/lib/settings";
-import { normalizeTokens } from "@/lib/themes";
+import { normalizeTokens, PRESETS } from "@/lib/themes";
 import { slugify } from "@/lib/util";
 
 export const GET = api(async () => { await requireApi(); return { themes: await listThemes(), active: (await getSetting("appearance")).activeTheme }; });
@@ -16,7 +16,11 @@ export const POST = api(async (req: Request) => {
   const b = await req.json();
   const T = schema.themes;
   if (b.action === "activate") {
-    const [t] = await db().select().from(T).where(eq(T.slug, String(b.slug))).limit(1);
+    let [t] = await db().select().from(T).where(eq(T.slug, String(b.slug))).limit(1);
+    if (!t) { // a built-in preset added in a newer release is not in the database yet: add it, then use it
+      const preset = PRESETS.find((p) => p.slug === String(b.slug));
+      if (preset) [t] = await db().insert(T).values({ slug: preset.slug, name: preset.name, builtin: true, tokens: preset.tokens }).returning();
+    }
     if (!t || t.deletedAt) throw new Error("Theme not found.");
     await saveSetting("appearance", { activeTheme: t.slug }); await audit(u.email, "activate theme", t.name); bust();
     return { ok: true };
