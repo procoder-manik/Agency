@@ -433,7 +433,7 @@ export function UsersAdmin({ me, isAdmin, meEmail = "", meName = "" }: { me: num
   const [items, setItems] = useState<any[]>([]); const [nu, setNu] = useState({ email: "", name: "", role: "editor", password: "" }); const [pw, setPw] = useState(""); const [curPw, setCurPw] = useState("");
   const load = () => isAdmin && apiFetch("/api/admin/users").then((r) => setItems(r.items)).catch((e) => toast(e.message, "error"));
   useEffect(() => { load(); }, []); // eslint-disable-line
-  const upd = async (body: any, msg: string) => { try { await apiFetch("/api/admin/users", { method: "PUT", json: body }); toast(msg); load(); } catch (e: any) { toast(e.message, "error"); } };
+  const upd = async (body: any, msg: string) => { try { const r = await apiFetch("/api/admin/users", { method: "PUT", json: body }); if (r.relogin && body.id === me) { toast("Done. Please sign in again."); await fetch("/api/admin/logout", { method: "POST" }); window.location.href = "/admin/login"; return; } toast(msg); load(); } catch (e: any) { toast(e.message, "error"); } };
   return (
     <>
       <PageHead title={isAdmin ? "Users" : "My account"} sub={isAdmin ? "Admins can change everything. Editors can manage content but not settings or users." : undefined} />
@@ -444,6 +444,7 @@ export function UsersAdmin({ me, isAdmin, meEmail = "", meName = "" }: { me: num
           {prof.email.trim().toLowerCase() !== meEmail.toLowerCase() && <div className="sm:col-span-2"><label className="label" htmlFor="pf-pw">Current password (required to change the email)</label><input id="pf-pw" type="password" className="input max-w-sm" value={prof.currentPassword} onChange={(e) => setProf({ ...prof, currentPassword: e.target.value })} autoComplete="current-password" /></div>}
         </div>
         <button className="btn btn-primary mt-4" disabled={savingProf} onClick={saveProfile}>{savingProf ? <Spinner /> : "Save profile"}</button></div>
+      <TwoFactor />
       <div className="glass mb-5 p-5"><h2 className="mb-3 font-semibold">Change my password</h2><div className="flex flex-wrap gap-2"><input type="password" className="input max-w-xs" placeholder="Current password" value={curPw} onChange={(e) => setCurPw(e.target.value)} autoComplete="current-password" /><input type="password" className="input max-w-xs" placeholder="New password (10+ characters)" value={pw} onChange={(e) => setPw(e.target.value)} autoComplete="new-password" /><button className="btn btn-primary" onClick={() => { upd({ id: me, password: pw, currentPassword: curPw }, "Password changed."); setPw(""); setCurPw(""); }}>Update password</button></div></div>
       {isAdmin && <>
         <div className="glass overflow-x-auto p-5"><table className="w-full min-w-[560px] text-sm"><tbody className="divide-y divide-line">
@@ -492,6 +493,38 @@ export function StarterContent() {
         {sec && <p className="mt-3 text-sm text-success">{[...sec.added.map((x: string) => `Added: ${x}`), ...sec.changed].join(". ") || "Already up to date."}</p>}</div>
       {report && <p className="text-sm text-success">Done: {report.created} created, {report.updated} updated, {report.skipped} left as they were, {report.trashed} moved to the trash.</p>}
       <p className="text-xs text-muted">Prices in the packages are examples. Change them in Packages to match your real prices. Testimonials and case studies are not included, because those must be real. The example team cards and example projects are placeholders: edit or delete them in Admin.</p>
+    </div>
+  );
+}
+
+function TwoFactor() {
+  const [enabled, setEnabled] = useState<boolean | null>(null);
+  const [setup, setSetup] = useState<{ secret: string; uri: string } | null>(null);
+  const [code, setCode] = useState(""); const [pw, setPw] = useState(""); const [busy, setBusy] = useState(false);
+  useEffect(() => { apiFetch("/api/admin/2fa").then((r) => setEnabled(r.enabled)).catch(() => setEnabled(false)); }, []);
+  const call = async (json: any) => { setBusy(true); try { return await apiFetch("/api/admin/2fa", { method: "POST", json }); } catch (e: any) { toast(e.message, "error"); return null; } finally { setBusy(false); } };
+  if (enabled === null) return null;
+  return (
+    <div className="glass mb-5 p-5">
+      <h2 className="mb-1 font-semibold">Two-factor authentication {enabled ? "(on)" : "(off)"}</h2>
+      <p className="mb-3 text-xs text-muted">Asks for a 6-digit code from an authenticator app (Google Authenticator, Microsoft Authenticator, Authy) every time you sign in, so a stolen password is not enough.</p>
+      {!enabled && !setup && <button className="btn btn-primary" disabled={busy} onClick={async () => { const r = await call({ action: "start" }); if (r) setSetup(r); }}>Set up two-factor</button>}
+      {!enabled && setup && (
+        <div className="space-y-3 text-sm">
+          <p>1. In your authenticator app choose <b>Add account → Enter a setup key</b> and type this key (account name: your email, type: time-based):</p>
+          <p><code className="select-all break-all rounded bg-black/10 px-2 py-1 font-mono">{setup.secret}</code></p>
+          <p>2. Enter the 6-digit code the app shows:</p>
+          <div className="flex flex-wrap gap-2"><input className="input max-w-[10rem]" inputMode="numeric" placeholder="123456" value={code} onChange={(e) => setCode(e.target.value)} autoComplete="one-time-code" />
+            <button className="btn btn-primary" disabled={busy} onClick={async () => { const r = await call({ action: "enable", code }); if (r) { setEnabled(true); setSetup(null); setCode(""); toast("Two-factor is on."); } }}>Turn on</button></div>
+        </div>
+      )}
+      {enabled && (
+        <div className="flex flex-wrap gap-2">
+          <input type="password" className="input max-w-xs" placeholder="Your password" value={pw} onChange={(e) => setPw(e.target.value)} autoComplete="current-password" />
+          <input className="input max-w-[10rem]" inputMode="numeric" placeholder="Code" value={code} onChange={(e) => setCode(e.target.value)} autoComplete="one-time-code" />
+          <button className="btn" disabled={busy} onClick={async () => { const r = await call({ action: "disable", password: pw, code }); if (r) { setEnabled(false); setPw(""); setCode(""); toast("Two-factor is off."); } }}>Turn off</button>
+        </div>
+      )}
     </div>
   );
 }

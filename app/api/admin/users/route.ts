@@ -39,5 +39,5 @@ export const PUT = api(async (req: Request) => {
   if (b.disabled !== undefined && me.role === "admin" && id !== me.uid) patch.deletedAt = b.disabled ? new Date() : null;
   try { await db().update(U).set(patch).where(eq(U.id, id)); }
   catch (e: any) { if (e?.code === "23505" || /duplicate key/i.test(e?.message || "")) throw new Error("Another user already uses this email."); throw e; }
-  await audit(me.email, "update user", `#${id}`); return { ok: true, relogin: emailChanged && id === me.uid };
+  await audit(me.email, "update user", `#${id}`); return { ok: true, relogin: (emailChanged || !!patch.passwordHash) && id === me.uid };
 });

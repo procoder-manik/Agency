@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { NextResponse } from "next/server";
 import { and, eq, isNull } from "drizzle-orm";
 import { db, schema } from "./db";
+import { pwVersion } from "./totp";
 import { COOKIE, verifySession, type Role, type Session } from "./jwt";
 
 /** Verifies the cookie, then re-checks the account in the database so disabled users and role changes take effect immediately. */
@@ -10,8 +11,8 @@ export async function getSession(): Promise<Session | null> {
   const s = await verifySession((await cookies()).get(COOKIE)?.value);
   if (!s) return null;
   try {
-    const [u] = await db().select({ id: schema.users.id, email: schema.users.email, name: schema.users.name, role: schema.users.role }).from(schema.users).where(and(eq(schema.users.id, s.uid), isNull(schema.users.deletedAt))).limit(1);
-    if (!u) return null;
+    const [u] = await db().select({ id: schema.users.id, email: schema.users.email, name: schema.users.name, role: schema.users.role, passwordHash: schema.users.passwordHash }).from(schema.users).where(and(eq(schema.users.id, s.uid), isNull(schema.users.deletedAt))).limit(1);
+    if (!u || !s.pv || s.pv !== pwVersion(u.passwordHash)) return null; // old sessions end when the password changes
     return { uid: u.id, email: u.email, name: u.name, role: u.role === "admin" ? "admin" : "editor" };
   } catch { return null; }
 }

@@ -13,6 +13,8 @@ export const users = pgTable("users", {
   name: text("name").notNull().default(""),
   passwordHash: text("password_hash").notNull(),
   role: text("role").notNull().default("editor"),
+  totpSecret: text("totp_secret"),
+  totpEnabled: boolean("totp_enabled").notNull().default(false),
   deletedAt: ts("deleted_at"),
   ...stamps,
 });
