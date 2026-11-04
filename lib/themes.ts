@@ -58,11 +58,17 @@ export const FONT_WEIGHTS: Record<string, string> = {
   "Inter Tight": "400;500;600;700", "Manrope": "400;500;700;800", "Sora": "400;600;700",
   "Bricolage Grotesque": "400;600;700;800", "Unbounded": "400;600;700", "Instrument Serif": "400",
   "Instrument Sans": "400;500;600;700", "Plus Jakarta Sans": "400;600;700", "Archivo": "400;600;700;800",
-  "Lexend": "400;600;700", "Familjen Grotesk": "400;600;700", "Red Hat Mono": "400;500",
+  "Lexend": "400;600;700", "SF Pro": "400;500;600;700", "Familjen Grotesk": "400;600;700", "Red Hat Mono": "400;500",
 };
 export const CURATED_FONTS = Object.keys(FONT_WEIGHTS);
 
 export const PRESETS: Theme[] = [
+  { slug: "apple", name: "Apple", builtin: true, tokens: {
+    mode: "dark", radius: "pill", texture: "aurora", motion: "standard",
+    fonts: { display: "SF Pro", body: "SF Pro", mono: "JetBrains Mono" },
+    ui: { btnRadius: "pill", btnFill: "duo", btnAnim: "lift", btnSize: "md" },
+    colors: { bg: "#000000", surface: "#111113", raised: "#1C1C1E", line: "#2C2C2E", fg: "#F5F5F7", fg2: "#B4B4B9", muted: "#86868B", accent: "#0A84FF", accent2: "#5E5CE6", onaccent: "#FFFFFF", success: "#30D158", warning: "#FFD60A", danger: "#FF453A" },
+    alt: { bg: "#FBFBFD", surface: "#FFFFFF", raised: "#F5F5F7", line: "#D2D2D7", fg: "#1D1D1F", fg2: "#424245", muted: "#6E6E73", accent: "#0071E3", accent2: "#5E5CE6", onaccent: "#FFFFFF", success: "#1F8A3B", warning: "#8A6A00", danger: "#D70015" } } },
   { slug: "signal", name: "Signal", builtin: true, tokens: {
     mode: "dark", radius: "soft", texture: "grid", motion: "standard",
     fonts: { display: "Space Grotesk", body: "IBM Plex Sans", mono: "IBM Plex Mono" },
@@ -158,7 +164,7 @@ const RADII: Record<Radius, [string, string, string, string, string]> = {
 const MOTION: Record<Motion, [string, string]> = { minimal: ["0.4", "0.35s"], standard: ["1", "0.7s"], playful: ["1.6", "0.9s"] };
 
 const stack = (f: string, kind: "sans" | "mono") =>
-  `'${f.replace(/'/g, "")}', ${kind === "mono" ? "ui-monospace, SFMono-Regular, Menlo, monospace" : "ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif"}`;
+  f === "SF Pro" ? "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Inter', system-ui, sans-serif" : `'${f.replace(/'/g, "")}', ${kind === "mono" ? "ui-monospace, SFMono-Regular, Menlo, monospace" : "ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif"}`;
 
 /** Palette for a given mode: the theme's own colours for its default mode, `alt` (or a derived palette) for the other. */
 export function paletteFor(t: ThemeTokens, mode: "dark" | "light"): Record<ColorToken, string> {
@@ -214,7 +220,8 @@ export function themeCss(t: ThemeTokens, selector = ":root", mode?: "dark" | "li
   return `${selector}{${vars.join(";")}}`;
 }
 
-export function fontHref(family: string) {
+export function fontHref(requested: string) {
+  const family = requested === "SF Pro" ? "Inter" : requested; // Apple devices use the real SF font; everyone else gets Inter, its closest match
   const w = FONT_WEIGHTS[family] || "400;700";
   return `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family).replace(/%20/g, "+")}:wght@${w}&display=swap`;
 }

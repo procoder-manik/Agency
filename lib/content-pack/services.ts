@@ -1,10 +1,10 @@
 /** Bump when the starter content changes, so the dashboard can tell you an update is available. */
-export const PACK_VERSION = 2;
+export const PACK_VERSION = 3;
 
 export const IDENTITY = {
-  tagline: "Websites, SEO and AI automation that bring in customers",
-  description: "We build fast websites on Next.js, Laravel, WordPress, Shopify, Squarespace and Wix, get them found on Google, run the marketing around them, edit your videos and automate the busywork.",
-  longDescription: "We are a small, senior team covering web development, SEO, digital marketing, video editing and AI automation. One team means one plan: the site we build is made to rank, the marketing we run points at pages that convert, and the repetitive work behind it is automated.",
+  tagline: "Websites that rank, convert and grow your business",
+  description: "I'm Manik Hossain. For 7+ years I've designed and shipped SEO-ready websites on WordPress, Shopify and custom code for clients in 14 countries.",
+  longDescription: "I'm a web designer, WordPress expert and SEO specialist from Bangladesh. Since 2019 I've built and optimised more than 550 websites, from one-page launches to multi-vendor stores. I start with how your customers search and decide, then design the structure around that. Speed, schema and analytics go in while I build, not as an afterthought.",
 };
 
 export const NAVIGATION = {

@@ -433,3 +433,42 @@ html[data-scroll="neon"]::-webkit-scrollbar-corner, html[data-scroll="neon"] ::-
 /* the ruler replaces the browser bar on the public site (see RulerScroll). This must stay after the rules above. */
 html.comet-scroll { scrollbar-width: none; }
 html.comet-scroll::-webkit-scrollbar { width: 0 !important; height: 0 !important; display: none; }
+
+/* =========================================================
+   Apple theme: glass header, large soft cards, gradient accents, calm motion.
+   Scoped to data-theme="apple" so every other theme looks exactly as before.
+   ========================================================= */
+[data-theme="apple"] body { font-feature-settings: "ss01", "cv11"; -webkit-font-smoothing: antialiased; letter-spacing: -0.011em; }
+[data-theme="apple"] h1, [data-theme="apple"] h2, [data-theme="apple"] h3 { font-weight: 600; letter-spacing: -0.032em; }
+[data-theme="apple"] .h-display { font-weight: 600; letter-spacing: -0.05em; line-height: 1.04; }
+[data-theme="apple"] .h-section { font-weight: 600; letter-spacing: -0.04em; line-height: 1.06; }
+[data-theme="apple"] .lead { color: rgb(var(--c-fg2)); letter-spacing: -0.016em; }
+[data-theme="apple"] .section { padding-top: clamp(5rem, 11vw, 9rem); padding-bottom: clamp(5rem, 11vw, 9rem); }
+/* logo-colour gradient on headline emphasis and the kicker line */
+[data-theme="apple"] .text-gradient, [data-theme="apple"] .h-display em, [data-theme="apple"] .h-section em {
+  background: linear-gradient(100deg, rgb(var(--c-accent)) 0%, rgb(var(--c-accent2)) 70%, rgb(var(--c-accent)) 140%); -webkit-background-clip: text; background-clip: text; color: transparent; font-style: normal; }
+[data-theme="apple"] .kicker::before { height: 2px; width: 22px; border-radius: 2px; background: linear-gradient(90deg, rgb(var(--c-accent)), rgb(var(--c-accent2))); }
+[data-theme="apple"] .scroll-progress { height: 3px; border-radius: 0 3px 3px 0; }
+/* cards: big radius, hairline border, deep soft shadow, gentle lift */
+[data-theme="apple"] .glass { background: rgb(var(--c-surface) / .72); border-color: rgb(var(--c-line) / .7); border-radius: 28px; backdrop-filter: saturate(180%) blur(24px); -webkit-backdrop-filter: saturate(180%) blur(24px);
+  box-shadow: 0 1px 0 rgb(255 255 255 / .04) inset, 0 20px 50px -28px rgb(0 0 0 / .55); }
+[data-mode="light"][data-theme="apple"] .glass, [data-theme="apple"][data-mode="light"] .glass { box-shadow: 0 1px 2px rgb(0 0 0 / .04), 0 24px 56px -32px rgb(0 0 0 / .18); }
+[data-theme="apple"] .card { transition: transform .6s cubic-bezier(.16,1,.3,1), box-shadow .6s, border-color .4s; }
+[data-theme="apple"] .card:hover { transform: translateY(-4px) scale(1.006); border-color: rgb(var(--c-accent) / .35); box-shadow: 0 30px 70px -30px rgb(var(--c-accent) / .35), 0 1px 0 rgb(255 255 255 / .05) inset; }
+[data-theme="apple"] .chip { background: rgb(var(--c-raised) / .7); border-color: rgb(var(--c-line) / .6); backdrop-filter: saturate(180%) blur(14px); }
+/* buttons: pill, logo-blue gradient, soft glow */
+[data-theme="apple"] .btn { font-weight: 600; letter-spacing: -0.01em; }
+[data-theme="apple"] .btn-primary { box-shadow: inset 0 1px 0 rgb(255 255 255 / .28), 0 1px 2px rgb(0 0 0 / .18), 0 12px 30px -12px rgb(var(--c-accent) / .75); }
+[data-theme="apple"] .btn-primary:hover { transform: translateY(-1px); box-shadow: inset 0 1px 0 rgb(255 255 255 / .32), 0 1px 2px rgb(0 0 0 / .2), 0 18px 38px -12px rgb(var(--c-accent) / .85); }
+[data-theme="apple"] .btn-ghost { background: rgb(var(--c-raised) / .6); border-color: transparent; backdrop-filter: saturate(180%) blur(16px); }
+[data-theme="apple"] .btn-ghost:hover { background: rgb(var(--c-raised) / .95); }
+/* inputs */
+[data-theme="apple"] .input { border-radius: 14px; background: rgb(var(--c-raised) / .55); border-color: rgb(var(--c-line) / .8); }
+[data-theme="apple"] .input:focus { border-color: rgb(var(--c-accent)); box-shadow: 0 0 0 4px rgb(var(--c-accent) / .22); }
+/* hero glow: logo blue into indigo, softer and larger than the default aurora */
+[data-theme="apple"][data-texture="aurora"] .tex::before { background: radial-gradient(60% 55% at 20% 0%, rgb(var(--c-accent) / .26), transparent 70%), radial-gradient(50% 50% at 88% 4%, rgb(var(--c-accent2) / .22), transparent 70%); }
+[data-theme="apple"] .grain { display: none; }
+/* header: frosted glass with a hairline, like apple.com */
+[data-theme="apple"] header { backdrop-filter: saturate(180%) blur(22px); -webkit-backdrop-filter: saturate(180%) blur(22px); background-color: rgb(var(--c-bg) / .72); border-bottom: 1px solid rgb(var(--c-line) / .55); }
+[data-theme="apple"] ::selection { background: rgb(var(--c-accent) / .85); color: #fff; }
+@media (prefers-reduced-motion: reduce) { [data-theme="apple"] .card, [data-theme="apple"] .btn { transition: none; } }

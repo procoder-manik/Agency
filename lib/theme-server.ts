@@ -10,7 +10,9 @@ export const listThemes = cache(async (): Promise<Theme[]> => {
     const rows = await memo("themes", 10_000, () => db().select().from(schema.themes).where(isNull(schema.themes.deletedAt)).orderBy(asc(schema.themes.builtin), asc(schema.themes.id)));
     if (!rows.length) return PRESETS;
     const list = rows.map((r) => ({ id: r.id, slug: r.slug, name: r.name, builtin: r.builtin, tokens: normalizeTokens(r.builtin ? PRESETS.find((p) => p.slug === r.slug)?.tokens || r.tokens : r.tokens) }));
-    return [...list.filter((t) => t.builtin), ...list.filter((t) => !t.builtin)];
+    const have = new Set(list.map((t) => t.slug)); // presets added in a newer release show up without re-seeding the database
+    const missing = PRESETS.filter((p) => !have.has(p.slug));
+    return [...list.filter((t) => t.builtin), ...missing, ...list.filter((t) => !t.builtin)];
   } catch { return PRESETS; }
 });
 
