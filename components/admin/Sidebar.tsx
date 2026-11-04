@@ -11,7 +11,7 @@ export interface NavGroup { title: string; items: NavItem[] }
 export function Sidebar({ groups, user, siteName }: { groups: NavGroup[]; user: { email: string; role: string }; siteName: string }) {
   const path = usePathname(); const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState<string[]>([]); const [fly, setFly] = useState<{ item: NavItem; top: number; left: number } | null>(null);
-  const flyTimer = useRef<ReturnType<typeof setTimeout>>();
+  const flyTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const active = (h: string) => (h === "/admin" ? path === "/admin" : path === h || path.startsWith(h + "/"));
   const inSection = (i: NavItem) => (i.match || [i.href]).some((m) => active(m)) || (i.children || []).some((c) => path === c.href);
   useEffect(() => { setOpen(false); setFly(null); const cur = groups.flatMap((g) => g.items).filter((i) => i.children?.length && inSection(i)).map((i) => i.href); setExpanded((e) => Array.from(new Set([...e, ...cur]))); }, [path]); // eslint-disable-line

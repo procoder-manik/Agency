@@ -7,7 +7,7 @@ import { COOKIE, verifySession, type Role, type Session } from "./jwt";
 
 /** Verifies the cookie, then re-checks the account in the database so disabled users and role changes take effect immediately. */
 export async function getSession(): Promise<Session | null> {
-  const s = await verifySession(cookies().get(COOKIE)?.value);
+  const s = await verifySession((await cookies()).get(COOKIE)?.value);
   if (!s) return null;
   try {
     const [u] = await db().select({ id: schema.users.id, email: schema.users.email, name: schema.users.name, role: schema.users.role }).from(schema.users).where(and(eq(schema.users.id, s.uid), isNull(schema.users.deletedAt))).limit(1);

@@ -9,10 +9,11 @@ import { ServiceView, serviceMetadata } from "@/components/site/views/ServiceVie
 import { CaseView, caseMetadata } from "@/components/site/views/CaseView";
 import { ProjectView, projectMetadata } from "@/components/site/ProjectView";
 
-type P = { params: { slug: string[] } };
-const urlOf = (p: P["params"]) => "/" + p.slug.map(decodeURIComponent).join("/");
+type P = { params: Promise<{ slug: string[] }> };
+const urlOf = (p: Awaited<P["params"]>) => "/" + p.slug.map(decodeURIComponent).join("/");
 
-export async function generateMetadata({ params }: P) {
+export async function generateMetadata(props: P) {
+  const params = await props.params;
   await getAllSettings(); // loads the permalink settings
   const hit = await resolveAddress(urlOf(params));
   if (hit) {
@@ -27,7 +28,8 @@ export async function generateMetadata({ params }: P) {
 }
 
 /** Handles every address that is not a built-in route: pages (also nested ones), and any item with its own address or a renamed base. */
-export default async function CatchAll({ params }: P) {
+export default async function CatchAll(props: P) {
+  const params = await props.params;
   const s = await getAllSettings();
   const url = urlOf(params);
   const hit = await resolveAddress(url);

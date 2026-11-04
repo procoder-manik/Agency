@@ -6,8 +6,12 @@ import { menuState } from "@/lib/menu";
 import { entryUrl } from "@/lib/permalinks";
 import { Editor } from "@/components/admin/Editor";
 
-export default async function EditPage({ params, searchParams }: { params: { collection: string; id: string }; searchParams: { landing?: string } }) {
-  const col = getCollection(params.collection); if (!col) notFound();
+export default async function EditPage(
+  props: { params: Promise<{ collection: string; id: string }>; searchParams: Promise<{ landing?: string }> }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
+  const col = getCollection(params.collection);if (!col) notFound();
   const item = params.id === "new" ? null : await getEntry(Number(params.id));
   if (params.id !== "new" && (!item || item.collection !== col.key)) notFound();
   const s = await getAllSettings();

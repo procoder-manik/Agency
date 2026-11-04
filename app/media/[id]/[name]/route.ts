@@ -2,7 +2,8 @@ export const dynamic = "force-dynamic";
 import { and, eq, isNull } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
 
-export async function GET(_req: Request, { params }: { params: { id: string } }) {
+export async function GET(_req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const id = Number(params.id);
   if (!Number.isInteger(id)) return new Response("Not found", { status: 404 });
   const [m] = await db().select().from(schema.media).where(and(eq(schema.media.id, id), isNull(schema.media.deletedAt))).limit(1);

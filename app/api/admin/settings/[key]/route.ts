@@ -9,10 +9,10 @@ import { db, schema } from "@/lib/db";
 import { isValidBase } from "@/lib/permalinks";
 import { sanitizeInline, toRichHtml } from "@/lib/rich";
 
-type C = { params: { key: string } };
+type C = { params: Promise<{ key: string }> };
 const EDITOR_KEYS = new Set<string>(["portfolio"]); // read-only for editors (the category list in the project editor)
 const SECRETS = ["callmebotKey", "twilioToken"];
-export const GET = api(async (_r: Request, { params }: C) => {
+export const GET = api(async (_r: Request, ctx: C) => { const params = await ctx.params;
   await requireApi(EDITOR_KEYS.has(params.key) ? "editor" : "admin");
   if (!(params.key in SETTING_DEFAULTS)) throw new Error("Unknown setting.");
   const v: any = await getSetting(params.key as SettingKey);
@@ -20,7 +20,7 @@ export const GET = api(async (_r: Request, { params }: C) => {
   if (params.key === "notify") for (const k of SECRETS) if (v[k]) v[k] = "••••" + String(v[k]).slice(-4);
   return { value: v };
 });
-export const PUT = api(async (req: Request, { params }: C) => {
+export const PUT = api(async (req: Request, ctx: C) => { const params = await ctx.params;
   const u = await requireApi("admin");
   if (!(params.key in SETTING_DEFAULTS)) throw new Error("Unknown setting.");
   const body = await req.json();

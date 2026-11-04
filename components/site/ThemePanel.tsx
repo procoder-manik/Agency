@@ -47,7 +47,7 @@ export function useThemePref() {
 const Sun = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden><circle cx="12" cy="12" r="4.2" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></svg>;
 const Moon = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden><path d="M20.5 14.2A8.5 8.5 0 1 1 9.8 3.5a7 7 0 0 0 10.7 10.7z" /></svg>;
 const Monitor = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><rect x="3" y="4" width="18" height="12" rx="2" /><path d="M8 20h8M12 16v4" /></svg>;
-const OPTIONS: [Pref, string, () => JSX.Element][] = [["system", "System", Monitor], ["light", "Light", Sun], ["dark", "Dark", Moon]];
+const OPTIONS: [Pref, string, () => React.JSX.Element][] = [["system", "System", Monitor], ["light", "Light", Sun], ["dark", "Dark", Moon]];
 
 /** Three-way mode selector: System (follows the device), Light, Dark. */
 export function ModeSegment({ className = "" }: { className?: string }) {

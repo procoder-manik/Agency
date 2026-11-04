@@ -8,7 +8,7 @@ const MARGIN = 16, W = 26;
 export function RulerScroll() {
   const [g, setG] = useState({ show: false, y: 0, vh: 0, dh: 0 });
   const [active, setActive] = useState(false);
-  const dragging = useRef(false); const hideT = useRef<ReturnType<typeof setTimeout>>();
+  const dragging = useRef(false); const hideT = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
     if (matchMedia("(pointer: coarse)").matches) return; // touch devices keep their own scrollbar

@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
 export function NavProgress() {
   const path = usePathname(); const router = useRouter(); const seen = useRef<Set<string>>(new Set());
   const [w, setW] = useState(0); const [show, setShow] = useState(false);
-  const timer = useRef<ReturnType<typeof setInterval>>(); const safety = useRef<ReturnType<typeof setTimeout>>(); const active = useRef(false);
+  const timer = useRef<ReturnType<typeof setInterval> | undefined>(undefined); const safety = useRef<ReturnType<typeof setTimeout> | undefined>(undefined); const active = useRef(false);
 
   const start = () => {
     if (active.current) return; active.current = true;

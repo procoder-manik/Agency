@@ -17,7 +17,7 @@ export function HeaderShell({ logo, links, cta, themeUi }: { logo: ReactNode; li
   const navRef = useRef<HTMLDivElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const headRef = useRef<HTMLElement>(null);
-  const closeT = useRef<ReturnType<typeof setTimeout>>();
+  const closeT = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [pill, setPill] = useState<{ left: number; width: number; on: boolean }>({ left: 0, width: 0, on: false });
   useEffect(() => { setOpen(false); setMenu(null); setMobileOpen(null); }, [path]);
   useEffect(() => { document.body.style.overflow = open ? "hidden" : ""; }, [open]);

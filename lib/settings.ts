@@ -51,7 +51,7 @@ const cleanUrl = (d: string) => { let x = d.trim().replace(/\/+$/, ""); if (!/^h
 /** The origin the visitor is actually on (works on Vercel, custom domains, VPS and localhost). */
 function requestOrigin(): string | null {
   try {
-    const h = headers();
+    const h = headers() as any; // Next 15 still allows synchronous access; kept sync because siteUrl() is called from many sync places
     const host = (h.get("x-forwarded-host") || h.get("host") || "").split(",")[0].trim();
     if (!host) return null;
     const proto = (h.get("x-forwarded-proto") || "").split(",")[0].trim() || (/^(localhost|127\.|0\.0\.0\.0|\[::1\])/.test(host) ? "http" : "https");

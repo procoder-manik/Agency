@@ -13,7 +13,8 @@ async function count(collection: string) {
   return r.n;
 }
 
-export default async function Dashboard({ searchParams }: { searchParams: { denied?: string } }) {
+export default async function Dashboard(props: { searchParams: Promise<{ denied?: string }> }) {
+  const searchParams = await props.searchParams;
   const user = await requirePage();
   const [projects, posts, pages, services] = await Promise.all(["projects", "posts", "pages", "services"].map(count));
   const [[leads], [subs], recent, drafts, ai] = await Promise.all([
