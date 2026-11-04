@@ -281,7 +281,7 @@ export async function workCards(list: Entry[]) {
     img: mediaUrl(p.data.scrollImage) || mediaUrl(p.data.screenshot) || mediaUrl(p.data.cover),
     alt: mediaAlt(p.data.scrollImage || p.data.screenshot, `${p.title} website screenshot`), industry: p.data.industry || "",
     direction: p.data.scrollDirection === "up" ? "up" : "down", platform: p.data.platform || "", technologies: (Array.isArray(p.data.technologies) ? p.data.technologies : []) as string[],
-    liveUrl: p.data.liveUrl || "", tall: !!mediaUrl(p.data.scrollImage),
+    liveUrl: p.data.liveUrl || "", duration: p.data.duration || "", tall: !!mediaUrl(p.data.scrollImage),
     services: (Array.isArray(p.data.services) ? p.data.services : []).map((id: any) => services.find((s) => s.id === Number(id))?.title).filter(Boolean) as string[],
     status: p.data.workStatus || "completed", summary: p.data.summary || "",
   }));

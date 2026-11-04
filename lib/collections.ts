@@ -86,6 +86,7 @@ export const COLLECTIONS: CollectionDef[] = [
       { name: "client", label: "Client", type: "text" },
       { name: "industry", label: "Industry", type: "text" },
       { name: "liveUrl", label: "Live URL", type: "url" },
+      { name: "duration", label: "Build time (shown on the card, e.g. 3 weeks or Ongoing)", type: "text" },
       { name: "summary", label: "Summary", type: "textarea" },
       { name: "body", label: "Full write-up", type: "markdown" },
       { name: "cover", label: "Cover / banner image", type: "image", size: IMG_COVER },
@@ -107,7 +108,7 @@ export const COLLECTIONS: CollectionDef[] = [
       { name: "video", label: "Video walkthrough (YouTube link or video file)", type: "media" },
       { name: "permalink", label: "Custom address (permalink)", type: "text", ai: false, placeholder: "dentist-in-new-jersey", help: "Optional. Type any address you like, for example dentist-in-new-jersey or service-area/new-jersey/dentist. Leave empty to use the default address. The old default address redirects here, and the canonical URL follows automatically." },
     ],
-    tabs: { Content: ["client", "summary", "body", "deliverables", "metrics"], Images: ["scrollImage", "scrollDirection", "cover", "screenshot", "gallery", "video"], URL: ["permalink"], Details: ["category", "tags", "industry", "liveUrl", "services", "technologies", "platform", "workStatus", "startDate", "endDate", "accent"] },
+    tabs: { Content: ["client", "summary", "body", "deliverables", "metrics"], Images: ["scrollImage", "scrollDirection", "cover", "screenshot", "gallery", "video"], URL: ["permalink"], Details: ["category", "tags", "industry", "liveUrl", "duration", "services", "technologies", "platform", "workStatus", "startDate", "endDate", "accent"] },
   },
   {
     key: "caseStudies", label: "Case studies", singular: "Case study", titleLabel: "Headline", hasSlug: true, seo: true, group: "Content",

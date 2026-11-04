@@ -10,35 +10,29 @@ import { parseOptions } from "@/lib/util";
 import { trackLead } from "@/lib/track";
 
 /* ---------------- Work grid with filters ---------------- */
-export interface WorkCard { id: number; title: string; href: string; img: string; alt: string; industry: string; services: string[]; status: string; summary: string; accent?: string; client?: string; direction?: string; platform?: string; technologies?: string[]; liveUrl?: string; tall?: boolean; category?: string; tags?: string[] }
+export interface WorkCard { id: number; title: string; href: string; img: string; alt: string; industry: string; services: string[]; status: string; summary: string; accent?: string; client?: string; direction?: string; platform?: string; technologies?: string[]; liveUrl?: string; duration?: string; tall?: boolean; category?: string; tags?: string[] }
 const STATUS: Record<string, string> = { completed: "Live", ongoing: "Still building", care: "Ongoing care" };
 const tint = (hex: string | undefined, a: string) => (hex && /^#[0-9a-f]{6}$/i.test(hex) ? `${hex}${a}` : undefined);
 
 function workCard(p: WorkCard, priority = false) {
-  const tech = (p.technologies || []).slice(0, 3); const c = p.accent || undefined;
+  const tech = (p.technologies || []).slice(0, 4); const c = p.accent || undefined;
   return (
     <article className="group relative flex h-full flex-col" style={c ? ({ "--a": c } as React.CSSProperties) : undefined}>
-      <Link href={p.href} data-cursor="View" className="relative block" aria-label={`${p.title}: view project`}>
+      <Link href={p.href} data-cursor="View" className="relative block rounded-2xl" aria-label={`${p.title}: view project`}>
         <ScrollShot src={p.img} alt={p.alt} url={p.liveUrl} direction={p.direction} accent={c} eager={priority}
-          className="transition-[transform,box-shadow,border-color] duration-500 ease-out group-hover:-translate-y-1.5"
-          />
-        <span aria-hidden className="pointer-events-none absolute inset-0 rounded-[var(--r-lg)] opacity-0 transition-opacity duration-500 group-hover:opacity-100" style={{ boxShadow: `0 40px 80px -40px ${c || "rgb(var(--c-accent))"}, inset 0 0 0 1.5px ${c || "rgb(var(--c-accent))"}` }} />
-        <span className="pointer-events-none absolute bottom-4 left-4 translate-y-2 rounded-full px-4 py-1.5 text-xs font-semibold opacity-0 shadow-lg transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100" style={{ background: c || "rgb(var(--c-accent))", color: "#fff" }}>View project →</span>
+          className="!rounded-2xl transition-[transform,box-shadow,border-color] duration-500 ease-out group-hover:-translate-y-1 group-hover:border-fg/25 group-hover:shadow-[0_40px_80px_-40px_rgb(var(--c-accent)/.45)]" />
       </Link>
-      <div className="mt-5 flex items-center justify-between gap-3 text-xs font-semibold uppercase tracking-[0.12em]">
-        {p.category ? <span className="inline-flex items-center gap-2" style={{ color: c }}><span aria-hidden className="h-2 w-2 rounded-full" style={{ background: c || "rgb(var(--c-accent))" }} />{p.category}</span> : <span />}
-        {p.status !== "completed" && <span className="text-muted">{STATUS[p.status] || ""}</span>}
-      </div>
-      <div className="mt-2 flex items-start justify-between gap-4">
+      <div className="mt-5 flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <h3 className="h-card"><Link href={p.href} className="transition-colors group-hover:text-[var(--a,rgb(var(--c-accent)))]">{p.title}</Link></h3>
-          <p className="mt-1 text-fg2">{[p.client, p.industry].filter(Boolean).join(", ")}</p>
+          <h3 className="text-[1.35rem] font-semibold"><Link href={p.href} className="transition-colors hover:text-accent">{p.title}</Link></h3>
+          <p className="mt-1 text-[0.95rem] text-muted">{[p.client, p.industry].filter(Boolean).join(", ")}</p>
         </div>
-        {p.liveUrl && <a href={p.liveUrl} target="_blank" rel="noopener noreferrer" aria-label={`Visit ${p.title} live site`} className="relative z-10 grid h-10 w-10 shrink-0 place-items-center rounded-full border border-line text-fg transition-colors hover:text-white" onMouseEnter={(e) => { e.currentTarget.style.background = c || "rgb(var(--c-accent))"; e.currentTarget.style.borderColor = "transparent"; }} onMouseLeave={(e) => { e.currentTarget.style.background = ""; e.currentTarget.style.borderColor = ""; }}>↗</a>}
+        {p.liveUrl && <a href={p.liveUrl} target="_blank" rel="noopener noreferrer" aria-label={`Visit ${p.title} live site`} className="relative z-10 grid h-10 w-10 shrink-0 place-items-center rounded-full border border-line text-fg transition hover:border-accent hover:bg-accent hover:text-white"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M7 7h10v10" /><path d="M7 17 17 7" /></svg></a>}
       </div>
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        {p.platform && <span className="chip font-semibold" style={{ background: tint(c, "1F"), color: c, borderColor: tint(c, "55") }}>{p.platform}</span>}
+        {p.platform && <span className="chip border-transparent font-semibold text-white" style={{ background: c || "rgb(var(--c-accent))" }}>{p.platform}</span>}
         {tech.map((t) => <span key={t} className="chip">{t}</span>)}
+        {p.duration && <span className="chip"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16.5 12" /></svg>{p.duration}</span>}
       </div>
     </article>
   );
