@@ -10,7 +10,7 @@ export function ServiceRows({ items }: { items: { id: number; title: string; hre
     <div className="relative border-t border-line">
       {items.map((s, i) => (
         <Link key={s.id} href={s.href} data-cursor="Explore" data-img={s.img ? "1" : undefined}
-          className="row-link group grid grid-cols-[auto_1fr_auto] items-center gap-5 overflow-hidden border-b border-line px-2 py-7 sm:gap-8 sm:px-4 sm:py-9">
+          className="row-link group grid grid-cols-[auto_1fr_auto] items-center gap-5 border-b border-line px-2 py-7 sm:gap-8 sm:px-4 sm:py-9">
           {/* shown only on hover: your service image, or a generated colour artwork when there is none */}
           <span aria-hidden className={`row-bg ${s.img ? "" : `row-art-${i % 4}`}`} style={s.img ? { backgroundImage: `url("${s.img.replace(/"/g, "%22")}")` } : undefined} />
           {!s.img && <ServiceArt kind={s.kind} />}
