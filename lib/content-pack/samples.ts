@@ -18,3 +18,10 @@ export const PROJECT_CATEGORIES = [
   { name: "Web development", color: "#3B82F6" }, { name: "AI automation", color: "#8B5CF6" }, { name: "SEO", color: "#10B981" },
   { name: "Digital marketing", color: "#F59E0B" }, { name: "Video production", color: "#EF4444" }, { name: "SaaS marketing", color: "#06B6D4" },
 ];
+
+/** Real client reviews, in the clients' own words. */
+export const TESTIMONIALS = [
+  { name: "Bilal Rajpot", role: "Fiverr client", company: "", quote: "This guy is exceptional. He made the delivery in a few hours when I was expecting at least 2 days. Great communication and unmatched skills when it comes to the web." },
+  { name: "Tre Vordye", role: "Fiverr client", company: "", quote: "Bloody awesome work, very professional. My website has already got bookings and it's only been live a few days. Will definitely recommend." },
+  { name: "Kajol598", role: "Fiverr client", company: "", quote: "Manik did an awesome job making the website I wanted. He fixed everything that went wrong and I'm really happy with his work. I'll definitely hire him again." },
+];

@@ -19,13 +19,13 @@ function workCard(p: WorkCard, priority = false) {
   return (
     <article className="group relative flex h-full flex-col" style={c ? ({ "--a": c } as React.CSSProperties) : undefined}>
       <Link href={p.href} data-cursor="View" className="relative block rounded-2xl" aria-label={`${p.title}: view project`}>
-        <ScrollShot src={p.img} alt={p.alt} url={p.liveUrl} direction={p.direction} accent={c} eager={priority}
+        <ScrollShot src={p.img} alt={p.alt} url={p.liveUrl} label={p.href.replace(/^\/+/, "")} direction={p.direction} accent={c} eager={priority}
           className="!rounded-2xl transition-[transform,box-shadow,border-color] duration-500 ease-out group-hover:-translate-y-1 group-hover:border-fg/25 group-hover:shadow-[0_40px_80px_-40px_rgb(var(--c-accent)/.45)]" />
       </Link>
       <div className="mt-5 flex items-start justify-between gap-4">
         <div className="min-w-0">
           <h3 className="text-[1.35rem] font-semibold"><Link href={p.href} className="transition-colors hover:text-accent">{p.title}</Link></h3>
-          <p className="mt-1 text-[0.95rem] text-muted">{[p.client, p.industry].filter(Boolean).join(", ")}</p>
+          <p className="mt-1 text-[0.95rem] text-muted">{[p.client && p.client !== p.title ? p.client : "", p.industry].filter(Boolean).join(", ")}</p>
         </div>
         {p.liveUrl && <a href={p.liveUrl} target="_blank" rel="noopener noreferrer" aria-label={`Visit ${p.title} live site`} className="relative z-10 grid h-10 w-10 shrink-0 place-items-center rounded-full border border-line text-fg transition hover:border-accent hover:bg-accent hover:text-white"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M7 7h10v10" /><path d="M7 17 17 7" /></svg></a>}
       </div>

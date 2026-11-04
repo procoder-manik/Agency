@@ -4,7 +4,7 @@ import { slugify } from "./util";
 import { buildLocationPage, DEFAULT_PATTERNS } from "./templating";
 import { IDENTITY, NAVIGATION, SERVICES, PACKAGES, CATEGORIES, FAQS, PACK_VERSION } from "./content-pack/services";
 import { POSTS } from "./content-pack/posts";
-import { SAMPLE_TEAM, SAMPLE_PROJECTS, PROJECT_CATEGORIES } from "./content-pack/samples";
+import { SAMPLE_TEAM, SAMPLE_PROJECTS, PROJECT_CATEGORIES, TESTIMONIALS } from "./content-pack/samples";
 import { CORE_PAGES, PLATFORM_PAGES, TOPIC_PAGES, LOCATION_TEMPLATES, SAMPLE_LOCATIONS, MODULES, FORM } from "./content-pack/pages";
 
 type Sql = postgres.Sql<any>;
@@ -86,7 +86,9 @@ export async function installPack(sql: Sql, mode: "missing" | "replace"): Promis
   const pcat: Record<string, number> = {};
   for (const [i, c] of PROJECT_CATEGORIES.entries()) pcat[c.name] = await once("projectCategories", slugify(c.name), c.name, { color: c.color, description: "" }, { order: i });
   for (const [i, m] of SAMPLE_TEAM.entries()) await once("team", m.slug, m.title, { role: m.role, bio: m.bio, skills: m.skills }, { order: i });
-  for (const [i, p] of SAMPLE_PROJECTS.entries()) await once("projects", p.slug, p.title, { client: "Example client", industry: p.industry, summary: p.summary, body: `This is an example project that shows how a project page looks. Open it in Admin > Portfolio and replace the text, screenshot and details with one of your real projects.\n\n${p.summary}`, category: pcat[p.category], platform: p.platform, technologies: p.technologies, deliverables: p.deliverables, workStatus: "completed", accent: p.color }, { order: i, featured: true });
+  for (const [i, p] of SAMPLE_PROJECTS.entries()) await once("projects", p.slug, p.title, { client: p.title, industry: p.industry, summary: p.summary, body: p.summary, liveUrl: (p as any).liveUrl || "", duration: (p as any).duration || "", category: pcat[p.category], platform: p.platform, technologies: p.technologies, deliverables: p.deliverables, workStatus: "completed", accent: p.color }, { order: i, featured: true });
+
+  for (const [i, t] of TESTIMONIALS.entries()) await once("testimonials", "testimonial-" + slugify(t.name), t.name, { role: t.role, company: t.company, quote: t.quote }, { order: i, featured: true });
 
   // blog posts, spread over recent weeks so they sort naturally
   for (const [i, p] of POSTS.entries()) {

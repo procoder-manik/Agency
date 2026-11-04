@@ -4,8 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 /** A browser frame around a tall full-page screenshot.
  *  mode "hover": the page scrolls slowly by itself while the card is hovered, focused or touched (used on cards).
  *  mode "manual": visitors scroll through the page themselves, with an optional Auto scroll button (used on the project page). */
-export function ScrollShot({ src, alt = "", url, direction = "down", accent, aspect = "aspect-[4/3]", speed = 220, chrome = true, eager = false, mode = "hover", className = "" }: {
-  src: string; alt?: string; url?: string; direction?: "down" | "up" | string; accent?: string; aspect?: string; speed?: number; chrome?: boolean; eager?: boolean; mode?: "hover" | "manual"; className?: string;
+export function ScrollShot({ src, alt = "", url, direction = "down", accent, aspect = "aspect-[4/3]", speed = 220, chrome = true, label = "", eager = false, mode = "hover", className = "" }: {
+  src: string; alt?: string; url?: string; direction?: "down" | "up" | string; accent?: string; aspect?: string; speed?: number; chrome?: boolean; label?: string; eager?: boolean; mode?: "hover" | "manual"; className?: string;
 }) {
   const frame = useRef<HTMLDivElement>(null); const img = useRef<HTMLImageElement>(null);
   const [y, setY] = useState(0); const [dur, setDur] = useState(0); const [loaded, setLoaded] = useState(false); const [failed, setFailed] = useState(false);
@@ -44,7 +44,7 @@ export function ScrollShot({ src, alt = "", url, direction = "down", accent, asp
       {chrome && (
         <div className="flex items-center gap-3 border-b border-line bg-surface px-3.5 py-2.5">
           <div className="flex gap-1.5" aria-hidden><span className="h-2.5 w-2.5 rounded-full bg-[#FF5F57]" /><span className="h-2.5 w-2.5 rounded-full bg-[#FEBC2E]" /><span className="h-2.5 w-2.5 rounded-full bg-[#28C840]" /></div>
-          <div className="flex min-w-0 flex-1 items-center gap-2 rounded-full bg-raised px-3 py-1 text-xs text-muted"><span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: dot }} /><span className="truncate">{host || "preview"}</span></div>
+          <div className="flex min-w-0 flex-1 items-center gap-2 rounded-full bg-raised px-3 py-1 text-xs text-muted"><span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: dot }} /><span className="truncate">{host || label || "preview"}</span></div>
           {mode === "manual" && src && !failed && <button type="button" onClick={toggleAuto} className="shrink-0 rounded-full border border-line px-3 py-1 text-xs text-fg2 transition-colors hover:border-accent hover:text-fg" aria-pressed={playing}>{playing ? "Pause" : "Auto scroll"}</button>}
         </div>
       )}
