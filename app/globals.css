@@ -458,10 +458,12 @@ html.comet-scroll::-webkit-scrollbar { width: 0 !important; height: 0 !important
 [data-theme="apple"] .chip { background: rgb(var(--c-raised) / .7); border-color: rgb(var(--c-line) / .6); backdrop-filter: saturate(180%) blur(14px); }
 /* buttons: pill, logo-blue gradient, soft glow */
 [data-theme="apple"] .btn { font-weight: 600; letter-spacing: -0.01em; border: 0; }
-/* extra class repeats lift specificity so Apple buttons win over any sitewide Buttons and forms override saved in Admin */
-[data-theme="apple"] .btn.btn-primary.btn-primary { --btn-bg: rgb(var(--c-accent)); --btn-shadow: none; color: #fff; border: 0; box-shadow: none; animation: appleWave 2.4s ease-out infinite; }
-[data-theme="apple"] .btn.btn-primary.btn-primary::before, [data-theme="apple"] .btn.btn-primary.btn-primary:hover::before { background: rgb(var(--c-accent)); opacity: 1; transform: none; clip-path: none; filter: none; }
-[data-theme="apple"] .btn.btn-primary.btn-primary::after { display: none; }
+/* gradient buttons in the theme's own two colours. The extra class repeats lift specificity so this wins over any sitewide Buttons and forms override saved in Admin.
+   On hover a reversed-gradient circle opens from the centre, so the colour "switches" like the theme-colour change. */
+[data-theme="apple"] .btn.btn-primary.btn-primary { --btn-bg: linear-gradient(115deg, rgb(var(--c-accent)), rgb(var(--c-accent2))); --btn-shadow: none; color: #fff; border: 0; box-shadow: none; animation: appleWave 2.4s ease-out infinite; }
+[data-theme="apple"] .btn.btn-primary.btn-primary::before, [data-theme="apple"] .btn.btn-primary.btn-primary:hover::before { background: linear-gradient(115deg, rgb(var(--c-accent)), rgb(var(--c-accent2))); opacity: 1; transform: none; clip-path: none; filter: none; }
+[data-theme="apple"] .btn.btn-primary.btn-primary::after { display: block; background: linear-gradient(115deg, rgb(var(--c-accent2)), rgb(var(--c-accent))); opacity: 1; clip-path: circle(0% at 50% 50%); transform: none; transition: clip-path .6s cubic-bezier(.16,1,.3,1); }
+[data-theme="apple"] .btn.btn-primary.btn-primary:hover::after { clip-path: circle(150% at 50% 50%); }
 [data-theme="apple"] .btn.btn-primary.btn-primary:hover { transform: translateY(-1px); animation-duration: 1.4s; color: #fff; }
 /* the chat launcher's wave: a soft ring of the button's own colour spreads out and fades, again and again */
 @keyframes appleWave {
@@ -480,3 +482,21 @@ html.comet-scroll::-webkit-scrollbar { width: 0 !important; height: 0 !important
 [data-theme="apple"] header .backdrop-blur-2xl { backdrop-filter: saturate(180%) blur(24px); -webkit-backdrop-filter: saturate(180%) blur(24px); }
 [data-theme="apple"] ::selection { background: rgb(var(--c-accent) / .85); color: #fff; }
 @media (prefers-reduced-motion: reduce) { [data-theme="apple"] .card, [data-theme="apple"] .btn { transition: none; } [data-theme="apple"] .btn-primary { animation: none; } }
+
+/* =========================================================
+   Apple theme: chatbot in the style of iOS Messages
+   ========================================================= */
+[data-theme="apple"] .chat-panel { background: rgb(var(--c-surface) / .72); border: 1px solid rgb(var(--c-line) / .6); border-radius: 28px; backdrop-filter: saturate(180%) blur(40px); -webkit-backdrop-filter: saturate(180%) blur(40px);
+  box-shadow: 0 1px 0 rgb(255 255 255 / .06) inset, 0 40px 90px -30px rgb(0 0 0 / .6), 0 8px 24px -12px rgb(0 0 0 / .35); }
+@media (max-width: 639px) { [data-theme="apple"] .chat-panel { border-radius: 0; } }
+[data-theme="apple"] .chat-head { background: rgb(var(--c-bg) / .35) !important; border-bottom: 1px solid rgb(var(--c-line) / .5); backdrop-filter: saturate(180%) blur(24px); }
+[data-theme="apple"] .chat-bubble { border-radius: 20px; padding: .6rem .95rem; line-height: 1.4; letter-spacing: -0.012em; box-shadow: none; }
+[data-theme="apple"] .chat-bubble-user { background: linear-gradient(180deg, rgb(var(--c-accent2) / .9), rgb(var(--c-accent))) !important; color: #fff; border-bottom-right-radius: 6px; }
+[data-theme="apple"] .chat-bubble-bot { background: rgb(var(--c-raised) / .9); color: rgb(var(--c-fg)); border-bottom-left-radius: 6px; }
+[data-theme="apple"] .chat-form { border-top: 1px solid rgb(var(--c-line) / .5); background: rgb(var(--c-bg) / .3); }
+[data-theme="apple"] .chat-field { background: rgb(var(--c-raised) / .7); border: 1px solid rgb(var(--c-line) / .8); padding-top: .2rem; padding-bottom: .2rem; }
+[data-theme="apple"] .chat-field:focus-within { border-color: rgb(var(--c-accent)); box-shadow: 0 0 0 3px rgb(var(--c-accent) / .2); }
+[data-theme="apple"] .chat-send { background: linear-gradient(180deg, rgb(var(--c-accent2)), rgb(var(--c-accent))); color: #fff; width: 2.25rem; height: 2.25rem; }
+[data-theme="apple"] .chat-send svg { transform: rotate(-90deg); }
+[data-theme="apple"] .chat-suggest { background: rgb(var(--c-raised) / .7); border-color: rgb(var(--c-line) / .7); backdrop-filter: blur(12px); }
+[data-theme="apple"] .chat-suggest:hover { background: rgb(var(--c-accent)); border-color: transparent; color: #fff; }

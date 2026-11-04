@@ -97,7 +97,7 @@ export function ChatWidget({ side, greeting, name, suggestions, leadCapture, sou
       {open && (
         <div role="dialog" aria-label={`Chat with ${name}`} data-lenis-prevent
           className="chat-panel fixed inset-0 z-[56] flex flex-col overflow-hidden border border-line bg-surface/95 shadow-2xl backdrop-blur-2xl sm:absolute sm:inset-auto sm:bottom-[76px] sm:h-[min(640px,calc(100vh-130px))] sm:w-[390px] sm:rounded-[var(--r-xl)]" style={{ [side]: 0 } as any}>
-          <div className="relative flex items-center gap-3 border-b border-line px-4 py-3.5" style={{ background: "linear-gradient(135deg, rgb(var(--c-accent) / .16), rgb(var(--c-accent2) / .08))" }}>
+          <div className="chat-head relative flex items-center gap-3 border-b border-line px-4 py-3.5" style={{ background: "linear-gradient(135deg, rgb(var(--c-accent) / .16), rgb(var(--c-accent2) / .08))" }}>
             <span aria-hidden className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full font-display text-sm font-bold text-onaccent" style={{ background: "linear-gradient(135deg, rgb(var(--c-accent)), rgb(var(--c-accent2)))" }}>{iconImage ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={iconImage} alt="" className="h-full w-full object-cover" /> : initials}</span>
             <div className="min-w-0 flex-1"><p className="truncate font-display font-semibold leading-tight">{name}</p><p className="flex items-center gap-1.5 text-xs text-fg2"><span className="pulse-dot !h-1.5 !w-1.5" />Online, replies instantly</p></div>
             {sound && <button type="button" onClick={() => { const next = !muted; setMuted(next); setSoundPref(!next); if (!next) playReceive(); }} title={muted ? "Turn sound on" : "Turn sound off"} aria-label={muted ? "Turn chat sound on" : "Turn chat sound off"} aria-pressed={!muted} className="grid h-10 w-10 place-items-center rounded-full text-fg2 transition-colors hover:bg-raised hover:text-fg">
@@ -109,7 +109,7 @@ export function ChatWidget({ side, greeting, name, suggestions, leadCapture, sou
           <div ref={listRef} className="flex-1 space-y-4 overflow-y-auto overscroll-contain px-4 py-5 text-[0.95rem]" aria-live="polite" aria-relevant="additions">
             {msgs.map((m) => (
               <div key={m.id} className={`chat-in flex flex-col ${m.role === "user" ? "items-end" : "items-start"}`}>
-                <div className={`max-w-[88%] px-4 py-2.5 leading-relaxed ${m.role === "user" ? "rounded-2xl rounded-br-md text-onaccent" : `rounded-2xl rounded-bl-md bg-raised text-fg ${m.error ? "!bg-danger/10 text-danger" : ""}`}`}
+                <div className={`chat-bubble ${m.role === "user" ? "chat-bubble-user" : "chat-bubble-bot"} max-w-[88%] px-4 py-2.5 leading-relaxed ${m.role === "user" ? "rounded-2xl rounded-br-md text-onaccent" : `rounded-2xl rounded-bl-md bg-raised text-fg ${m.error ? "!bg-danger/10 text-danger" : ""}`}`}
                   style={m.role === "user" ? { background: "linear-gradient(135deg, rgb(var(--c-accent)), rgb(var(--c-accent2)))" } : undefined}>
                   <Rich text={m.text} />
                 </div>
@@ -117,18 +117,18 @@ export function ChatWidget({ side, greeting, name, suggestions, leadCapture, sou
                 {m.links && m.links.length > 0 && <div className="mt-2 flex max-w-[92%] flex-wrap gap-1.5">{m.links.map((l) => /^https?:/i.test(l.href) ? <a key={l.href} href={l.href} target="_blank" rel="noopener noreferrer" className="chip hover:!border-accent hover:!text-fg">{l.label} <span aria-hidden>↗</span></a> : <Link key={l.href} href={l.href} onClick={() => setOpen(false)} className="chip hover:!border-accent hover:!text-fg">{l.label} <span aria-hidden>↗</span></Link>)}</div>}
                 {m.lead && !m.leadDone && <LeadCard defaultMessage={[...msgs].reverse().find((x) => x.role === "user")?.text || ""} onSubmit={(v) => submitLead(m.id, v)} />}
                 {m.id === lastBot?.id && !busy && m.suggestions && m.suggestions.length > 0 && (
-                  <div className="mt-2.5 flex max-w-[95%] flex-wrap gap-1.5">{m.suggestions.map((sg) => <button key={sg} type="button" onClick={() => send(sg)} className="rounded-full border border-accent/40 px-3 py-1.5 text-[0.82rem] text-fg transition-all hover:bg-accent hover:text-onaccent">{sg}</button>)}</div>
+                  <div className="mt-2.5 flex max-w-[95%] flex-wrap gap-1.5">{m.suggestions.map((sg) => <button key={sg} type="button" onClick={() => send(sg)} className="chat-suggest rounded-full border border-accent/40 px-3 py-1.5 text-[0.82rem] text-fg transition-all hover:bg-accent hover:text-onaccent">{sg}</button>)}</div>
                 )}
               </div>
             ))}
             {busy && <div className="chat-in flex items-start"><div className="dots flex gap-1.5 rounded-2xl rounded-bl-md bg-raised px-4 py-3.5" aria-label="Typing"><span /><span /><span /></div></div>}
           </div>
 
-          <form onSubmit={(e) => { e.preventDefault(); send(input); }} className="border-t border-line p-3">
-            <div className="flex items-center gap-2 rounded-full border border-line bg-bg/60 py-1.5 pl-4 pr-1.5 transition-colors focus-within:border-accent">
+          <form onSubmit={(e) => { e.preventDefault(); send(input); }} className="chat-form border-t border-line p-3">
+            <div className="chat-field flex items-center gap-2 rounded-full border border-line bg-bg/60 py-1.5 pl-4 pr-1.5 transition-colors focus-within:border-accent">
               <label htmlFor="chat-input" className="sr-only">Your message</label>
               <input id="chat-input" ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key.length === 1 || e.key === "Backspace") beep("key"); }} maxLength={500} placeholder="Ask about services, pricing, work…" autoComplete="off" className="min-w-0 flex-1 bg-transparent py-1.5 text-fg outline-none placeholder:text-muted" />
-              <button type="submit" disabled={busy || !input.trim()} aria-label="Send message" className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-accent text-onaccent transition-all hover:scale-105 disabled:scale-100 disabled:opacity-40">
+              <button type="submit" disabled={busy || !input.trim()} aria-label="Send message" className="chat-send grid h-10 w-10 shrink-0 place-items-center rounded-full bg-accent text-onaccent transition-all hover:scale-105 disabled:scale-100 disabled:opacity-40">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
               </button>
             </div>

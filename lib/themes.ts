@@ -35,7 +35,7 @@ export interface UiTokens {
   btnSize: "sm" | "md" | "lg" | "custom"; btnPadY: number; btnPadX: number;
   btnAnim: BtnAnim; btnFill: BtnFill; formStyle: FormStyle;
 }
-export const DEFAULT_UI: UiTokens = { btnRadius: "theme", btnRadiusPx: 12, btnSize: "md", btnPadY: 14, btnPadX: 24, btnAnim: "shine", btnFill: "soft", formStyle: "boxed" };
+export const DEFAULT_UI: UiTokens = { btnRadius: "theme", btnRadiusPx: 12, btnSize: "md", btnPadY: 14, btnPadX: 24, btnAnim: "shine", btnFill: "duo", formStyle: "boxed" };
 
 export interface ThemeTokens {
   mode: "dark" | "light"; // the theme's default mode
@@ -66,7 +66,7 @@ export const PRESETS: Theme[] = [
   { slug: "apple", name: "Apple", builtin: true, tokens: {
     mode: "dark", radius: "pill", texture: "aurora", motion: "standard",
     fonts: { display: "SF Pro", body: "SF Pro", mono: "JetBrains Mono" },
-    ui: { btnRadius: "pill", btnFill: "solid", btnAnim: "lift", btnSize: "md" },
+    ui: { btnRadius: "pill", btnFill: "duo", btnAnim: "swap", btnSize: "md" },
     colors: { bg: "#000000", surface: "#111113", raised: "#1C1C1E", line: "#2C2C2E", fg: "#F5F5F7", fg2: "#B4B4B9", muted: "#86868B", accent: "#0A84FF", accent2: "#5AC8FA", onaccent: "#FFFFFF", success: "#30D158", warning: "#FFD60A", danger: "#FF453A" },
     alt: { bg: "#FBFBFD", surface: "#FFFFFF", raised: "#F5F5F7", line: "#D2D2D7", fg: "#1D1D1F", fg2: "#424245", muted: "#6E6E73", accent: "#0071E3", accent2: "#32ADE6", onaccent: "#FFFFFF", success: "#1F8A3B", warning: "#8A6A00", danger: "#D70015" } } },
   { slug: "signal", name: "Signal", builtin: true, tokens: {
