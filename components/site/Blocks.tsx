@@ -13,6 +13,7 @@ import { fmtDate, formatPrice } from "@/lib/util";
 import { Counter, Media, Reveal, Tilt } from "./motion";
 import { ClipReveal, HeroCanvas, Magnetic, RotatingBadge, ScrambleText, SplitText } from "./fx";
 import { ServiceRows, StepsProgress, TestimonialSlider } from "./Showcase";
+import { artKind } from "./ServiceArt";
 import { CardLayout } from "./CardLayout";
 import { BlogList, ContactForm, FaqList, LocationsGrid, PricingTabs, WorkGrid } from "./Interactive";
 
@@ -266,7 +267,7 @@ async function Services({ d }: { d: D }) {
   const list = await getPublished("services");
   return (
     <section className="section"><div className="container-x"><Head d={d} />
-      <ServiceRows items={list.map((s) => ({ id: s.id, title: s.title, href: entryUrl("services", s.slug, s.data), summary: s.data.summary || "", icon: s.data.icon || "", img: mediaUrl(s.data.cover) || mediaUrl(s.data.media) }))} />
+      <ServiceRows items={list.map((s) => ({ id: s.id, title: s.title, href: entryUrl("services", s.slug, s.data), summary: s.data.summary || "", icon: s.data.icon || "", img: mediaUrl(s.data.cover) || mediaUrl(s.data.media), kind: artKind(s.title, s.slug) }))} />
     </div></section>
   );
 }

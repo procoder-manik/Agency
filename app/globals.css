@@ -511,3 +511,59 @@ html.comet-scroll::-webkit-scrollbar { width: 0 !important; height: 0 !important
 
 /* NextGen theme: the logo's own gradient (sky blue to blue to violet) on every gradient text */
 [data-theme="nextgen"] .text-gradient, [data-theme="nextgen"] .h-display em, [data-theme="nextgen"] .h-section em { background: linear-gradient(100deg, #00C0FF 0%, rgb(var(--c-accent)) 45%, rgb(var(--c-accent2)) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+/* =========================================================
+   Animated service artwork (shown on hover in the Services rows)
+   ========================================================= */
+.va { position: absolute; right: 6.5rem; top: 50%; height: 82%; max-height: 150px; width: auto; aspect-ratio: 3 / 2; color: #fff; opacity: 0; transform: translate(26px, -50%) scale(.94); transition: opacity .6s ease, transform .9s cubic-bezier(.16,1,.3,1); pointer-events: none; filter: drop-shadow(0 6px 18px rgb(0 0 0 / .2)); }
+@media (max-width: 767px) { .va { display: none; } }
+@media (min-width: 1024px) { .va { right: 9rem; } }
+.row-link:hover .va, .row-link:focus-visible .va { opacity: .96; transform: translate(0, -50%) scale(1); }
+.va * { transform-box: fill-box; }
+.va-draw { stroke-dasharray: 280; stroke-dashoffset: 280; }
+.va-long { stroke-dasharray: 560; stroke-dashoffset: 560; }
+.va-d2 { animation-delay: .25s !important; } .va-d3 { animation-delay: .5s !important; }
+.row-link:hover .va-draw { animation: vaDraw 1.2s ease forwards; }
+.row-link:hover .va-long { animation: vaDraw 1.8s ease forwards; }
+.va-line { transform-origin: left center; transform: scaleX(0); }
+.row-link:hover .va-line { animation: vaGrow .9s cubic-bezier(.16,1,.3,1) forwards; }
+.va-bar { transform-origin: bottom center; transform: scaleY(0); }
+.row-link:hover .va-bar { animation: vaRise .9s cubic-bezier(.16,1,.3,1) forwards; }
+.row-link:hover .va-blink { animation: vaBlink 1s steps(2, jump-none) infinite; }
+.row-link:hover .va-pulse, .row-link:hover .va-node, .row-link:hover .va-sw { animation: vaPulse 1.8s ease-in-out infinite; }
+.row-link:hover .va-float { animation: vaFloat 2.6s ease-in-out infinite; }
+.row-link:hover .va-scan { animation: vaScan 2.6s ease-in-out infinite alternate; }
+.row-link:hover .va-wave { animation: vaWave 1.7s ease-out infinite; }
+.va-progress { stroke-dasharray: 192; stroke-dashoffset: 192; }
+.row-link:hover .va-progress { animation: vaProg 3.2s linear infinite; }
+.row-link:hover .va-head { animation: vaHead 3.2s linear infinite; }
+.va-link path { stroke-dasharray: 5 9; }
+.row-link:hover .va-link path { animation: vaFlow 1.2s linear infinite; }
+.row-link:hover .va-spark { animation: vaSpark 1.8s ease-in-out infinite; }
+.va-spin { transform-box: view-box; }
+.row-link:hover .va-spin { animation: vaSpin 7s linear infinite; }
+.row-link:hover .va-rev { animation-direction: reverse; animation-duration: 5s; }
+.row-link:hover .va-run { animation: vaRun 2.4s ease-in-out infinite; }
+.va-drop { transform: translateY(-34px); opacity: 0; }
+.row-link:hover .va-drop { animation: vaDrop 2.4s cubic-bezier(.34,1.4,.64,1) infinite; }
+.va-orbit { transform-box: view-box; transform-origin: 120px 80px; }
+.row-link:hover .va-orbit { animation: vaSpin 3.6s linear infinite; }
+@keyframes vaDraw { to { stroke-dashoffset: 0; } }
+@keyframes vaGrow { to { transform: scaleX(1); } }
+@keyframes vaRise { to { transform: scaleY(1); } }
+@keyframes vaBlink { 50% { opacity: 0; } }
+@keyframes vaPulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.14); opacity: .8; } }
+@keyframes vaFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+@keyframes vaScan { from { transform: translateX(0); } to { transform: translateX(-70px); } }
+@keyframes vaWave { 0% { opacity: 0; transform: translateX(-6px); } 40% { opacity: 1; } 100% { opacity: 0; transform: translateX(10px); } }
+@keyframes vaProg { to { stroke-dashoffset: 0; } }
+@keyframes vaHead { to { transform: translateX(192px); } }
+@keyframes vaFlow { to { stroke-dashoffset: -28; } }
+@keyframes vaSpark { 0%, 100% { transform: scale(.6) rotate(0); opacity: .6; } 50% { transform: scale(1.15) rotate(45deg); opacity: 1; } }
+@keyframes vaSpin { to { transform: rotate(360deg); } }
+@keyframes vaRun { 0% { transform: translate(0, 0); } 55% { transform: translate(60px, 0); } 100% { transform: translate(74px, -30px); } }
+@keyframes vaDrop { 0% { transform: translateY(-34px); opacity: 0; } 35%, 80% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(0); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .va-draw, .va-long { stroke-dashoffset: 0; } .va-line, .va-bar { transform: none; } .va-drop { transform: none; opacity: 1; } .va-progress { stroke-dashoffset: 0; }
+  .va, .va * { animation: none !important; }
+}

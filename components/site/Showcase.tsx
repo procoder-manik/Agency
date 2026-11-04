@@ -2,9 +2,10 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Media } from "./motion";
+import { ServiceArt, type ArtKind } from "./ServiceArt";
 
 /* ---------- Services as large interactive rows with a cursor-following preview ---------- */
-export function ServiceRows({ items }: { items: { id: number; title: string; href: string; summary: string; icon: string; img: string }[] }) {
+export function ServiceRows({ items }: { items: { id: number; title: string; href: string; summary: string; icon: string; img: string; kind: ArtKind }[] }) {
   return (
     <div className="relative border-t border-line">
       {items.map((s, i) => (
@@ -12,6 +13,7 @@ export function ServiceRows({ items }: { items: { id: number; title: string; hre
           className="row-link group grid grid-cols-[auto_1fr_auto] items-center gap-5 overflow-hidden border-b border-line px-2 py-7 sm:gap-8 sm:px-4 sm:py-9">
           {/* shown only on hover: your service image, or a generated colour artwork when there is none */}
           <span aria-hidden className={`row-bg ${s.img ? "" : `row-art-${i % 4}`}`} style={s.img ? { backgroundImage: `url("${s.img.replace(/"/g, "%22")}")` } : undefined} />
+          {!s.img && <ServiceArt kind={s.kind} />}
           <span aria-hidden className="grid h-12 w-12 place-items-center rounded-full border border-line text-lg text-accent transition-colors sm:h-14 sm:w-14">{s.icon || "◆"}</span>
           <span className="min-w-0">
             <span className="block font-display text-[clamp(1.7rem,4.2vw,3.6rem)] font-bold leading-none tracking-tight text-fg">{s.title}</span>
