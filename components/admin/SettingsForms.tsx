@@ -430,7 +430,7 @@ export function UsersAdmin({ me, isAdmin, meEmail = "", meName = "" }: { me: num
       toast("Profile saved."); setProf({ ...prof, currentPassword: "" });
     } catch (e: any) { toast(e.message, "error"); } finally { setSavingProf(false); }
   }
-  const [items, setItems] = useState<any[]>([]); const [nu, setNu] = useState({ email: "", name: "", role: "editor", password: "" }); const [pw, setPw] = useState("");
+  const [items, setItems] = useState<any[]>([]); const [nu, setNu] = useState({ email: "", name: "", role: "editor", password: "" }); const [pw, setPw] = useState(""); const [curPw, setCurPw] = useState("");
   const load = () => isAdmin && apiFetch("/api/admin/users").then((r) => setItems(r.items)).catch((e) => toast(e.message, "error"));
   useEffect(() => { load(); }, []); // eslint-disable-line
   const upd = async (body: any, msg: string) => { try { await apiFetch("/api/admin/users", { method: "PUT", json: body }); toast(msg); load(); } catch (e: any) { toast(e.message, "error"); } };
@@ -444,7 +444,7 @@ export function UsersAdmin({ me, isAdmin, meEmail = "", meName = "" }: { me: num
           {prof.email.trim().toLowerCase() !== meEmail.toLowerCase() && <div className="sm:col-span-2"><label className="label" htmlFor="pf-pw">Current password (required to change the email)</label><input id="pf-pw" type="password" className="input max-w-sm" value={prof.currentPassword} onChange={(e) => setProf({ ...prof, currentPassword: e.target.value })} autoComplete="current-password" /></div>}
         </div>
         <button className="btn btn-primary mt-4" disabled={savingProf} onClick={saveProfile}>{savingProf ? <Spinner /> : "Save profile"}</button></div>
-      <div className="glass mb-5 p-5"><h2 className="mb-3 font-semibold">Change my password</h2><div className="flex flex-wrap gap-2"><input type="password" className="input max-w-xs" placeholder="New password (10+ characters)" value={pw} onChange={(e) => setPw(e.target.value)} autoComplete="new-password" /><button className="btn btn-primary" onClick={() => { upd({ id: me, password: pw }, "Password changed."); setPw(""); }}>Update password</button></div></div>
+      <div className="glass mb-5 p-5"><h2 className="mb-3 font-semibold">Change my password</h2><div className="flex flex-wrap gap-2"><input type="password" className="input max-w-xs" placeholder="Current password" value={curPw} onChange={(e) => setCurPw(e.target.value)} autoComplete="current-password" /><input type="password" className="input max-w-xs" placeholder="New password (10+ characters)" value={pw} onChange={(e) => setPw(e.target.value)} autoComplete="new-password" /><button className="btn btn-primary" onClick={() => { upd({ id: me, password: pw, currentPassword: curPw }, "Password changed."); setPw(""); setCurPw(""); }}>Update password</button></div></div>
       {isAdmin && <>
         <div className="glass overflow-x-auto p-5"><table className="w-full min-w-[560px] text-sm"><tbody className="divide-y divide-line">
           {items.map((u) => <tr key={u.id} className={u.deletedAt ? "opacity-50" : ""}><td className="py-2.5">{u.email}<div className="text-xs text-muted">{u.name}</div></td>

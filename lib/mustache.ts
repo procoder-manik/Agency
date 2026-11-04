@@ -20,7 +20,7 @@ export function renderMustache(tpl: string, ctx: Record<string, any>, depth = 0)
 
 /** Prefix every selector so a module's CSS can't leak into the rest of the page. */
 export function scopeCss(css: string, scope: string): string {
-  const src0 = String(css || "").replace(/\/\*[\s\S]*?\*\//g, "").replace(/@import[^;]+;/gi, "").replace(/<\/style/gi, "");
+  const src0 = String(css || "").replace(/\/\*[\s\S]*?\*\//g, "").replace(/@import[^;]+;/gi, "").replace(/</g, "\\3c ");
   const parse = (src: string): string => {
     let res = "", pos = 0;
     while (pos < src.length) {

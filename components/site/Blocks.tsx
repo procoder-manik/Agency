@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Block } from "@/lib/blocks";
 import { getPublished, type Entry } from "@/lib/content";
 import { getAllSettings } from "@/lib/settings";
-import { renderMarkdown } from "@/lib/markdown";
+import { renderMarkdown, sanitizeCustomHtml } from "@/lib/markdown";
 import { renderMustache, scopeCss } from "@/lib/mustache";
 import { hash } from "@/lib/templating";
 import { resolveCategory } from "@/lib/portfolio";
@@ -516,7 +516,7 @@ async function Locations({ d }: { d: D }) {
 }
 
 function HtmlBlock({ d }: { d: D }) {
-  const html = String(d.html || "").replace(/<script[\s\S]*?<\/script>/gi, ""); if (!html.trim()) return null;
+  const html = sanitizeCustomHtml(String(d.html || "")); if (!html.trim()) return null;
   const id = "h" + hash(html + (d.css || "")).toString(36);
   const css = d.css ? scopeCss(String(d.css), "#" + id) : "";
   const body = (<div id={id}>{css && <style dangerouslySetInnerHTML={{ __html: css }} />}<div dangerouslySetInnerHTML={{ __html: html }} /></div>);
@@ -537,7 +537,7 @@ async function ModuleBlock({ d }: { d: D }) {
     else ctx[f.name] = v ?? "";
   }
   const id = "m" + m.id + "-" + (hash(JSON.stringify(vals)) % 99999).toString(36);
-  const html = renderMustache(String(m.data.html || ""), ctx).replace(/<script[\s\S]*?<\/script>/gi, "");
+  const html = sanitizeCustomHtml(renderMustache(String(m.data.html || ""), ctx));
   const css = m.data.css ? scopeCss(String(m.data.css), "#" + id) : "";
   return <section className="section"><div className="container-x"><div id={id}>{css && <style dangerouslySetInnerHTML={{ __html: css }} />}<div dangerouslySetInnerHTML={{ __html: html }} /></div></div></section>;
 }

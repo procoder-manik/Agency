@@ -32,7 +32,10 @@ export const PUT = api(async (req: Request) => {
     patch.email = email; emailChanged = true;
   }
   if (b.role && me.role === "admin" && id !== me.uid) patch.role = b.role === "admin" ? "admin" : "editor";
-  if (b.password) { if (String(b.password).length < 10) throw new Error("Passwords need at least 10 characters."); patch.passwordHash = await bcrypt.hash(String(b.password), 12); }
+  if (b.password) {
+    if (String(b.password).length < 10) throw new Error("Passwords need at least 10 characters.");
+    if (id === me.uid && !(await bcrypt.compare(String(b.currentPassword || ""), target.passwordHash))) throw new Error("Enter your current password to change your password.");
+    patch.passwordHash = await bcrypt.hash(String(b.password), 12); }
   if (b.disabled !== undefined && me.role === "admin" && id !== me.uid) patch.deletedAt = b.disabled ? new Date() : null;
   try { await db().update(U).set(patch).where(eq(U.id, id)); }
   catch (e: any) { if (e?.code === "23505" || /duplicate key/i.test(e?.message || "")) throw new Error("Another user already uses this email."); throw e; }

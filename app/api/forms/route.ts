@@ -27,6 +27,8 @@ export async function POST(req: Request) {
     if (f.type === "select" && v && f.options && !parseOptions(f.options).includes(v)) return NextResponse.json({ error: `Please choose a valid option for “${f.label}”.` }, { status: 400 });
     if (v) values[f.name] = v;
   }
+  // The email is used as Reply-To and for the auto-reply, so it must be a real address even if the form field isn't typed "email".
+  if (values.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) return NextResponse.json({ error: "Please enter a valid email address." }, { status: 400 });
   const [sub] = await db().insert(schema.submissions).values({ formId: form?.id ?? null, formName: form?.title || "Contact", values }).returning();
   const s = await getAllSettings();
   const label = (n: string) => String(defs.find((d: any) => d.name === n)?.label || n);

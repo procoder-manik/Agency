@@ -1,10 +1,19 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { NextResponse } from "next/server";
+import { and, eq, isNull } from "drizzle-orm";
+import { db, schema } from "./db";
 import { COOKIE, verifySession, type Role, type Session } from "./jwt";
 
+/** Verifies the cookie, then re-checks the account in the database so disabled users and role changes take effect immediately. */
 export async function getSession(): Promise<Session | null> {
-  return verifySession(cookies().get(COOKIE)?.value);
+  const s = await verifySession(cookies().get(COOKIE)?.value);
+  if (!s) return null;
+  try {
+    const [u] = await db().select({ id: schema.users.id, email: schema.users.email, name: schema.users.name, role: schema.users.role }).from(schema.users).where(and(eq(schema.users.id, s.uid), isNull(schema.users.deletedAt))).limit(1);
+    if (!u) return null;
+    return { uid: u.id, email: u.email, name: u.name, role: u.role === "admin" ? "admin" : "editor" };
+  } catch { return null; }
 }
 
 /** For admin pages: redirect to login (or dashboard if the role is too low). */

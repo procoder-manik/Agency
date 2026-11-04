@@ -2,7 +2,11 @@ import { lookup } from "node:dns/promises";
 import { isIP } from "node:net";
 
 function privateIp(ip: string) {
-  if (ip.includes(":")) { const l = ip.toLowerCase(); return l === "::1" || l.startsWith("fc") || l.startsWith("fd") || l.startsWith("fe80") || l === "::" || l.startsWith("::ffff:127.") || l.startsWith("::ffff:10.") || l.startsWith("::ffff:192.168."); }
+  if (ip.includes(":")) {
+    const l = ip.toLowerCase();
+    const mapped = /^::ffff:(\d+\.\d+\.\d+\.\d+)$/.exec(l); if (mapped) return privateIp(mapped[1]);
+    if (l.startsWith("::ffff:") || l.startsWith("64:ff9b:")) return true; // hex-form mapped/NAT64 addresses: refuse
+    return l === "::1" || l.startsWith("fc") || l.startsWith("fd") || l.startsWith("fe80") || l === "::" || l.startsWith("::ffff:127.") || l.startsWith("::ffff:10.") || l.startsWith("::ffff:192.168."); }
   const [a, b] = ip.split(".").map(Number);
   return a === 10 || a === 127 || a === 0 || (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || (a === 100 && b >= 64 && b <= 127) || a >= 224;
 }
